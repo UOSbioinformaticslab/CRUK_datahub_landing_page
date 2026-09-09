@@ -113,6 +113,22 @@ body {
     transform: translateY(-1px);
 }
 
+/* Thin Navbar Dropdown Menus */
+.thin-navbar ul li ul li a {
+    color: #103067 !important;
+    background-color: transparent !important;
+    padding: 8px 16px !important;
+    font-size: 0.9em !important;
+    border-radius: 4px;
+    transform: none !important;
+}
+
+.thin-navbar ul li ul li a:hover {
+    background-color: #f3f4f6 !important;
+    color: #D10A6F !important;
+    transform: none !important;
+}
+
 /* Main Content Layout */
 .main-content {
     display: flex;

@@ -3,6 +3,7 @@ import { filterDetailsMap, filterData } from '../utils/filter-setup.js';
 import { filterType, includeParents, plusParents, getMessage, calculateLogicTokens
 } from '../utils/logic-utils.js';
 import { executeFilterLogic } from '../utils/filterLogic.js';
+import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
 import React from 'react'; // React is now imported from node_modules
 import "../styles/style.css"
 
@@ -14,7 +15,7 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"
 const { useState, useMemo, useCallback, useEffect } = React;
 
 // Utility component for nested filters with toggle
-const NestedFilterList = ({ items, handleFilterChange, selectedFilters, level = 0 }) => {
+const NestedFilterList = ({ items, handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys, level = 0 }) => {
     if (!items || items.length === 0) return null;
     const itemsArray = Array.isArray(items) ? items : Object.values(items);
 
@@ -26,6 +27,8 @@ const NestedFilterList = ({ items, handleFilterChange, selectedFilters, level = 
                     item={item}
                     handleFilterChange={handleFilterChange}
                     selectedFilters={selectedFilters}
+                    expandedKeys={expandedKeys}
+                    setExpandedKeys={setExpandedKeys}
                     level={level}
                 />
             ))}
@@ -33,7 +36,7 @@ const NestedFilterList = ({ items, handleFilterChange, selectedFilters, level = 
     );
 };
 // Component for a single filter item
-const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, level }) => {
+const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys, level }) => {
     const fullId = item.id;
     const childrenArray = item.children ? Object.values(item.children) : [];
     const hasChildren = childrenArray.length > 0;
@@ -42,11 +45,20 @@ const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, level }) 
     // Check if description exists
     const hasDescription = item.description && item.description.trim().length > 0;
 
-    const [isExpanded, setIsExpanded] = useState(false);
+    const [localExpanded, setLocalExpanded] = useState(false);
+    const isExpanded = localExpanded || (expandedKeys && expandedKeys.has(fullId));
 
     const toggleExpansion = (e) => {
         e.preventDefault();
-        setIsExpanded(prev => !prev);
+        if (setExpandedKeys) {
+            setExpandedKeys(prev => {
+                const next = new Set(prev);
+                if (next.has(fullId)) next.delete(fullId);
+                else next.add(fullId);
+                return next;
+            });
+        }
+        setLocalExpanded(prev => !prev);
     };
 
     const rowIndentStyle = {
@@ -59,9 +71,6 @@ const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, level }) 
 
     return (
         <div className="flex flex-col">
-            {/* FIX 1: Removed 'relative' and 'hover:z-30' from this main row.
-               This stops the "stuttering" and "unwanted shading" glitch.
-            */}
             <div
                 className="flex items-center group hover:var(--cruk-pink) p-1 -m-1 rounded transition duration-100"
                 style={rowIndentStyle}
@@ -69,6 +78,7 @@ const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, level }) 
                 {hasChildren ? (
                     <button
                         type="button"
+                        id={`expand-${fullId}`}
                         className={`transition-transform duration-200 w-4 h-4 flex items-center justify-center text-gray-500 hover:var(--cruk-pink)  mr-1 ${isExpanded ? 'rotate-90' : ''}`}
                         onClick={toggleExpansion}
                         aria-expanded={isExpanded}
@@ -141,6 +151,8 @@ const NestedFilterItem = ({ item, handleFilterChange, selectedFilters, level }) 
                     items={childrenArray}
                     handleFilterChange={handleFilterChange}
                     selectedFilters={selectedFilters}
+                    expandedKeys={expandedKeys}
+                    setExpandedKeys={setExpandedKeys}
                     level={level + 1}
                 />
             )}
@@ -268,7 +280,9 @@ const FilterLogicBuilder = ({
                 role="toolbar"
                 aria-label="Filter Logic Builder"
             >
-                {logicTokens && logicTokens.map((token, idx) => {
+                {(() => {
+                    let andOpCount = 0;
+                    return logicTokens && logicTokens.map((token, idx) => {
                     const isSelected = selectedTokenIndices.includes(idx);
                     if (token.type === 'filter') {
                         return (
@@ -297,6 +311,8 @@ const FilterLogicBuilder = ({
                             </div>
                         );
                     } else if (token.type === 'operator') {
+                        if (token.value === 'AND') andOpCount++;
+                        const isTargetSecondAnd = token.value === 'AND' && andOpCount === 2;
                         return (
                             <div
                                 key={token.keyId || idx}
@@ -315,7 +331,8 @@ const FilterLogicBuilder = ({
                             >
                                 <button 
                                     type="button"
-                                    className="hover:underline font-bold"
+                                    data-tour={isTargetSecondAnd ? "operator-toggle-second-and" : undefined}
+                                    className="hover:underline font-bold px-1 py-0.5 rounded bg-white/40 hover:bg-white/80 transition"
                                     onClick={(e) => { e.stopPropagation(); toggleOperator(idx); }}
                                     title="Click text to toggle AND/OR"
                                     aria-label={`Toggle operator ${token.value}`}
@@ -358,7 +375,8 @@ const FilterLogicBuilder = ({
                         );
                     }
                     return null;
-                })}
+                });
+                })()}
             </div>
 
             {isMessageManuallyEdited && !logicError && (
@@ -447,6 +465,7 @@ const FilterChipArea = ({
 
             <div className="mt-3 flex items-center justify-center space-x-3">
                 <button
+                    data-tour="toggle-logic-builder"
                     onClick={() => setShowAdvancedLogic(!showAdvancedLogic)}
                     className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center transition duration-150"
                 >
@@ -540,6 +559,7 @@ const HelpOverlay = ({ isOpen, onClose }) => {
 // Main Application Component
 export const FilterApp = ({ custodianFilter }) => {
     const [activePanel, setActivePanel] = useState(null);
+    const [selectedClassification, setSelectedClassification] = useState(null);
     const [selectedFilters, setSelectedFilters] = useState(new Set());
     const [snomedOverrides, setSnomedOverrides] = useState({}); // New state
     const [logicTokens, setLogicTokens] = useState([]);
@@ -550,6 +570,7 @@ export const FilterApp = ({ custodianFilter }) => {
     const [isSearching, setIsSearching] = useState(false); // Flag for search status
     const [logicError, setLogicError] = React.useState(false);
     const [showAdvancedLogic, setShowAdvancedLogic] = useState(false);
+    const [expandedKeys, setExpandedKeys] = useState(new Set());
 
     // Flatten all data for efficient searching
     const allFiltersArray = useMemo(() => Array.from(filterDetailsMap.values()), []);
@@ -738,7 +759,11 @@ const renderPanel = () => {
             isSearching,
             pruneHierarchy,
             setSnomedOverrides, // Add this line
-            setSelectedFilters  // Add this line
+            setSelectedFilters,  // Add this line
+            selectedClassification,
+            setSelectedClassification,
+            expandedKeys,
+            setExpandedKeys
         };
         switch (activePanel) {
             case 'cancer':
@@ -797,15 +822,15 @@ return (
 
                             {/* Category Buttons with Questions */}
                             <div className="flex flex-grow justify-around sm:w-3/4">
-                                <button onClick={() => { setActivePanel('cancer'); setSearchTerm(''); }} className={getNavButtonClasses('cancer')}>
+                                <button data-tour="cancer-tab" onClick={() => { setActivePanel('cancer'); setSearchTerm(''); }} className={getNavButtonClasses('cancer')}>
                                     <span className="text-xl font-extrabold">Which Cancers are you interested in? <span className="text-sm opacity-80 font-normal ml-1">({counts.cancer})</span></span>
 
                                 </button>
-                                <button onClick={() => { setActivePanel('data'); setSearchTerm(''); }} className={getNavButtonClasses('data')}>
+                                <button data-tour="data-tab" onClick={() => { setActivePanel('data'); setSearchTerm(''); }} className={getNavButtonClasses('data')}>
                                     <span className="text-xl font-extrabold">What kind of data do you need? <span className="text-sm opacity-80 font-normal ml-1">({counts.data})</span></span>
 
                                 </button>
-                                <button onClick={() => { setActivePanel('access'); setSearchTerm(''); }} className={getNavButtonClasses('access')}>
+                                <button data-tour="access-tab" onClick={() => { setActivePanel('access'); setSearchTerm(''); }} className={getNavButtonClasses('access')}>
                                     <span className="text-xl font-extrabold">Which access restrictions apply? <span className="text-sm opacity-80 font-normal ml-1">({counts.access})</span></span>
 
                                 </button>
@@ -865,6 +890,16 @@ return (
                     </div>
                 </div>
             </div>
+
+            {/* Render Guided Tour Controller */}
+            <GuidedTourController
+                setActivePanel={setActivePanel}
+                setSelectedClassification={setSelectedClassification}
+                setSearchTerm={setSearchTerm}
+                setSelectedFilters={setSelectedFilters}
+                setExpandedKeys={setExpandedKeys}
+                setShowAdvancedLogic={setShowAdvancedLogic}
+            />
         </div>
     );
 };
@@ -905,9 +940,9 @@ const CancerTypePanel = ({ handleFilterChange,
     isSearching,
     pruneHierarchy,
     setSnomedOverrides,
-    setSelectedFilters}) => {
-    // State to track which classification the user has selected
-    const [selectedClassification, setSelectedClassification] = useState(null); // null, 'cruk', 'tcga', 'snomed', 'icdo'
+    setSelectedFilters,
+    selectedClassification,
+    setSelectedClassification}) => {
 
     const cancerGroups = filterData['0_0'].children;
 
@@ -951,6 +986,7 @@ const CancerTypePanel = ({ handleFilterChange,
         return (
             <button
                 type="button"
+                id={`classification-card-${classificationKey}`}
                 className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}
                 onClick={() => setSelectedClassification(classificationKey)}
             >
@@ -1175,7 +1211,7 @@ const CancerTypePanel = ({ handleFilterChange,
     );
 };
 
-const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSearchTerm, filteredIds, isSearching, pruneHierarchy }) => {
+const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSearchTerm, filteredIds, isSearching, pruneHierarchy, expandedKeys, setExpandedKeys }) => {
     const dataTypeGroups = filterData['0_2'].children;
     const primaryGroup = filterData['0_2'].primaryGroup;
 
@@ -1213,7 +1249,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
                         <div id="biobank-samples-list" className={listClass}>
                             <NestedFilterList
                                 items={filteredBiobankItems} // USE FILTERED DATA
-                                {...{handleFilterChange, selectedFilters}}
+                                {...{handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys}}
                             />
                         </div>
                     </div>
@@ -1224,7 +1260,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
                         <div id="invitro-studies-list" className={listClass}>
                             <NestedFilterList
                                 items={filteredInvitroItems} // USE FILTERED DATA
-                                {...{handleFilterChange, selectedFilters}}
+                                {...{handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys}}
                             />
                         </div>
                     </div>
@@ -1235,7 +1271,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
                         <div id="animal-studies-list" className={listClass}>
                             <NestedFilterList
                                 items={filteredAnimalItems} // USE FILTERED DATA
-                                {...{handleFilterChange, selectedFilters}}
+                                {...{handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys}}
                             />
                         </div>
                     </div>
@@ -1246,7 +1282,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
                         <div id="patient-studies-list" className={listClass}>
                             <NestedFilterList
                                 items={filteredPatientItems} // USE FILTERED DATA
-                                {...{handleFilterChange, selectedFilters}}
+                                {...{handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys}}
                             />
                         </div>
                     </div>
@@ -1256,7 +1292,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
                         <div id="techniques-studies-list" className={listClass}>
                             <NestedFilterList
                                 items={filteredNonBioItems} // USE FILTERED DATA
-                                {...{handleFilterChange, selectedFilters}}
+                                {...{handleFilterChange, selectedFilters, expandedKeys, setExpandedKeys}}
                             />
                         </div>
                     </div>

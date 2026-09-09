@@ -20,6 +20,7 @@ export const Header = () => {
     const [isDataCustodiansModalOpen, setIsDataCustodiansModalOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isUploadExpanded, setIsUploadExpanded] = useState(false);
+    const [isTourDropdownOpen, setIsTourDropdownOpen] = useState(false);
 
     useEffect(() => {
         const storedName = localStorage.getItem('userName');
@@ -178,6 +179,56 @@ export const Header = () => {
                             </a>
                         </li>
                     )}
+
+                    <li 
+                        className="relative"
+                        onBlur={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget)) {
+                                setIsTourDropdownOpen(false);
+                            }
+                        }}
+                    >
+                        <a 
+                            href="#" 
+                            onClick={(e) => { e.preventDefault(); setIsTourDropdownOpen(!isTourDropdownOpen); }}
+                            className="nav-link-main font-bold text-yellow-300 flex items-center bg-pink-700/60 hover:bg-pink-700 px-2 py-0.5 rounded transition"
+                        >
+                            Interactive Guided Tour <span className="ml-1 text-xs">▼</span>
+                        </a>
+                        {isTourDropdownOpen && (
+                            <ul className="absolute left-0 mt-2 w-72 bg-white shadow-2xl border border-gray-200 rounded-md py-1.5 z-[100] text-left">
+                                <li>
+                                    <a 
+                                        href="#" 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setIsTourDropdownOpen(false);
+                                            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId: 'simple_filters' } }));
+                                        }}
+                                        className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
+                                        style={{ color: '#103067' }}
+                                    >
+                                        🟢 Simple Filters Demonstration
+                                    </a>
+                                </li>
+                                <li className="border-t border-gray-100 my-1"></li>
+                                <li>
+                                    <a 
+                                        href="#" 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setIsTourDropdownOpen(false);
+                                            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId: 'advanced_filters' } }));
+                                        }}
+                                        className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
+                                        style={{ color: '#103067' }}
+                                    >
+                                        ⚡ Advanced Filters & Logic Demonstration
+                                    </a>
+                                </li>
+                            </ul>
+                        )}
+                    </li>
 
                     {!userName ? (
                         <>
