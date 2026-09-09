@@ -37,6 +37,36 @@ The application is built as a modern Multi-Page Application (MPA) prioritizing f
 
 ---
 
+## 🚀 System Setup & Quick Start
+
+### System Architecture Overview
+
+The CRUK Metadata Catalogue consists of five inter-connected repositories:
+
+1. **Frontend Landing Page** (`CRUK_datahub_landing_page`) — [`git@github.com:UOSbioinformaticslab/CRUK_datahub_landing_page.git`](https://github.com/UOSbioinformaticslab/CRUK_datahub_landing_page)
+   * **Role**: React/Vite user interface running on `http://localhost:5173`. Provides dataset browsing, search, metadata upload forms, custodian management, and live schema documentation views.
+2. **Basic Backend** (`basic/basic_backend`) — [`git@github.com:UOSbioinformaticslab/basic_backend.git`](https://github.com/UOSbioinformaticslab/basic_backend)
+   * **Role**: Core FastAPI database backend running on `http://localhost:8000`. Manages Users, Teams, Datasets (JSON metadata blobs & draft states), Projects, Publications, Tools, and Team Invitations.
+3. **Middle Layer Proxy** (`middle`) — [`git@github.com:UOSbioinformaticslab/cruk-middle-layer.git`](https://github.com/UOSbioinformaticslab/cruk-middle-layer)
+   * **Role**: Administrative FastAPI service running on `http://localhost:8002`. Manages new Data Custodian team request applications (`TeamRequest`) and centralized system error logging (`ErrorLog`).
+4. **CRUK Semantic Schema Viewer & Package** (`semantic-schema/cruk-semantic-schema`) — [`git@github.com:UOSbioinformaticslab/cruk-semantic-schema.git`](https://github.com/UOSbioinformaticslab/cruk-semantic-schema)
+   * **Role**: React component library & standalone interactive UI for rendering the CRUK 1.0.0 semantic schema overlay dynamically fetched from HDRUK schemata.
+5. **AI Microservices** (`ai/ai-microservices`) — *Optional / Private Repository* — [`git@github.com:UOSbioinformaticslab/ai-microservices.git`](https://github.com/UOSbioinformaticslab/ai-microservices)
+   * **Role**: FastAPI AI microservice running on `http://localhost:8001`. Powered by Google Gemini API for intelligent metadata extraction, automated tagging, and semantic search assistance. Note: This repository is private. If you do not have access to it or do not have a Gemini API key, the rest of the CRUK catalogue will run fully and seamlessly without it.
+
+### Quick Start (Single Command Setup & Run)
+
+To automatically create a Python virtual environment, install Node & Python dependencies, verify `.env` files, and launch all available microservices:
+
+```bash
+# Run from this repository directory
+./start_all.sh
+```
+
+Press `Ctrl+C` in the terminal to stop all microservices cleanly.
+
+---
+
 ## 📄 Application Pages
 
 The frontend is divided into several dedicated pages, each focusing on a specific workflow within the Datahub ecosystem:
