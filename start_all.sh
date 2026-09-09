@@ -123,14 +123,16 @@ else
     fi
 fi
 
-# 5. Port Cleanup (8000, 8001, 8002, 5173)
-echo -e "${GREEN}[5/5] Checking ports (8000, 8001, 8002, 5173)...${NC}"
-PIDS=$(lsof -t -i:8000 -i:8001 -i:8002 -i:5173 2>/dev/null || true)
-if [ -n "$PIDS" ]; then
-    echo "  -> Freeing occupied ports..."
-    kill -9 $PIDS 2>/dev/null || true
-    sleep 1
-fi
+# 5. Robust Port Cleanup per port (8000, 8001, 8002, 5173)
+echo -e "${GREEN}[5/5] Freeing ports (8000, 8001, 8002, 5173)...${NC}"
+for port in 8000 8001 8002 5173; do
+    PORT_PIDS=$(lsof -t -i :$port 2>/dev/null || true)
+    if [ -n "$PORT_PIDS" ]; then
+        echo "  -> Freeing port $port (PIDs: $PORT_PIDS)..."
+        kill -9 $PORT_PIDS 2>/dev/null || true
+    fi
+done
+sleep 1
 
 # Graceful Shutdown Handler for Ctrl+C
 cleanup() {
