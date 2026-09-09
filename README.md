@@ -54,9 +54,27 @@ The CRUK Metadata Catalogue consists of five inter-connected repositories:
 5. **AI Microservices** (`ai/ai-microservices`) — *Optional / Private Repository* — [`git@github.com:UOSbioinformaticslab/ai-microservices.git`](https://github.com/UOSbioinformaticslab/ai-microservices)
    * **Role**: FastAPI AI microservice running on `http://localhost:8001`. Powered by Google Gemini API for intelligent metadata extraction, automated tagging, and semantic search assistance. Note: This repository is private. If you do not have access to it or do not have a Gemini API key, the rest of the CRUK catalogue will run fully and seamlessly without it.
 
+### Environment Setup (`.env` Configuration)
+
+Each backend service requires a local `.env` configuration file to operate properly:
+
+1. **Automatic `.env` Creation**:
+   When you run `./start_all.sh`, the script automatically detects missing `.env` files and creates them from their `.env.example` templates.
+2. **Manual Setup**:
+   You can also manually copy template files before starting:
+   ```bash
+   cp ../basic/basic_backend/.env.example ../basic/basic_backend/.env
+   cp ../middle/.env.example ../middle/.env
+   cp ../ai/ai-microservices/.env.example ../ai/ai-microservices/.env  # Optional
+   ```
+3. **Variable Customization**:
+   * `basic/basic_backend/.env`: Configure `ADMIN_PASSWORD="your-admin-password"`, `SECRET_KEY`, and `DATABASE_URL` (SQLite `sqlite:///./cruk_datahub.db`).
+   * `middle/.env`: Configure `DATABASE_URL` (SQLite `sqlite:///./middlelayer.db`).
+   * `ai/ai-microservices/.env`: Configure `GEMINI_API_KEY="your-google-gemini-api-key"`. *(Optional / Private repo)*.
+
 ### Quick Start (Single Command Setup & Run)
 
-To automatically create a Python virtual environment, install Node & Python dependencies, verify `.env` files, and launch all available microservices:
+To automatically create a Python virtual environment, install Node & Python dependencies, verify/create `.env` files, and launch all available microservices:
 
 ```bash
 # Run from this repository directory
