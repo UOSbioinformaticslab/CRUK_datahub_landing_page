@@ -48,6 +48,22 @@ export const Header = () => {
         window.location.reload(); // Refresh to update context
     };
 
+    const triggerTour = (tourId) => {
+        setIsTourDropdownOpen(false);
+        const currentPath = window.location.pathname;
+        const isDatasets = currentPath.endsWith('datasets.html') || currentPath === '/' || currentPath.endsWith('/');
+        const isDashboard = currentPath.endsWith('dashboard.html');
+
+        if (isDatasets) {
+            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId, stepIndex: 1 } }));
+        } else if (isDashboard) {
+            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId, stepIndex: 0 } }));
+        } else {
+            sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId, stepIndex: 0 }));
+            window.location.href = './dashboard.html';
+        }
+    };
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userName');
@@ -191,7 +207,7 @@ export const Header = () => {
                         <a 
                             href="#" 
                             onClick={(e) => { e.preventDefault(); setIsTourDropdownOpen(!isTourDropdownOpen); }}
-                            className="nav-link-main font-bold text-yellow-300 flex items-center bg-pink-700/60 hover:bg-pink-700 px-2 py-0.5 rounded transition"
+                            className="nav-link-main font-bold text-yellow-300 flex items-center"
                         >
                             Interactive Guided Tour <span className="ml-1 text-xs">▼</span>
                         </a>
@@ -202,8 +218,7 @@ export const Header = () => {
                                         href="#" 
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            setIsTourDropdownOpen(false);
-                                            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId: 'simple_filters' } }));
+                                            triggerTour('simple_filters', 'datasets.html');
                                         }}
                                         className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
                                         style={{ color: '#103067' }}
@@ -217,8 +232,7 @@ export const Header = () => {
                                         href="#" 
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            setIsTourDropdownOpen(false);
-                                            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId: 'advanced_filters' } }));
+                                            triggerTour('advanced_filters', 'datasets.html');
                                         }}
                                         className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
                                         style={{ color: '#103067' }}
