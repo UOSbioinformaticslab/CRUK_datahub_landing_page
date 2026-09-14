@@ -51,6 +51,7 @@ export const Header = () => {
         localStorage.removeItem('token');
         localStorage.removeItem('userName');
         localStorage.removeItem('userId');
+        localStorage.removeItem('user_id');
         localStorage.removeItem('teamId');
         localStorage.removeItem('activeTeamId');
         localStorage.removeItem('userTeams');

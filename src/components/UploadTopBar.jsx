@@ -174,19 +174,119 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
         }
     };
 
+    const getLoggedInUserId = () => {
+        const rawId = localStorage.getItem('userId') || localStorage.getItem('user_id');
+        if (rawId && rawId !== 'undefined' && rawId !== 'null') {
+            const parsed = parseInt(rawId, 10);
+            if (!isNaN(parsed) && parsed > 0) return parsed;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const base64Url = token.split('.')[1];
+                if (base64Url) {
+                    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+                        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                    }).join(''));
+                    const decoded = JSON.parse(jsonPayload);
+                    const jwtUserId = decoded.user_id || decoded.userId || decoded.sub || decoded.id;
+                    if (jwtUserId && !isNaN(parseInt(jwtUserId, 10))) {
+                        const parsedJwtId = parseInt(jwtUserId, 10);
+                        localStorage.setItem('userId', parsedJwtId.toString());
+                        return parsedJwtId;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("Error decoding JWT token for user_id:", e);
+        }
+
+        return null;
+    };
+
+    const getLoggedInTeamId = () => {
+        const rawTeamId = localStorage.getItem('activeTeamId') || localStorage.getItem('teamId');
+        if (rawTeamId && rawTeamId !== 'undefined' && rawTeamId !== 'null') {
+            const parsed = parseInt(rawTeamId, 10);
+            if (!isNaN(parsed) && parsed > 0) return parsed;
+        }
+        return null;
+    };
+
     const transformForPHP = (data, markActive) => {
+        const teamId = getLoggedInTeamId();
+        const userId = getLoggedInUserId();
+
+        const pg = data.projectGrant || {};
+
+        const cleanVal = (val) => {
+            if (val === undefined || val === null || val === "" || val === "null" || val === "undefined") {
+                return null;
+            }
+            return typeof val === 'string' ? val.trim() : val;
+        };
+
+        const name = cleanVal(data.projectGrantName || pg.projectGrantName || data.summary?.title);
+        const researcher = cleanVal(data.leadResearcher || pg.leadResearcher);
+        const institute = cleanVal(data.leadResearchInstitute || pg.leadResearchInstitute);
+        const grants = cleanVal(data.grantNumbers || data.grantNumber || pg.grantNumber || pg.grantNumbers);
+        const startDate = cleanVal(data.projectGrantStartDate || pg.projectGrantStartDate);
+        const endDate = cleanVal(data.projectGrantEndDate || pg.projectGrantEndDate);
+        const scope = cleanVal(data.projectGrantScope || pg.projectGrantScope);
+
+        // Standard keys mapped directly to top-level database columns
+        const standardKeys = new Set([
+            'pid', 'version', 'projectGrant', 'projectGrantName', 'leadResearcher', 
+            'leadResearchInstitute', 'grantNumber', 'grantNumbers', 'projectGrantStartDate', 
+            'projectGrantEndDate', 'projectGrantScope', 'project_grant_name', 'lead_researcher', 
+            'lead_research_institute', 'grant_numbers', 'project_grant_start_date', 
+            'project_grant_end_date', 'project_grant_scope', 'team_id', 'user_id', 'status', 'icons'
+        ]);
+
+        const flatData = { ...data, ...pg };
+        const extraData = {};
+
+        Object.keys(flatData).forEach(key => {
+            if (!standardKeys.has(key)) {
+                const val = flatData[key];
+                const isValEmpty = val === null || val === undefined || val === "" ||
+                    (Array.isArray(val) && val.length === 0) ||
+                    (typeof val === 'object' && Object.keys(val).length === 0);
+
+                if (!isValEmpty) {
+                    extraData[key] = val;
+                }
+            }
+        });
+
         return {
-            team_id: parseInt(localStorage.getItem('activeTeamId')),
-            pid: data.pid || "",
-            version: data.version || "1.0.0",
-            projectGrantName: data.projectGrantName || "",
-            leadResearcher: data.leadResearcher || "",
-            leadResearchInstitute: data.leadResearchInstitute || "",
-            grantNumbers: data.grantNumbers || "",
-            projectGrantStartDate: data.projectGrantStartDate || "",
-            projectGrantEndDate: data.projectGrantEndDate || "",
-            projectGrantScope: data.projectGrantScope || "",
-            metadata_blob: {},
+            team_id: teamId,
+            user_id: userId,
+            pid: cleanVal(data.pid || pg.pid) || undefined,
+            version: cleanVal(data.version || pg.version) || "1.0.0",
+
+            // snake_case keys (mapped to database columns)
+            project_grant_name: name,
+            lead_researcher: researcher,
+            lead_research_institute: institute,
+            grant_numbers: grants,
+            project_grant_start_date: startDate,
+            project_grant_end_date: endDate,
+            project_grant_scope: scope,
+
+            // camelCase keys (for backwards compatibility)
+            projectGrantName: name,
+            leadResearcher: researcher,
+            leadResearchInstitute: institute,
+            grantNumbers: grants,
+            projectGrantStartDate: startDate,
+            projectGrantEndDate: endDate,
+            projectGrantScope: scope,
+
+            // Only populate metadata_blob if extra unmapped fields exist
+            metadata_blob: Object.keys(extraData).length > 0 ? extraData : {},
             status: markActive ? "ACTIVE" : "DRAFT"
         };
     };
@@ -273,9 +373,12 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
             if (isProject) {
                 payload = transformForPHP(processedData, markActive);
             } else {
+                const teamId = getLoggedInTeamId();
+                const userId = getLoggedInUserId();
                 payload = {
                     metadata_blob: processedData,
-                    team_id: parseInt(localStorage.getItem('activeTeamId')),
+                    team_id: teamId,
+                    user_id: userId,
                     active: markActive,
                     status: markActive ? "ACTIVE" : "DRAFT",
                     unpublish: unpublish

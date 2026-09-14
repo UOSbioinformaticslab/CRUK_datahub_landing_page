@@ -434,7 +434,7 @@ const SchemaPage = () => {
                 questionData={questionData}
             />
 
-            <UploadTopBar formData={formData} schema={DATA_SCHEMA} prefixIconMapping={prefixIconMapping} />
+            <UploadTopBar formData={formData} schema={DATA_SCHEMA} prefixIconMapping={prefixIconMapping} pageType="project" />
 
 
 

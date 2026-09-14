@@ -45,6 +45,7 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
             // Save core auth data immediately
             localStorage.setItem('userId', data.user.id.toString());
+            localStorage.setItem('user_id', data.user.id.toString());
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('userName', data.user.name);
             localStorage.setItem('userEmail', data.user.email);

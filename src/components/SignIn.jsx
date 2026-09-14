@@ -26,7 +26,8 @@ export const SignIn = ({ onLoginSuccess }) => {
 
             localStorage.setItem('token', data.access_token);
             localStorage.setItem('userName', data.user.name);
-            localStorage.setItem('userId', data.user.id);
+            localStorage.setItem('userId', data.user.id.toString());
+            localStorage.setItem('user_id', data.user.id.toString());
             localStorage.setItem('isAdmin', data.user.is_admin ? "true" : "false");
             if (data.user.teams && data.user.teams.length > 0) {
                 localStorage.setItem('teamId', data.user.teams[0].id);
