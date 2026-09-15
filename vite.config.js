@@ -2,8 +2,18 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { existsSync } from 'fs'
+
+const localSemanticSchema = resolve(__dirname, '../semantic-schema/cruk-semantic-schema/src/SchemaDocViewer.jsx')
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      'cruk-semantic-schema': existsSync(localSemanticSchema)
+        ? localSemanticSchema
+        : 'cruk-semantic-schema',
+    },
+  },
   plugins: [react({
     // FIX: Changed "{jsx.js}" to "{jsx,js}" for correct syntax
     include: "**/*.{jsx,js}",
