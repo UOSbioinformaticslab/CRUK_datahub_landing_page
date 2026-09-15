@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
 
 
 export const DatahubDashboard = () => {
@@ -240,7 +241,7 @@ export const DatahubDashboard = () => {
 
       {/* Navigation Grid */}
       <div style={gridStyle}>
-        <a href="./datasets.html" style={buttonStyle}>Browse or Search Datasets</a>
+        <a href="./datasets.html" id="browse-datasets-btn" data-tour="browse-datasets" style={buttonStyle}>Browse or Search Datasets</a>
         <a href="./projects.html" style={buttonStyle}>Browse or Search Projects</a>
         <a href="./publications.html" style={buttonStyle}>Browse or Search Associated Publications</a>
         <a href="./tools.html" style={buttonStyle}>Browse or Search Associated Tools</a>
@@ -260,6 +261,7 @@ export const DatahubDashboard = () => {
           </div>
         </a>
       </div>
+      <GuidedTourController />
     </div>
   );
 };
