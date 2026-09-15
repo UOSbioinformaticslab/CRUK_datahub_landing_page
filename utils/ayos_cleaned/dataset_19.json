@@ -1,0 +1,147 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890be",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890be",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890be",
+            "issued": "2018-01-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://gog.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890be"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data reclassifying endometrial carcinomas based on POLE mutation, MMR deficiency, and p53 abnormality to guide adjuvant therapy.",
+            "contactPoint": "access@gog.org",
+            "keywords": "Endometrial;,;Cancer;,;Molecular;,;Classification;,;MMR",
+            "populationSize": 2600,
+            "description": "Other data types:\n- Immunohistochemistry Slides (application/svs): Stains for MLH1, PMS2, MSH2, MSH6, and p53",
+            "doiName": "10.2001/data.08",
+            "shortTitle": "Endometrial Cancer Molecular Classification Registry",
+            "title": "Endometrial Cancer Molecular Classification Registry",
+            "leadResearcher": "Dr. E. Evans",
+            "leadResearchInstitute": "Institute of Women's Cancer",
+            "publisher": {
+                "name": "Gynecologic Oncology Group",
+                "gatewayId": "https://ror.org/08endo"
+            },
+            "dataCustodian": {
+                "name": "Gynecologic Oncology Group",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Gynecologic Oncology Group",
+                "dataProcessor": "Gynecologic Oncology Group",
+                "accessRights": "https://www.gog.org/terms",
+                "accessService": "https://www.gog.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 2600,
+                "observationDate": "2023-12-31",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_10_3",
+                "label": "C54 Corpus uteri",
+                "category": "C51-C58 Female genital organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_5_161",
+                "label": "8380/3 Endometrioid adenocarcinoma, NOS",
+                "category": "814-838 Adenomas and adenocarcinomas",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_0",
+                "label": "no restriction",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "No restriction on use. (DUO_0000004)"
+            },
+            {
+                "id": "0_2_4_4_0",
+                "label": "Biological molecules (eg DNA)",
+                "category": "Multi-omic Data",
+                "primaryGroup": "data-type",
+                "description": "genomics/proteomics etc"
+            },
+            {
+                "id": "0_2_0_0_2",
+                "label": "Genetic material",
+                "category": "Material type",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_3",
+                "label": "Mechanobiology",
+                "category": "Techniques",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "19_000",
+                "projectGrantName": "Molecular Typing in Endometrial Cancer",
+                "leadResearcher": "Dr. E. Evans",
+                "leadResearchInstitute": "Institute of Women's Cancer",
+                "grantNumber": "MRC-888",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-12-31",
+                "projectGrantScope": "IHC profiles, sequencing, and recurrence data"
+            },
+            {
+                "pid": "19_001",
+                "projectGrantName": "Molecular Typing in Endometrial Cancer in Young People",
+                "leadResearcher": "Dr. E. Evans",
+                "leadResearchInstitute": "Institute of Women's Cancer",
+                "grantNumber": "MRC-889",
+                "projectGrantStartDate": "2020-01-01",
+                "projectGrantEndDate": "2026-12-31",
+                "projectGrantScope": "IHC profiles, sequencing, and recurrence data"
+            }
+        ],
+        "icons": [
+            "Genomics",
+            "Pathology"
+        ],
+        "erd": {
+            "image": "https://github.com/gog/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890be"
+    }
+}

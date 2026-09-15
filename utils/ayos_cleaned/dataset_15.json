@@ -1,0 +1,136 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890ba",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890ba",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890ba",
+            "issued": "2018-01-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://tgic.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890ba"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data tracking the prognostic value of circulating tumor DNA in locally advanced esophageal squamous cell carcinoma treated with chemoradiation.",
+            "contactPoint": "registry@tgic.org",
+            "keywords": "Esophageal;,;Cancer;,;ESCC;,;ctDNA;,;Chemoradiation",
+            "populationSize": 950,
+            "description": "Other data types:\n- PET-CT Scans (application/dicom): Metabolic response assessments",
+            "doiName": "10.2001/data.04",
+            "shortTitle": "Esophageal Squamous Cell Carcinoma Biomarker Registry",
+            "title": "Esophageal Squamous Cell Carcinoma Biomarker Registry",
+            "leadResearcher": "Dr. L. Wang",
+            "leadResearchInstitute": "Thoracic Oncology Center",
+            "publisher": {
+                "name": "Thoracic and GI Consortium",
+                "gatewayId": "https://ror.org/04esophageal"
+            },
+            "dataCustodian": {
+                "name": "Thoracic and GI Consortium",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Thoracic and GI Consortium",
+                "dataProcessor": "Thoracic and GI Consortium",
+                "accessRights": "https://www.tgic.org/terms",
+                "accessService": "https://www.tgic.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 3800,
+                "observationDate": "2023-12-31",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_1",
+                "label": "C15-C26 Digestive organs",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_2_14",
+                "label": "8070/3 Squamous cell carcinoma, NOS",
+                "category": "805-808 Squamous cell neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_5",
+                "label": "non-commercial use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "Limited to not-for-profit use.(DUO_0000046)"
+            },
+            {
+                "id": "0_2_2_3_0",
+                "label": "Behavioural data",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_2_2",
+                "label": "Immunohistochemistry",
+                "category": "Biopsy & Lab Results",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_1_2_3",
+                "label": "Radiation",
+                "category": "Treatment",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "15_000",
+                "projectGrantName": "ctDNA in Esophageal Cancer",
+                "leadResearcher": "Dr. L. Wang",
+                "leadResearchInstitute": "Thoracic Oncology Center",
+                "grantNumber": "CRUK-444",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-12-31",
+                "projectGrantScope": "ctDNA profiles and PET-CT imaging"
+            }
+        ],
+        "icons": [
+            "Genomics",
+            "Imaging"
+        ],
+        "erd": {
+            "image": "https://github.com/tgic/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890ba"
+    }
+}

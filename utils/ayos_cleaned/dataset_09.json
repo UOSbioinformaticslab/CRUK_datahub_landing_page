@@ -1,0 +1,142 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b4",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b4",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b4",
+            "issued": "2015-05-01T00:00:00Z",
+            "modified": "2024-02-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.endocrineoncology.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b4"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data tracking recurrence and genomic markers in papillary thyroid carcinoma post-thyroidectomy and radioiodine ablation.",
+            "contactPoint": "registry@endocrineoncology.org",
+            "keywords": "Thyroid;,;Cancer;,;Papillary;,;Genomics;,;Radioiodine",
+            "populationSize": 3120,
+            "description": "Other data types:\n- Neck Ultrasound Scans (application/dicom): High-resolution sonograms of the thyroid bed and cervical lymph nodes",
+            "doiName": "10.1300/data.99",
+            "shortTitle": "Thyroid Cancer Genomic and Follow-up Cohort",
+            "title": "Thyroid Cancer Genomic and Follow-up Cohort",
+            "leadResearcher": "Dr. Thomas Silva",
+            "leadResearchInstitute": "Institute of Endocrine Sciences",
+            "publisher": {
+                "name": "Endocrine Oncology Group",
+                "gatewayId": "https://ror.org/088888m77"
+            },
+            "dataCustodian": {
+                "name": "Endocrine Oncology Group",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Endocrine Oncology Group",
+                "dataProcessor": "Endocrine Oncology Group",
+                "accessRights": "https://www.endocrineoncology.org/terms",
+                "accessService": "https://www.endocrineoncology.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Persons",
+                "measuredValue": 3120,
+                "observationDate": "2023-11-30",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_14",
+                "label": "C73-C75 Thyroid and other endocrine glands",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_2_2",
+                "label": "8050/3 Papillary carcinoma, NOS",
+                "category": "805-808 Squamous cell neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_5",
+                "label": "non-commercial use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "Limited to not-for-profit use.(DUO_0000046)"
+            },
+            {
+                "id": "0_2_3_2_0",
+                "label": "Patient-Reported Outcomes",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_0_4",
+                "label": "Rabbit",
+                "category": "Organism",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_3",
+                "label": "Mechanobiology",
+                "category": "Techniques",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_0_0_3",
+                "label": "Other Fluids - eg urine",
+                "category": "Material type",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "09_000",
+                "projectGrantName": "BRAF Mutations in Thyroid Cancer Recurrence",
+                "leadResearcher": "Dr. Thomas Silva",
+                "leadResearchInstitute": "Institute of Endocrine Sciences",
+                "grantNumber": "TCT-234, MRC-889",
+                "projectGrantStartDate": "2016-01-01",
+                "projectGrantEndDate": "2023-12-31",
+                "projectGrantScope": "Surgical pathology reports, sequencing data, and longitudinal thyroglobulin levels"
+            }
+        ],
+        "icons": [
+            "Endocrinology",
+            "Genomics"
+        ],
+        "erd": {
+            "image": "https://github.com/EndocrineOncology/ptc_db/blob/main/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b4"
+    }
+}

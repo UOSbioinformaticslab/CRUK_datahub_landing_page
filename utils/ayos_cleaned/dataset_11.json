@@ -1,0 +1,144 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b6",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b6",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b6",
+            "issued": "2020-06-01T00:00:00Z",
+            "modified": "2024-09-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.myelomaresearch.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b6"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data tracking bone marrow microenvironment changes and measurable residual disease in patients undergoing CAR-T cell therapy for relapsed/refractory multiple myeloma.",
+            "contactPoint": "access@myelomaresearch.org",
+            "keywords": "Multiple Myeloma;,;Bone Marrow;,;Microenvironment;,;CAR-T;,;MRD",
+            "populationSize": 850,
+            "description": "Other data types:\n- Whole Body PET-CT (application/dicom): Metabolic imaging to assess extramedullary disease burden",
+            "doiName": "10.1500/data.62",
+            "shortTitle": "Multiple Myeloma Bone Marrow Microenvironment Cohort",
+            "title": "Multiple Myeloma Bone Marrow Microenvironment Cohort",
+            "leadResearcher": "Dr. Hannah Brooks",
+            "leadResearchInstitute": "Institute of Hematologic Oncology",
+            "publisher": {
+                "name": "Myeloma Research Institute",
+                "gatewayId": "https://ror.org/033mm4455"
+            },
+            "dataCustodian": {
+                "name": "Myeloma Research Institute",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Myeloma Research Institute",
+                "dataProcessor": "Myeloma Research Institute",
+                "accessRights": "https://www.myelomaresearch.org/terms",
+                "accessService": "https://www.myelomaresearch.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 2550,
+                "observationDate": "2024-06-01",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_4",
+                "label": "C42 Hematopoietic and reticuloendothelial systems",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_41_1",
+                "label": "9732/3 Plasma cell myeloma",
+                "category": "973 Plasma cell neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_8",
+                "label": "generally available for UK/EU use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "International collaborations outside the EU not generally permitted."
+            },
+            {
+                "id": "0_2_4_4_0_0",
+                "label": "Epigenomics",
+                "category": "Biological molecules (eg DNA)",
+                "primaryGroup": "data-type",
+                "description": "chemical modifications to DNA/histones"
+            },
+            {
+                "id": "0_2_3_2_3",
+                "label": "Survival data",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_3_2_2",
+                "label": "Side effects",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_4_0_3",
+                "label": "Metagenomics",
+                "category": "Biological molecules (eg DNA)",
+                "primaryGroup": "data-type",
+                "description": "genetic material from multiple organisms (usually microbes) living together"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "11_000",
+                "projectGrantName": "Microenvironmental Drivers of CAR-T Resistance",
+                "leadResearcher": "Dr. Hannah Brooks",
+                "leadResearchInstitute": "Institute of Hematologic Oncology",
+                "grantNumber": "IMF-332, MRC-771",
+                "projectGrantStartDate": "2020-09-01",
+                "projectGrantEndDate": "2025-08-31",
+                "projectGrantScope": "scRNA-seq data, flow cytometry logs, and clinical survival tracking"
+            }
+        ],
+        "icons": [
+            "Hematology",
+            "Cellular Therapy"
+        ],
+        "erd": {
+            "image": "https://github.com/MyelomaResearch/mrd_db/blob/main/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b6"
+    }
+}

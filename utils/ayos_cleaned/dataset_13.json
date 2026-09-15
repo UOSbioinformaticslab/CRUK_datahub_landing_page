@@ -1,0 +1,143 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b8",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b8",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b8",
+            "issued": "2018-01-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://whrc.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b8"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data monitoring viral integration sites and genomic instability in high-risk HPV-associated cervical carcinomas.",
+            "contactPoint": "access@whrc.org",
+            "keywords": "Cervical;,;Cancer;,;HPV;,;Integration;,;Genomics",
+            "populationSize": 2200,
+            "description": "Other data types:\n- Colposcopy Images (application/jpeg): Digital images of cervix post-acetic acid",
+            "doiName": "10.2001/data.02",
+            "shortTitle": "Cervical Cancer HPV Integration Cohort",
+            "title": "Cervical Cancer HPV Integration Cohort",
+            "leadResearcher": "Dr. M. Garcia",
+            "leadResearchInstitute": "Women's Health Institute",
+            "publisher": {
+                "name": "Women's Health Research Center",
+                "gatewayId": "https://ror.org/02cervical"
+            },
+            "dataCustodian": {
+                "name": "Women's Health Research Center",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Women's Health Research Center",
+                "dataProcessor": "Women's Health Research Center",
+                "accessRights": "https://www.whrc.org/terms",
+                "accessService": "https://www.whrc.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 8800,
+                "observationDate": "2023-12-31",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_10_2",
+                "label": "C53 Cervix uteri",
+                "category": "C51-C58 Female genital organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_2_14",
+                "label": "8070/3 Squamous cell carcinoma, NOS",
+                "category": "805-808 Squamous cell neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_3",
+                "label": "ethics approval required",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "DUO_0000021"
+            },
+            {
+                "id": "0_2_4_6",
+                "label": "Spectroscopy",
+                "category": "Techniques",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_0_1_0",
+                "label": "Malignant",
+                "category": "State",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_4_0_1_1",
+                "label": "Indels",
+                "category": "Genomics",
+                "primaryGroup": "data-type",
+                "description": "small insertions or deletions"
+            },
+            {
+                "id": "0_2_2_0_0",
+                "label": "Chicken",
+                "category": "Organism",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "13_000",
+                "projectGrantName": "HPV Integration and Oncogenesis",
+                "leadResearcher": "Dr. M. Garcia",
+                "leadResearchInstitute": "Women's Health Institute",
+                "grantNumber": "WT-222",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-12-31",
+                "projectGrantScope": "Cytology and genomic sequence data"
+            }
+        ],
+        "icons": [
+            "Genomics",
+            "Screening"
+        ],
+        "erd": {
+            "image": "https://github.com/whrc/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b8"
+    }
+}

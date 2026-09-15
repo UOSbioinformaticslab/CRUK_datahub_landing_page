@@ -1,0 +1,148 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890bc",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890bc",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890bc",
+            "issued": "2018-01-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://hnoc.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890bc"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data analyzing swallowing preservation and toxicity in patients receiving intensity-modulated radiotherapy for HNSCC.",
+            "contactPoint": "registry@hnoc.org",
+            "keywords": "HNSCC;,;Cancer;,;Radiotherapy;,;Toxicity;,;Dysphagia",
+            "populationSize": 1800,
+            "description": "Other data types:\n- RT Dose Volumes (application/dicom-rt): Radiation dose distributions",
+            "doiName": "10.2001/data.06",
+            "shortTitle": "Head and Neck Squamous Cell Carcinoma Radiotherapy Registry",
+            "title": "Head and Neck Squamous Cell Carcinoma Radiotherapy Registry",
+            "leadResearcher": "Dr. T. Davies",
+            "leadResearchInstitute": "Radiation Oncology Institute",
+            "publisher": {
+                "name": "Head & Neck Oncology Collaborative",
+                "gatewayId": "https://ror.org/06hnscc"
+            },
+            "dataCustodian": {
+                "name": "Head & Neck Oncology Collaborative",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Head & Neck Oncology Collaborative",
+                "dataProcessor": "Head & Neck Oncology Collaborative",
+                "accessRights": "https://www.hnoc.org/terms",
+                "accessService": "https://www.hnoc.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Events",
+                "measuredValue": 63000,
+                "observationDate": "2023-12-31",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_0",
+                "label": "C00-C14 Lip, oral cavity and pharynx",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_2_14",
+                "label": "8070/3 Squamous cell carcinoma, NOS",
+                "category": "805-808 Squamous cell neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_2",
+                "label": "collaboration required",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "Requestor must agree to collaboration with the primary study investigator(s).(DUO_0000020)"
+            },
+            {
+                "id": "0_2_4_1",
+                "label": "Crystallography",
+                "category": "Techniques",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_0_2",
+                "label": "Fruit fly",
+                "category": "Organism",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_1_1_1",
+                "label": "Patient derived",
+                "category": "Cell Source",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_3_0",
+                "label": "Background",
+                "category": "Patient study",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_3_1",
+                "label": "Clinical observations",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "17_000",
+                "projectGrantName": "Functional Outcomes Post-IMRT",
+                "leadResearcher": "Dr. T. Davies",
+                "leadResearchInstitute": "Radiation Oncology Institute",
+                "grantNumber": "NIH-666",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-12-31",
+                "projectGrantScope": "RT dose distributions and swallowing assessments"
+            }
+        ],
+        "icons": [
+            "Radiotherapy",
+            "Clinical Data"
+        ],
+        "erd": {
+            "image": "https://github.com/hnoc/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890bc"
+    }
+}

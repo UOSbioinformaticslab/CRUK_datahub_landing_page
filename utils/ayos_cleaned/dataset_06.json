@@ -1,0 +1,136 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b1",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b1",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b1",
+            "issued": "2021-01-01T00:00:00Z",
+            "modified": "2024-04-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.womensneoplasm.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b1"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data linking clinical chemotherapy response in high-grade serous ovarian cancer to drug screening results derived from patient-derived organoids.",
+            "contactPoint": "requests@womensneoplasm.org",
+            "keywords": "Ovarian;,;Cancer;,;Organoids;,;Chemoresistance;,;PARP",
+            "populationSize": 640,
+            "description": "Other data types:\n- Brightfield Microscopy Images (application/tiff): Time-lapse imaging of organoid growth and drug response",
+            "doiName": "10.8000/data.11",
+            "shortTitle": "Ovarian Cancer Organoid and Chemoresistance Cohort",
+            "title": "Ovarian Cancer Organoid and Chemoresistance Cohort",
+            "leadResearcher": "Dr. Amina Patel",
+            "leadResearchInstitute": "Institute of Gynecological Oncology",
+            "publisher": {
+                "name": "Women's Neoplasm Consortium",
+                "gatewayId": "https://ror.org/011222g77"
+            },
+            "dataCustodian": {
+                "name": "Women's Neoplasm Consortium",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Women's Neoplasm Consortium",
+                "dataProcessor": "Women's Neoplasm Consortium",
+                "accessRights": "https://www.womensneoplasm.org/terms",
+                "accessService": "https://www.womensneoplasm.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 1280,
+                "observationDate": "2024-01-01",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_10_5",
+                "label": "C56 Ovary",
+                "category": "C51-C58 Female genital organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_8_3",
+                "label": "8441/3 Serous carcinoma, NOS",
+                "category": "844-849 Cystic, mucinous and serous neoplasms",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_0",
+                "label": "no restriction",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "No restriction on use. (DUO_0000004)"
+            },
+            {
+                "id": "0_2_3_4_3",
+                "label": "Phase 3",
+                "category": "Clinical Trial",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_4_1",
+                "label": "Cell and cell-derived treatments",
+                "category": "Treatments",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_2_0",
+                "label": "Biomarkers",
+                "category": "Biopsy & Lab Results",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "06_000",
+                "projectGrantName": "Organoid Modeling for PARP Inhibitor Resistance",
+                "leadResearcher": "Dr. Amina Patel",
+                "leadResearchInstitute": "Institute of Gynecological Oncology",
+                "grantNumber": "OCA-990, NIH-R01-443",
+                "projectGrantStartDate": "2021-03-01",
+                "projectGrantEndDate": "2026-02-28",
+                "projectGrantScope": "drug screening viability data, genomic profiles, and clinical response logs"
+            }
+        ],
+        "icons": [
+            "Preclinical Models",
+            "Genomics"
+        ],
+        "erd": {
+            "image": "https://github.com/WomensNeoplasm/organoid_db/blob/main/docs/erd.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b1"
+    }
+}

@@ -1,0 +1,135 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890af",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890af",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890af",
+            "issued": "2016-01-01T00:00:00Z",
+            "modified": "2023-12-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.uro-oncology.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890af"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data monitoring disease progression in men with low-risk localized prostate cancer managed through active surveillance. Includes longitudinal PSA kinetics and multiparametric MRI findings.",
+            "contactPoint": "data-requests@uro-oncology.org",
+            "keywords": "Prostate;,;Cancer;,;Active Surveillance;,;PSA;,;mpMRI",
+            "populationSize": 5820,
+            "description": "Other data types:\n- Multiparametric MRI (application/dicom): T2-weighted, diffusion-weighted, and dynamic contrast-enhanced prostate imaging",
+            "doiName": "10.6000/data.55",
+            "shortTitle": "Prostate Cancer Active Surveillance and Progression Registry",
+            "title": "Prostate Cancer Active Surveillance and Progression Registry",
+            "leadResearcher": "Dr. Marcus Thorne",
+            "leadResearchInstitute": "Institute of Urological Sciences",
+            "publisher": {
+                "name": "Urological Oncology Collaborative",
+                "gatewayId": "https://ror.org/077111p22"
+            },
+            "dataCustodian": {
+                "name": "Urological Oncology Collaborative",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Urological Oncology Collaborative",
+                "dataProcessor": "Urological Oncology Collaborative",
+                "accessRights": "https://www.uro-oncology.org/terms",
+                "accessService": "https://www.uro-oncology.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Events",
+                "measuredValue": 34920,
+                "observationDate": "2023-06-30",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_11_1",
+                "label": "C61 Prostate gland",
+                "category": "C60-C63 Male genital organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_5_3",
+                "label": "8140/3 Adenocarcinoma, NOS",
+                "category": "814-838 Adenomas and adenocarcinomas",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_9",
+                "label": "not available at present",
+                "category": "accessType",
+                "primaryGroup": "access-type"
+            },
+            {
+                "id": "0_2_3_1_4",
+                "label": "Kidney function tests",
+                "category": "Biopsy Reports and Lab Results",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_1_2_2",
+                "label": "Medication",
+                "category": "Treatment",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4",
+                "label": "Techniques",
+                "category": "dataType",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "04_000",
+                "projectGrantName": "Predictors of Reclassification in Prostate Cancer",
+                "leadResearcher": "Dr. Marcus Thorne",
+                "leadResearchInstitute": "Institute of Urological Sciences",
+                "grantNumber": "PCF-9982, MRC-443",
+                "projectGrantStartDate": "2017-04-01",
+                "projectGrantEndDate": "2024-03-31",
+                "projectGrantScope": "mpMRI images, repeat biopsy pathology reports, and PSA density calculations"
+            }
+        ],
+        "icons": [
+            "Longitudinal Data",
+            "Imaging"
+        ],
+        "erd": {
+            "image": "https://github.com/UroOncology/pca_registry/blob/main/database_schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890af"
+    }
+}

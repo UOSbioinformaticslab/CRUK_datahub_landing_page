@@ -1,0 +1,230 @@
+================================================================================
+CRUK DUMMY DATA REMEDIATION NOTATIONS REPORT
+Input Directory:  ayos_dummy_data
+Output Directory: ayos_cleaned
+================================================================================
+
+📄 File: dataset_00.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Oncology Research Trust')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_00.json
+
+📄 File: dataset_01.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Oncology Research Trust')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_01.json
+
+📄 File: dataset_02.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Global Thoracic Oncology Consortium')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_02.json
+
+📄 File: dataset_03.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Digestive Oncology Network')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_03.json
+
+📄 File: dataset_04.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Urological Oncology Collaborative')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_04.json
+
+📄 File: dataset_05.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Institute of Skin Cancer Research')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_05.json
+
+📄 File: dataset_06.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Women's Neoplasm Consortium')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_06.json
+
+📄 File: dataset_07.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Global Pediatric Oncology Network')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_07.json
+
+📄 File: dataset_08.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Global Liver Institute')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_08.json
+
+📄 File: dataset_09.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Endocrine Oncology Group')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_09.json
+
+📄 File: dataset_10.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Kidney Oncology Network')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_10.json
+
+📄 File: dataset_11.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Myeloma Research Institute')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_11.json
+
+📄 File: dataset_12.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Gastrointestinal Oncology Group')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_12.json
+
+📄 File: dataset_13.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Women's Health Research Center')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_13.json
+
+📄 File: dataset_14.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Men's Health Oncology')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_14.json
+
+📄 File: dataset_15.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Thoracic and GI Consortium')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_15.json
+
+📄 File: dataset_16.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Sarcoma Research Network')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_16.json
+
+📄 File: dataset_17.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Head & Neck Oncology Collaborative')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_17.json
+
+📄 File: dataset_18.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Pediatric Solid Tumor Network')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_18.json
+
+📄 File: dataset_19.json
+--------------------------------------------------------------------------------
+  ✓ [Rule 2] Removed 'accessibility.usage'
+  ✓ [Rule 5] Enforced schema string min/max length bounds across all string fields
+  ✓ [Rule 6] Set default 'issued' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 7] Updated 'modified' timestamp: 2026-09-02T08:36:28Z
+  ✓ [Rule 8] Set 'revisions' default to [] (empty array)
+  ✓ [Rule 9] Set dataCustodian.identifier: '054225q67' (via ROR API lookup for 'Gynecologic Oncology Group')
+  ✓ [Rule 12] Set default 'not given' for dataCustodian.contactPoint
+  ➜ Saved to: dataset_19.json
+
+================================================================================
+REMEDIATION COMPLETE: Processed 20 files.
+Cleaned datasets saved in: /Users/skw24/CRUK/website/CRUK_datahub_landing_page/utils/ayos_cleaned
+================================================================================

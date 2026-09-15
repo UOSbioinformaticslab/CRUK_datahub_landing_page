@@ -1,0 +1,136 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b2",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b2",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b2",
+            "issued": "2018-06-01T00:00:00Z",
+            "modified": "2023-12-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.pediatriconcology.net/datasets/087654b3-2c0a-4b32-9c2e-1234567890b2"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data tracking post-remission relapse patterns in pediatric acute myeloid leukemia. Includes flow cytometry minimal residual disease assessments.",
+            "contactPoint": "access@pediatriconcology.net",
+            "keywords": "Leukemia;,;Pediatric;,;AML;,;Relapse;,;Flow Cytometry",
+            "populationSize": 1850,
+            "description": "Other data types:\n- Multiparameter Flow Cytometry (application/fcs): Raw FCS files capturing surface marker expression on bone marrow cells",
+            "doiName": "10.9000/data.22",
+            "shortTitle": "Acute Myeloid Leukemia Pediatric Relapse Registry",
+            "title": "Acute Myeloid Leukemia Pediatric Relapse Registry",
+            "leadResearcher": "Dr. Samira Khan",
+            "leadResearchInstitute": "Children's Institute of Oncology",
+            "publisher": {
+                "name": "Global Pediatric Oncology Network",
+                "gatewayId": "https://ror.org/033444h88"
+            },
+            "dataCustodian": {
+                "name": "Global Pediatric Oncology Network",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Global Pediatric Oncology Network",
+                "dataProcessor": "Global Pediatric Oncology Network",
+                "accessRights": "https://www.pediatriconcology.net/terms",
+                "accessService": "https://www.pediatriconcology.net/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 5550,
+                "observationDate": "2023-06-01",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_4",
+                "label": "C42 Hematopoietic and reticuloendothelial systems",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_45_28",
+                "label": "9861/3 Acute myeloid leukemia, NOS",
+                "category": "980-994 Leukemias",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_4",
+                "label": "not for profit organisation use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "Limited to not-for-profit organizations.(DUO_0000045)"
+            },
+            {
+                "id": "0_2_2",
+                "label": "Model Organism",
+                "category": "dataType",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_4_2_0",
+                "label": "bulk",
+                "category": "Spatial resolution",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_4_2_2",
+                "label": "Magnetic Resonance Imaging",
+                "category": "Imaging Data",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "07_000",
+                "projectGrantName": "MRD Tracking in Pediatric AML",
+                "leadResearcher": "Dr. Samira Khan",
+                "leadResearchInstitute": "Children's Institute of Oncology",
+                "grantNumber": "LLS-776, CCRF-221",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-12-31",
+                "projectGrantScope": "flow cytometry files, cytogenetic profiles, and longitudinal treatment logs"
+            }
+        ],
+        "icons": [
+            "Pediatrics",
+            "Hematology"
+        ],
+        "erd": {
+            "image": "https://github.com/PediatricOncology/aml_registry/blob/main/assets/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b2"
+    }
+}

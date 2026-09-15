@@ -1,0 +1,136 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b3",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b3",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b3",
+            "issued": "2018-01-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.globalliver.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b3"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data evaluating the efficacy and tumor response rates of transarterial chemoembolization in patients with intermediate-stage hepatocellular carcinoma.",
+            "contactPoint": "registry@globalliver.org",
+            "keywords": "Liver;,;Cancer;,;HCC;,;TACE;,;Interventional Radiology",
+            "populationSize": 2150,
+            "description": "Other data types:\n- Hepatic Arteriograms (application/dicom): Digital subtraction angiography (DSA) images captured during TACE",
+            "doiName": "10.1200/data.77",
+            "shortTitle": "Hepatocellular Carcinoma TACE Response Registry",
+            "title": "Hepatocellular Carcinoma TACE Response Registry",
+            "leadResearcher": "Dr. Wei Chen",
+            "leadResearchInstitute": "Hepatic Oncology Center",
+            "publisher": {
+                "name": "Global Liver Institute",
+                "gatewayId": "https://ror.org/099777k66"
+            },
+            "dataCustodian": {
+                "name": "Global Liver Institute",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Global Liver Institute",
+                "dataProcessor": "Global Liver Institute",
+                "accessRights": "https://www.globalliver.org/terms",
+                "accessService": "https://www.globalliver.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Events",
+                "measuredValue": 4300,
+                "observationDate": "2023-12-31",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_1_7",
+                "label": "C22 Liver and intrahepatic bile ducts",
+                "category": "C15-C26 Digestive organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_5_34",
+                "label": "8170/3 Hepatocellular carcinoma, NOS",
+                "category": "814-838 Adenomas and adenocarcinomas",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_5",
+                "label": "non-commercial use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "Limited to not-for-profit use.(DUO_0000046)"
+            },
+            {
+                "id": "0_2_0_1_1",
+                "label": "Normal",
+                "category": "State",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_3_1",
+                "label": "Clinical observations",
+                "category": "Longitudinal Follow up",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_0_1_2",
+                "label": "Pre-cancerous",
+                "category": "State",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "08_000",
+                "projectGrantName": "Predictors of Complete Response Post-TACE",
+                "leadResearcher": "Dr. Wei Chen",
+                "leadResearchInstitute": "Hepatic Oncology Center",
+                "grantNumber": "LCF-881, NIH-R01-554",
+                "projectGrantStartDate": "2019-04-01",
+                "projectGrantEndDate": "2024-03-31",
+                "projectGrantScope": "Post-procedure MRI, alpha-fetoprotein kinetics, and survival data"
+            }
+        ],
+        "icons": [
+            "Interventional Radiology",
+            "Clinical Data"
+        ],
+        "erd": {
+            "image": "https://github.com/GlobalLiver/hcc_db/blob/main/docs/erd.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b3"
+    }
+}

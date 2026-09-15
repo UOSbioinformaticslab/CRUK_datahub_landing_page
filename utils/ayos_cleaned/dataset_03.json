@@ -1,0 +1,136 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890ae",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890ae",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890ae",
+            "issued": "2019-02-01T00:00:00Z",
+            "modified": "2024-06-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.digestiveoncology.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890ae"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data tracking the relationship between gut microbiome composition and postoperative recovery in patients with stages II and III colorectal cancer.",
+            "contactPoint": "access@digestiveoncology.org",
+            "keywords": "Colorectal;,;Cancer;,;Microbiome;,;Surgery;,;Outcomes",
+            "populationSize": 1250,
+            "description": "Other data types:\n- Surgical Pathology Slides (application/svs): Digitized slides of resected tumor margins",
+            "doiName": "10.5000/data.33",
+            "shortTitle": "Colorectal Cancer Microbiome and Surgical Outcomes Registry",
+            "title": "Colorectal Cancer Microbiome and Surgical Outcomes Registry",
+            "leadResearcher": "Dr. James Aris",
+            "leadResearchInstitute": "University Hospital of Gastrointestinal Diseases",
+            "publisher": {
+                "name": "Digestive Oncology Network",
+                "gatewayId": "https://ror.org/099888e55"
+            },
+            "dataCustodian": {
+                "name": "Digestive Oncology Network",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Digestive Oncology Network",
+                "dataProcessor": "Digestive Oncology Network",
+                "accessRights": "https://www.digestiveoncology.org/terms",
+                "accessService": "https://www.digestiveoncology.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 3750,
+                "observationDate": "2023-12-01",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_1_3",
+                "label": "C18 Colon",
+                "category": "C15-C26 Digestive organs",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_5_3",
+                "label": "8140/3 Adenocarcinoma, NOS",
+                "category": "814-838 Adenomas and adenocarcinomas",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_0",
+                "label": "no restriction",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "No restriction on use. (DUO_0000004)"
+            },
+            {
+                "id": "0_2_2",
+                "label": "Model Organism",
+                "category": "dataType",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_0_0",
+                "label": "Chicken",
+                "category": "Organism",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_3_0_4",
+                "label": "Lifestyle",
+                "category": "Background",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "03_000",
+                "projectGrantName": "Microbiome Influences on CRC Surgery Recovery",
+                "leadResearcher": "Dr. James Aris",
+                "leadResearchInstitute": "University Hospital of Gastrointestinal Diseases",
+                "grantNumber": "BCUK-102, NIHR-884",
+                "projectGrantStartDate": "2019-01-01",
+                "projectGrantEndDate": "2024-01-01",
+                "projectGrantScope": "16S rRNA sequences, surgical complication logs, and dietary background information"
+            }
+        ],
+        "icons": [
+            "Microbiome",
+            "Surgical Data"
+        ],
+        "erd": {
+            "image": "https://github.com/DigestiveOncology/crc_db/blob/main/schema.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890ae"
+    }
+}

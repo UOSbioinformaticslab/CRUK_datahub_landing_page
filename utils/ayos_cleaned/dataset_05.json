@@ -1,0 +1,142 @@
+{
+    "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b0",
+    "gwdmVersion": "2.1",
+    "metadata": {
+        "required": {
+            "gatewayId": "087654b3-2c0a-4b32-9c2e-1234567890b0",
+            "gatewayPid": "087654b3-2c0a-4b32-9c2e-1234567890b0",
+            "issued": "2020-03-01T00:00:00Z",
+            "modified": "2024-09-01T00:00:00Z",
+            "version": "1.0.0",
+            "revisions": [
+                {
+                    "version": "1.0.0",
+                    "url": "https://www.skincancerinstitute.org/datasets/087654b3-2c0a-4b32-9c2e-1234567890b0"
+                }
+            ]
+        },
+        "summary": {
+            "abstract": "Registry data evaluating the tumor microenvironment changes in patients with advanced melanoma undergoing immune checkpoint blockade therapy.",
+            "contactPoint": "registry@skincancerinstitute.org",
+            "keywords": "Melanoma;,;Immunotherapy;,;Single-cell;,;Tumor Microenvironment;,;Response",
+            "populationSize": 980,
+            "description": "Other data types:\n- Multiplex Immunofluorescence (application/ome-tiff): Spatial imaging of T-cell infiltration in tumor sections",
+            "doiName": "10.7000/data.66",
+            "shortTitle": "Melanoma Immunotherapy Response and Single-Cell Profiling Cohort",
+            "title": "Melanoma Immunotherapy Response and Single-Cell Profiling Cohort",
+            "leadResearcher": "Dr. Clara Lin",
+            "leadResearchInstitute": "Institute of Skin Cancer Research",
+            "publisher": {
+                "name": "Institute of Skin Cancer Research",
+                "gatewayId": "https://ror.org/022333f66"
+            },
+            "dataCustodian": {
+                "name": "Institute of Skin Cancer Research",
+                "identifier": "054225q67",
+                "contactPoint": "not given"
+            }
+        },
+        "coverage": {},
+        "provenance": {
+            "temporal": {
+                "timeLag": "Other"
+            }
+        },
+        "accessibility": {
+            "access": {
+                "deliveryLeadTime": "Other",
+                "jurisdiction": "GB-ENG",
+                "dataController": "Institute of Skin Cancer Research",
+                "dataProcessor": "Institute of Skin Cancer Research",
+                "accessRights": "https://www.skincancerinstitute.org/terms",
+                "accessService": "https://www.skincancerinstitute.org/data-access",
+                "accessRequestCost": "Varies"
+            },
+            "formatAndStandards": {
+                "vocabularyEncodingSchemes": "OTHER",
+                "conformsTo": "OTHER",
+                "languages": "en",
+                "formats": "CSV;,;JSON"
+            }
+        },
+        "linkage": {},
+        "observations": [
+            {
+                "observedNode": "Findings",
+                "measuredValue": 2940,
+                "observationDate": "2024-03-01",
+                "measuredProperty": "Count"
+            }
+        ],
+        "tissuesSampleCollection": [],
+        "datasetFilters": [
+            {
+                "id": "0_0_0_5",
+                "label": "C44 Skin",
+                "category": "icdOTopography",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_0_1_15_2",
+                "label": "8720/3 Malignant melanoma, NOS",
+                "category": "872-879 Nevi and melanomas",
+                "primaryGroup": "cancer-type"
+            },
+            {
+                "id": "0_1_8",
+                "label": "generally available for UK/EU use only",
+                "category": "accessType",
+                "primaryGroup": "access-type",
+                "description": "International collaborations outside the EU not generally permitted."
+            },
+            {
+                "id": "0_2_2_0",
+                "label": "Organism",
+                "category": "Model Organism",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_4_4",
+                "label": "Radiotherapies",
+                "category": "Treatments",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_3_1_8",
+                "label": "Urine tests",
+                "category": "Biopsy Reports and Lab Results",
+                "primaryGroup": "data-type"
+            },
+            {
+                "id": "0_2_2_0_6",
+                "label": "Saccharomyces cerevisiae",
+                "category": "Organism",
+                "primaryGroup": "data-type"
+            }
+        ],
+        "projectGrants": [
+            {
+                "pid": "05_000",
+                "projectGrantName": "Single-Cell Mapping of Immune Checkpoint Resistance",
+                "leadResearcher": "Dr. Clara Lin",
+                "leadResearchInstitute": "Institute of Skin Cancer Research",
+                "grantNumber": "MRA-112, CRI-445",
+                "projectGrantStartDate": "2020-05-01",
+                "projectGrantEndDate": "2025-04-30",
+                "projectGrantScope": "scRNA-seq data, pre- and post-treatment imaging, and clinical progression logs"
+            }
+        ],
+        "icons": [
+            "Immunology",
+            "Transcriptomics"
+        ],
+        "erd": {
+            "image": "https://github.com/SkinCancerInstitute/melanoma_registry/blob/main/schema/erd.png"
+        },
+        "issued": "2026-09-02T08:36:28Z",
+        "modified": "2026-09-02T08:36:28Z",
+        "revisions": [],
+        "version": "1.0.0",
+        "identifier": "087654b3-2c0a-4b32-9c2e-1234567890b0"
+    }
+}

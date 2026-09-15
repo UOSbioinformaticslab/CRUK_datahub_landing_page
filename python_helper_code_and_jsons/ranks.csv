@@ -1,0 +1,53 @@
+﻿ - version,Bronze
+summary,
+  - title,Bronze
+  - doiName,Gold
+  - abstract,Bronze
+  - keywords,Bronze
+  - contactPoint,Bronze
+  - description,Silver
+  - populationSize,Bronze
+  - dataCustodian,
+    - -identifier,Silver
+    - -name,Bronze
+    - -contactPoint,Bronze
+    - -description,Silver
+documentation,
+  - description,Silver
+  - associatedMedia,Silver
+  - inPipeline,Silver
+ datasetFilters,Bronze
+structuralMetadata,
+ - dataTable,
+  -- name,Silver
+  -- description,Gold
+  -- columns,
+    --- name,Gold
+    --- dataType,
+    --- description,Gold
+    --- sensitive,Platinum
+  -- size,Gold
+erd,
+  - image,Gold
+otherDataTypes,
+  - title,Silver
+  - description,Gold
+  - format,Gold
+coverage,
+  - typicalAgeRangeMin,Silver
+  - typicalAgeRangeMax,Silver
+datasetLinkage,
+  - datasetCompleteness,Gold
+  - syntheticDataWebLink,Platinum
+  - publicationAboutDataset,Silver
+  - publicationUsingDataset,Silver
+observations,
+  - observedNode,Gold
+  - measuredValue,Gold
+  - disambiguatingDescription,
+  - observationDate,
+  - measuredProperty,Gold
+demographicFrequency,
+  - ethnicity,Silver
+    --bin,Silver
+    --count,Silver
