@@ -7,3 +7,5 @@
 *.xml
 *.iml
 /dist/
+/src/utils/.ipynb_checkpoints/
+/src/utils/untitled.ipynb

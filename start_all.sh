@@ -157,11 +157,11 @@ echo -e "  • Frontend App:     ${BLUE}http://localhost:5173${NC}"
 echo -e "${BLUE}====================================================${NC}\n"
 
 # Launch Backend Microservices (Explicit IPv4 localhost)
-(cd "$BASE_DIR/basic/basic_backend" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8000) &
-(cd "$BASE_DIR/middle" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8002) &
+(cd "$BASE_DIR/basic/basic_backend" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8000 --reload) &
+(cd "$BASE_DIR/middle" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8002 --reload) &
 
 if [ "$RUN_AI" = true ]; then
-    (cd "$BASE_DIR/ai/ai-microservices" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8001) &
+    (cd "$BASE_DIR/ai/ai-microservices" && "$UVICORN_BIN" main:app --host 127.0.0.1 --port 8001 --reload) &
 fi
 
 # Launch Frontend Landing Page (Explicit IPv4 host)
