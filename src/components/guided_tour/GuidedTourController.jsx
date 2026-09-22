@@ -123,16 +123,18 @@ export const GuidedTourController = ({
     setTourState({ isActive: false, currentStepIndex: 1, tourId: null });
   };
 
-  // Adjust display step index for overlay
+  // Adjust display step number for overlay badge
   const isDashboardStep = tourState.currentStepIndex === 0;
-  const displayIndex = isDashboardStep ? 0 : tourState.currentStepIndex - 1;
-  const totalDisplaySteps = activeTourSteps.length - 1;
+  const displayStepNumber = isDashboardStep ? 1 : tourState.currentStepIndex;
+  const totalDisplaySteps = isDashboardStep ? 1 : activeTourSteps.length - 1;
 
   return (
     <TourOverlay
       step={currentStep}
-      currentStepIndex={isDashboardStep ? 0 : displayIndex}
-      totalSteps={isDashboardStep ? 1 : totalDisplaySteps}
+      currentStepIndex={tourState.currentStepIndex}
+      displayStepNumber={displayStepNumber}
+      totalSteps={totalDisplaySteps}
+      tourId={tourState.tourId || 'tour'}
       onNext={handleNext}
       onPrev={handlePrev}
       onClose={handleClose}
