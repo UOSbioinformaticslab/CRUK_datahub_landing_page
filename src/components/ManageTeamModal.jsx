@@ -9,6 +9,7 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
     const [inviteAsAdmin, setInviteAsAdmin] = useState(false);
     const [notificationEmail, setNotificationEmail] = useState('');
     const [members, setMembers] = useState([]);
+    const [pendingInvitations, setPendingInvitations] = useState([]);
     const [enquiries, setEnquiries] = useState([]);
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [message, setMessage] = useState('');
@@ -25,10 +26,11 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
             const headers = { 'Authorization': `Bearer ${token}` };
             const MIDDLELAYER_URL = import.meta.env.VITE_MIDDLELAYER_URL || "http://localhost:8002";
             
-            const [teamRes, membersRes, enquiriesRes] = await Promise.all([
+            const [teamRes, membersRes, enquiriesRes, invitationsRes] = await Promise.all([
                 fetch(`${API_BASE_URL}/teams/${activeTeamId}`, { headers }),
                 fetch(`${API_BASE_URL}/teams/${activeTeamId}/members`, { headers }),
-                fetch(`${MIDDLELAYER_URL}/teams/${activeTeamId}/enquiries`, { headers })
+                fetch(`${MIDDLELAYER_URL}/teams/${activeTeamId}/enquiries`, { headers }),
+                fetch(`${API_BASE_URL}/teams/${activeTeamId}/invitations`, { headers })
             ]);
 
             if (teamRes.ok) {
@@ -40,6 +42,9 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
             }
             if (enquiriesRes.ok) {
                 setEnquiries(await enquiriesRes.json());
+            }
+            if (invitationsRes && invitationsRes.ok) {
+                setPendingInvitations(await invitationsRes.json());
             }
         } catch (err) {
             console.error("Failed to fetch team data", err);
@@ -118,6 +123,22 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
         }
     };
 
+    const handleCancelInvitation = async (invitationId) => {
+        if (!window.confirm("Are you sure you want to cancel this pending invitation?")) return;
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE_URL}/teams/${activeTeamId}/invitations/${invitationId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to cancel invitation');
+            fetchData(); // Refresh list
+            showMessage('Invitation cancelled');
+        } catch (err) {
+            showMessage(err.message, true);
+        }
+    };
+
     const handleInvite = async (e) => {
         e.preventDefault();
         if (!inviteEmail) return;
@@ -140,6 +161,7 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
             showMessage(`Successfully sent invitation to ${inviteEmail}`);
             setInviteEmail('');
             setInviteAsAdmin(false);
+            fetchData(); // Refresh list to display newly created invitation
         } catch (err) {
             showMessage(err.message, true);
         }
@@ -228,11 +250,67 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
                                     </div>
                                 </div>
 
-                                {/* 3. Invite New Members */}
+                                {/* 3. Pending Invitations */}
+                                <div className="mb-8">
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h3 className="font-bold text-lg">Pending Invitations</h3>
+                                        {pendingInvitations.length > 0 && (
+                                            <span className="bg-amber-100 text-amber-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                                {pendingInvitations.length} Pending
+                                            </span>
+                                        )}
+                                    </div>
+                                    <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                        <div className="max-h-48 overflow-y-auto">
+                                            <table className="w-full text-sm relative">
+                                                <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
+                                                    <tr className="text-left border-b border-gray-200">
+                                                        <th className="p-3">Email</th>
+                                                        <th className="p-3 text-center">Role</th>
+                                                        <th className="p-3 text-center">Status</th>
+                                                        <th className="p-3 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {pendingInvitations.length === 0 ? (
+                                                        <tr>
+                                                            <td colSpan="4" className="p-4 text-center text-gray-500 italic">No pending invitations.</td>
+                                                        </tr>
+                                                    ) : (
+                                                        pendingInvitations.map(inv => (
+                                                            <tr key={inv.id} className="border-b border-gray-100 hover:bg-gray-50">
+                                                                <td className="p-3 font-medium text-gray-800">{inv.email}</td>
+                                                                <td className="p-3 text-center">
+                                                                    {inv.is_admin ? (
+                                                                        <span className="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-0.5 rounded">Team Admin</span>
+                                                                    ) : (
+                                                                        <span className="bg-gray-100 text-gray-700 text-xs px-2 py-0.5 rounded">Member</span>
+                                                                    )}
+                                                                </td>
+                                                                <td className="p-3 text-center">
+                                                                    <span className="inline-flex items-center text-xs font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+                                                                        Pending
+                                                                    </span>
+                                                                </td>
+                                                                <td className="p-3 text-right">
+                                                                    <button onClick={() => handleCancelInvitation(inv.id)} className="text-red-600 hover:text-red-800 font-medium">
+                                                                        Cancel
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        ))
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* 4. Invite New Members */}
                                 <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-2">
                                     <h3 className="font-bold text-blue-800 mb-2">Invite a new member</h3>
                                     <p className="text-sm text-blue-600 mb-4">
-                                        Enter the email address of the person you'd like to invite. They will be prompted to join when they sign in.
+                                        Enter the email address of the person you'd like to invite. They will be automatically linked to your team when they register.
                                     </p>
 
                                     <form onSubmit={handleInvite}>
