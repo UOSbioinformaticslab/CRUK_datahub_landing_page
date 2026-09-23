@@ -1,7 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAudioRecorder } from './useAudioRecorder.js';
 import { saveStepAudio, getStepAudio, deleteStepAudio, getAllStepAudios } from './tourAudioStore.js';
-import { fetchTourVoiceovers, uploadStepVoiceoverAPI, deleteStepVoiceoverAPI } from './tourAudioService.js';
+import {
+  fetchTourVoiceovers,
+  uploadStepVoiceoverAPI,
+  deleteStepVoiceoverAPI,
+  syncAllLocalVoiceoversToServer,
+  TARGET_ENVS,
+  getSyncTargetEnv,
+  setSyncTargetEnv,
+  getSyncTargetUrl
+} from './tourAudioService.js';
 
 export const TourOverlay = ({
   step,
@@ -21,6 +30,8 @@ export const TourOverlay = ({
   const [stepAudioUrl, setStepAudioUrl] = useState(null);
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncTargetEnvState, setSyncTargetEnvState] = useState(getSyncTargetEnv());
 
   const audioRef = useRef(null);
   const {
@@ -378,6 +389,27 @@ export const TourOverlay = ({
                 )}
               </div>
 
+              {/* Target Environment Switcher (Dev vs Staging Railway) */}
+              {!isRecording && (
+                <div className="flex items-center justify-between bg-white p-1.5 rounded border border-slate-200 shadow-2xs">
+                  <span className="text-[11px] font-extrabold text-slate-700 flex items-center gap-1">
+                    🎯 Sync Target:
+                  </span>
+                  <select
+                    value={syncTargetEnvState}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setSyncTargetEnvState(val);
+                      setSyncTargetEnv(val);
+                    }}
+                    className="text-[11px] bg-slate-50 border border-slate-300 rounded px-2 py-0.5 text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+                  >
+                    <option value="dev">🌐 Dev Railway (dev.up.railway.app)</option>
+                    <option value="staging">🌐 Staging Railway (staging.up.railway.app)</option>
+                  </select>
+                </div>
+              )}
+
               {recError && (
                 <div className="p-2 text-xs bg-red-50 border border-red-200 text-red-700 rounded font-medium">
                   ⚠️ {recError}
@@ -477,9 +509,39 @@ export const TourOverlay = ({
                 </div>
               )}
 
-              {/* Export All Voiceovers Backup Button */}
+              {/* Export & Sync Local Voiceovers Buttons */}
               {!isRecording && (
-                <div className="pt-2 border-t border-slate-200 text-center">
+                <div className="pt-2 border-t border-slate-200 flex flex-col items-center space-y-1.5">
+                  <button
+                    type="button"
+                    disabled={isSyncing}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      setIsSyncing(true);
+                      const targetName = TARGET_ENVS[syncTargetEnvState]?.label || 'Server';
+                      setSaveStatus(`Syncing local voiceovers to ${targetName}...`);
+                      const res = await syncAllLocalVoiceoversToServer(syncTargetEnvState);
+                      setIsSyncing(false);
+                      setSaveStatus(res.message);
+                      if (res.success && res.count > 0) {
+                        // Refresh current step voiceover from server target
+                        const targetUrl = getSyncTargetUrl(syncTargetEnvState);
+                        const serverVoiceovers = await fetchTourVoiceovers(tourId, targetUrl);
+                        if (serverVoiceovers[String(currentStepIndex)]) {
+                          setStepAudioUrl(serverVoiceovers[String(currentStepIndex)]);
+                        }
+                      }
+                      setTimeout(() => setSaveStatus(null), 4000);
+                    }}
+                    className="text-[11px] font-extrabold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-3 py-1 rounded shadow-sm flex items-center gap-1 cursor-pointer transition active:scale-95"
+                    title={`Upload all voiceovers saved in your browser's local IndexedDB to ${TARGET_ENVS[syncTargetEnvState]?.label || 'Railway'}`}
+                  >
+                    {isSyncing
+                      ? '⏳ Syncing to Server...'
+                      : `☁️ Sync All Local Voiceovers to ${TARGET_ENVS[syncTargetEnvState]?.label || 'Server'}`}
+                  </button>
+
+
                   <button
                     type="button"
                     onClick={async (e) => {
