@@ -37,6 +37,16 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
     };
 
     useEffect(() => {
+        const handleSetTab = (e) => {
+            if (e.detail) {
+                setActiveTab(e.detail);
+            }
+        };
+        window.addEventListener('setAssistantTab', handleSetTab);
+        return () => window.removeEventListener('setAssistantTab', handleSetTab);
+    }, []);
+
+    useEffect(() => {
         if (activeTab === 'preview' && viewMode === 'visual') {
             let targetId = 'preview-summary';
 
@@ -58,6 +68,7 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
             {/* Tab Navigation */}
             <div className="flex border-b border-gray-200 bg-white shadow-sm">
                 <button
+                    data-tour="guidance-section"
                     className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
                         activeTab === 'guidance' ? 'border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50/30' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
@@ -66,6 +77,7 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
                     Guidance
                 </button>
                 <button
+                    data-tour="ai-import-section"
                     className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
                         activeTab === 'ai' ? 'border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50/30' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}
@@ -74,6 +86,7 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
                     AI Import
                 </button>
                 <button
+                    data-tour="live-preview-section"
                     className={`flex-1 py-3 text-sm font-semibold text-center transition-colors ${
                         activeTab === 'preview' ? 'border-b-2 border-indigo-600 text-indigo-700 bg-indigo-50/30' : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
                     }`}

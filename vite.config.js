@@ -10,12 +10,15 @@ const localSchemaDocViewer = resolve(__dirname, '../semantic-schema/cruk-semanti
 export default defineConfig({
   resolve: {
     alias: {
+      'cruk-semantic-schema/src/SchemaDocViewer.jsx': existsSync(localSchemaDocViewer)
+        ? localSchemaDocViewer
+        : 'cruk-semantic-schema/src/SchemaDocViewer.jsx',
       'cruk-semantic-schema/src/SchemaDocViewer': existsSync(localSchemaDocViewer)
         ? localSchemaDocViewer
-        : 'cruk-semantic-schema/src/SchemaDocViewer',
-      'cruk-semantic-schema': existsSync(localSemanticSchemaJson)
+        : 'cruk-semantic-schema/src/SchemaDocViewer.jsx',
+      'cruk-semantic-schema$': existsSync(localSemanticSchemaJson)
         ? localSemanticSchemaJson
-        : 'cruk-semantic-schema',
+        : 'cruk-semantic-schema/semanticSchema.json',
     },
   },
 

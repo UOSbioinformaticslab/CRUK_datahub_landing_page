@@ -1882,7 +1882,7 @@ return (
 
                     {/* MIDDLE PANEL: Main Form */}
                     <Panel defaultSize={55} minSize={30}>
-                        <div className="h-full flex justify-center">
+                        <div data-tour="metadata-sections-whole" className="h-full flex justify-center w-full">
                             <SchemaForm
                                 sectionKey={activeSection}
                                 formData={formData}

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { TourOverlay } from './TourOverlay.jsx';
 import { getAdvancedFilterSteps } from './advancedFilters.js';
 import { getSimpleFilterSteps } from './simpleFilters.js';
+import { getFirstDatasetTourSteps } from './firstDatasetTour.js';
 
 export const GuidedTourController = ({
   setActivePanel,
@@ -13,6 +14,12 @@ export const GuidedTourController = ({
 }) => {
   const [tourState, setTourState] = useState({ isActive: false, currentStepIndex: 1, tourId: null });
 
+  const getStepsForTour = (tourId, params) => {
+    if (tourId === 'simple_filters') return getSimpleFilterSteps(params);
+    if (tourId === 'first_dataset_upload') return getFirstDatasetTourSteps(params);
+    return getAdvancedFilterSteps(params);
+  };
+
   const activeTourSteps = useMemo(() => {
     const params = {
       setActivePanel,
@@ -23,10 +30,7 @@ export const GuidedTourController = ({
       setShowAdvancedLogic
     };
 
-    if (tourState.tourId === 'simple_filters') {
-      return getSimpleFilterSteps(params);
-    }
-    return getAdvancedFilterSteps(params);
+    return getStepsForTour(tourState.tourId, params);
   }, [
     tourState.tourId,
     setActivePanel,
@@ -42,9 +46,7 @@ export const GuidedTourController = ({
       const tourId = e.detail?.tourId || 'advanced_filters';
       let startIndex = typeof e.detail?.stepIndex === 'number' ? e.detail.stepIndex : 1;
 
-      const steps = tourId === 'simple_filters'
-        ? getSimpleFilterSteps({ setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic })
-        : getAdvancedFilterSteps({ setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic });
+      const steps = getStepsForTour(tourId, { setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic });
 
       if (steps[startIndex] && steps[startIndex].onEnter) {
         steps[startIndex].onEnter();
@@ -93,10 +95,18 @@ export const GuidedTourController = ({
   const currentStep = activeTourSteps[tourState.currentStepIndex];
 
   const handleNext = () => {
-    // If on Step 0 (Dashboard navigation step), clicking Next navigates to datasets.html
+    // If on Step 0, navigate to appropriate target page
     if (tourState.currentStepIndex === 0) {
+      const targetPage = tourState.tourId === 'first_dataset_upload' ? './upload.html' : './datasets.html';
       sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: tourState.tourId, stepIndex: 1 }));
-      window.location.href = './datasets.html';
+      window.location.href = targetPage;
+      return;
+    }
+
+    // If step 1 of first_dataset_upload is completed from another page, navigate to upload.html
+    if (tourState.tourId === 'first_dataset_upload' && tourState.currentStepIndex === 0 && !window.location.pathname.endsWith('upload.html')) {
+      sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: tourState.tourId, stepIndex: 1 }));
+      window.location.href = './upload.html';
       return;
     }
 

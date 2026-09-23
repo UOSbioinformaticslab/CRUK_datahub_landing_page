@@ -479,7 +479,7 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                 </div>
 
                 {/* Centre: Main Actions */}
-                <div className="flex items-center justify-center space-x-3">
+                <div data-tour="make-active-save-draft" className="flex items-center justify-center space-x-3">
                     <button
                         onClick={() => handleSaveToDatabase({ markActive: true })}
                         className="flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"

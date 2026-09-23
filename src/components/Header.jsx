@@ -39,6 +39,10 @@ export const Header = () => {
         if (storedIsAdmin === 'true') {
             setIsAdmin(true);
         }
+
+        const handleOpenModal = () => setIsDataCustodiansModalOpen(true);
+        window.addEventListener('openDataCustodiansModal', handleOpenModal);
+        return () => window.removeEventListener('openDataCustodiansModal', handleOpenModal);
     }, []);
 
     const handleTeamChange = (e) => {
@@ -51,6 +55,18 @@ export const Header = () => {
     const triggerTour = (tourId) => {
         setIsTourDropdownOpen(false);
         const currentPath = window.location.pathname;
+
+        if (tourId === 'first_dataset_upload') {
+            const isUpload = currentPath.endsWith('upload.html');
+            if (isUpload) {
+                window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId, stepIndex: 0 } }));
+            } else {
+                sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId, stepIndex: 0 }));
+                window.location.href = './upload.html';
+            }
+            return;
+        }
+
         const isDatasets = currentPath.endsWith('datasets.html') || currentPath === '/' || currentPath.endsWith('/');
         const isDashboard = currentPath.endsWith('dashboard.html');
 
@@ -213,32 +229,68 @@ export const Header = () => {
                             Interactive Guided Tour <span className="ml-1 text-xs">▼</span>
                         </a>
                         {isTourDropdownOpen && (
-                            <ul className="absolute left-0 mt-2 w-72 bg-white shadow-2xl border border-gray-200 rounded-md py-1.5 z-[100] text-left">
-                                <li>
+                            <ul 
+                                className="absolute left-0 mt-2 w-80 bg-white shadow-2xl border border-gray-200 rounded-xl py-1 z-[100] text-left divide-y divide-gray-100"
+                                style={{ display: 'flex', flexDirection: 'column' }}
+                            >
+                                <li className="w-full" style={{ display: 'block' }}>
                                     <a 
                                         href="#" 
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            triggerTour('simple_filters', 'datasets.html');
+                                            triggerTour('simple_filters');
                                         }}
-                                        className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
-                                        style={{ color: '#103067' }}
+                                        className="w-full flex items-start p-3 text-left hover:bg-indigo-50/60 transition-colors rounded-t-xl group"
                                     >
-                                        🟢 Simple Filters Demonstration
+                                        <span className="text-base mr-3 mt-0.5 flex-shrink-0">🟢</span>
+                                        <div>
+                                            <div className="text-xs font-bold text-[#103067] group-hover:text-indigo-700 transition-colors">
+                                                Simple Filters Demonstration
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 font-normal leading-tight mt-0.5">
+                                                Basic filter combinations (Cancer & Access restrictions)
+                                            </div>
+                                        </div>
                                     </a>
                                 </li>
-                                <li className="border-t border-gray-100 my-1"></li>
-                                <li>
+                                <li className="w-full" style={{ display: 'block' }}>
                                     <a 
                                         href="#" 
                                         onClick={(e) => {
                                             e.preventDefault();
-                                            triggerTour('advanced_filters', 'datasets.html');
+                                            triggerTour('advanced_filters');
                                         }}
-                                        className="block px-4 py-2 text-sm font-semibold hover:bg-gray-100"
-                                        style={{ color: '#103067' }}
+                                        className="w-full flex items-start p-3 text-left hover:bg-indigo-50/60 transition-colors group"
                                     >
-                                        ⚡ Advanced Filters & Logic Demonstration
+                                        <span className="text-base mr-3 mt-0.5 flex-shrink-0">⚡</span>
+                                        <div>
+                                            <div className="text-xs font-bold text-[#103067] group-hover:text-indigo-700 transition-colors">
+                                                Advanced Filters & Logic Demonstration
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 font-normal leading-tight mt-0.5">
+                                                Nested techniques & custom AND/OR logic builder
+                                            </div>
+                                        </div>
+                                    </a>
+                                </li>
+                                <li className="w-full" style={{ display: 'block' }}>
+                                    <a 
+                                        href="#" 
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            triggerTour('first_dataset_upload');
+                                        }}
+                                        className="w-full flex items-start p-3 text-left hover:bg-indigo-50/60 transition-colors rounded-b-xl group"
+                                    >
+                                        <span className="text-base mr-3 mt-0.5 flex-shrink-0">📤</span>
+                                        <div>
+                                            <div className="text-xs font-bold text-[#103067] group-hover:text-indigo-700 transition-colors">
+                                                Uploading Your First Dataset
+                                            </div>
+                                            <div className="text-[11px] text-gray-500 font-normal leading-tight mt-0.5">
+                                                Metadata entry form, guidance, AI import & live preview
+                                            </div>
+                                        </div>
                                     </a>
                                 </li>
                             </ul>
@@ -250,6 +302,7 @@ export const Header = () => {
                             <li>
                                 <a 
                                     href="#" 
+                                    data-tour="data-custodian-actions"
                                     onClick={(e) => { e.preventDefault(); setIsDataCustodiansModalOpen(true); }}
                                     className="nav-link-main font-bold text-yellow-300"
                                 >
@@ -268,6 +321,7 @@ export const Header = () => {
                     ) : (
                         <li 
                             className="relative"
+                            data-tour="data-custodian-actions"
                             onBlur={(e) => {
                                 if (!e.currentTarget.contains(e.relatedTarget)) {
                                     setIsDataDropdownOpen(false);
