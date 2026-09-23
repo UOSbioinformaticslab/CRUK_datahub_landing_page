@@ -4,12 +4,18 @@ import feedbackQrCode from './feedback.png';
 
 const FloatingQRCode = () => {
   const [mounted, setMounted] = useState(false);
+  const [isClosed, setIsClosed] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('feedbackWidgetClosed') === 'true';
+    }
+    return false;
+  });
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  if (!mounted || typeof window === 'undefined') return null;
+  if (!mounted || isClosed || typeof window === 'undefined') return null;
 
   const widget = (
     <div
@@ -29,9 +35,44 @@ const FloatingQRCode = () => {
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        justify: 'center'
+        justifyContent: 'center'
       }}
     >
+      {/* Close Button */}
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          setIsClosed(true);
+          sessionStorage.setItem('feedbackWidgetClosed', 'true');
+        }}
+        style={{
+          position: 'absolute',
+          top: '-8px',
+          right: '-8px',
+          width: '20px',
+          height: '20px',
+          borderRadius: '50%',
+          backgroundColor: '#dc2626',
+          color: '#ffffff',
+          border: '2px solid #ffffff',
+          fontSize: '11px',
+          fontWeight: 'bold',
+          lineHeight: '1',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 2px 5px rgba(0, 0, 0, 0.25)',
+          zIndex: 100000
+        }}
+        title="Close feedback button"
+        aria-label="Close feedback button"
+      >
+        ✕
+      </button>
+
       <a
         href="https://bit.ly/43uTQOM"
         target="_blank"
@@ -61,5 +102,6 @@ const FloatingQRCode = () => {
 
   return createPortal(widget, document.body);
 };
+
 
 export default FloatingQRCode;

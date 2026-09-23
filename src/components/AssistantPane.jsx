@@ -89,22 +89,8 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
                 {/* 1. GUIDANCE TAB */}
                 <div className={activeTab === 'guidance' ? 'block' : 'hidden'}>
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 flex-1 h-full overflow-y-auto">
-                        {activeGuidance ? (
-                            <div className="flex flex-col h-full">
-                                {activeGuidance.title && (
-                                    <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">
-                                        {activeGuidance.title}
-                                    </h3>
-                                )}
-                                <MarkdownRenderer content={activeGuidance.guidance || activeGuidance} />
-                            </div>
-                        ) : (
-                            <p className="text-gray-500 text-sm italic">Select a field on the left to view guidance.</p>
-                        )}
-                        {children}
-
-                        {/* Reference Downloads & Tools in Guidance Section */}
-                        <div className="mt-8 border-t border-gray-100 pt-5">
+                        {/* Reference Downloads & Tools in Guidance Section (Placed at Top) */}
+                        <div className="mb-6 border-b border-gray-100 pb-5">
                             <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">
                                 Guidance Downloads & Tools
                             </h4>
@@ -132,8 +118,23 @@ const AssistantPane = ({ activeGuidance, formData, activeSection, setActiveSecti
                                 </button>
                             </div>
                         </div>
+
+                        {activeGuidance ? (
+                            <div className="flex flex-col h-full">
+                                {activeGuidance.title && (
+                                    <h3 className="text-lg font-bold text-gray-800 mb-4 pb-2 border-b border-gray-100">
+                                        {activeGuidance.title}
+                                    </h3>
+                                )}
+                                <MarkdownRenderer content={activeGuidance.guidance || activeGuidance} />
+                            </div>
+                        ) : (
+                            <p className="text-gray-500 text-sm italic">Select a field on the left to view guidance.</p>
+                        )}
+                        {children}
                     </div>
                 </div>
+
 
                 {/* 2. AI IMPORT TAB */}
                 <div className={activeTab === 'ai' ? 'flex flex-col h-full' : 'hidden'}>
