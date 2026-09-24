@@ -87,18 +87,22 @@ export const GuidedTourController = ({
     return () => window.removeEventListener('startGuidedTour', handleStartTour);
   }, [filterSetters, propsSetActivePanel, propsSetSelectedClassification, propsSetSearchTerm, propsSetSelectedFilters, propsSetExpandedKeys, propsSetShowAdvancedLogic]);
 
-  // Intercept click on [data-tour="browse-datasets"] if on Step 0
+  // Intercept click on target navigation elements only when tour is active on Step 0
   useEffect(() => {
     if (!tourState.isActive || tourState.currentStepIndex !== 0) return;
 
-    const handleBrowseClick = () => {
+    const handleTargetClick = () => {
       sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: tourState.tourId, stepIndex: 1 }));
     };
 
-    const browseBtn = document.querySelector('[data-tour="browse-datasets"]');
-    if (browseBtn) {
-      browseBtn.addEventListener('click', handleBrowseClick);
-      return () => browseBtn.removeEventListener('click', handleBrowseClick);
+    const selector = tourState.tourId === 'first_dataset_upload'
+      ? '[data-tour="upload-dataset-link"]'
+      : '[data-tour="browse-datasets"]';
+
+    const targetElement = document.querySelector(selector);
+    if (targetElement) {
+      targetElement.addEventListener('click', handleTargetClick);
+      return () => targetElement.removeEventListener('click', handleTargetClick);
     }
   }, [tourState.isActive, tourState.currentStepIndex, tourState.tourId]);
 
@@ -129,6 +133,7 @@ export const GuidedTourController = ({
       if (nextStep.onEnter) nextStep.onEnter();
       setTourState(prev => ({ ...prev, isActive: true, currentStepIndex: nextIndex }));
     } else {
+      sessionStorage.removeItem('pendingGuidedTour');
       setTourState({ isActive: false, currentStepIndex: 0, tourId: null });
     }
   };
@@ -143,6 +148,7 @@ export const GuidedTourController = ({
   };
 
   const handleClose = () => {
+    sessionStorage.removeItem('pendingGuidedTour');
     setTourState({ isActive: false, currentStepIndex: 0, tourId: null });
   };
 

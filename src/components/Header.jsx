@@ -377,9 +377,6 @@ export const Header = () => {
                                                             <a 
                                                                 href="./upload.html" 
                                                                 data-tour="upload-dataset-link"
-                                                                onClick={() => {
-                                                                    sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: 'first_dataset_upload', stepIndex: 1 }));
-                                                                }}
                                                                 className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100"
                                                             >
                                                                 Upload dataset
