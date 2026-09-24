@@ -12728,7 +12728,7 @@ const theFilters =
                 "children": {
                     "0_2_3_0": {
                         "id": "0_2_3_0",
-                        "label": "Background",
+                        "label": "Demographics",
                         "category": "Patient study",
                         "primaryGroup": "data-type",
                         "description": "",
@@ -12736,42 +12736,35 @@ const theFilters =
                             "0_2_3_0_0": {
                                 "id": "0_2_3_0_0",
                                 "label": "Child and Young Person",
-                                "category": "Background",
+                                "category": "Demographics",
                                 "primaryGroup": "data-type",
                                 "description": ""
                             },
                             "0_2_3_0_1": {
                                 "id": "0_2_3_0_1",
                                 "label": "Seniors",
-                                "category": "Background",
-                                "primaryGroup": "data-type",
-                                "description": ""
-                            },
-                            "0_2_3_0_2": {
-                                "id": "0_2_3_0_2",
-                                "label": "Demographic",
-                                "category": "Background",
+                                "category": "Demographics",
                                 "primaryGroup": "data-type",
                                 "description": ""
                             },
                             "0_2_3_0_3": {
                                 "id": "0_2_3_0_3",
                                 "label": "Family history",
-                                "category": "Background",
+                                "category": "Demographics",
                                 "primaryGroup": "data-type",
                                 "description": ""
                             },
                             "0_2_3_0_4": {
                                 "id": "0_2_3_0_4",
                                 "label": "Lifestyle",
-                                "category": "Background",
+                                "category": "Demographics",
                                 "primaryGroup": "data-type",
                                 "description": ""
                             },
                             "0_2_3_0_5": {
                                 "id": "0_2_3_0_5",
                                 "label": "Quality of life (eg Education and/or employment)",
-                                "category": "Background",
+                                "category": "Demographics",
                                 "primaryGroup": "data-type",
                                 "description": ""
                             }

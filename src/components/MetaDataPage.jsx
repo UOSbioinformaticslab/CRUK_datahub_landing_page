@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { Panel, Group, Separator } from "react-resizable-panels";
 // 1. IMPORT DATA FROM UTILS
 import { filterData } from '../utils/filter-setup.js';
+import { flattenedFilterData } from '../utils/flattened_filter_data.js';
 import {
     ICON_MAPPING,
     ETHNICITY_CATEGORIES,
@@ -207,42 +208,43 @@ const { derivedFilters, activeIcons } = useMemo(() => {
     const icons = new Set();
     const targetIconKeys = Object.keys(ICON_MAPPING);
 
-
     const filterObjects = data.datasetFilters || [];
 
-        filterObjects.forEach(filter => {
-            // Use properties directly from the stored object
-            const groupName = filter.primaryGroup || "Other Filters";
-            const categoryName = filter.category || "Miscellaneous";
+    filterObjects.forEach(filter => {
+        // Dynamic lookup from flattenedFilterData if filter.id exists
+        const canonical = (filter && filter.id) ? flattenedFilterData[filter.id] : null;
 
-            if (!filters[groupName]) filters[groupName] = {};
-            if (!filters[groupName][categoryName]) filters[groupName][categoryName] = [];
+        const groupName = canonical?.primaryGroup || filter?.primaryGroup || "Other Filters";
+        const categoryName = canonical?.category || filter?.category || "Miscellaneous";
+        const labelName = canonical?.label || filter?.label || filter?.id;
 
-            filters[groupName][categoryName].push({
-                label: filter.label,
-                // You can still display description if available
-                description: filter.description
-            });
+        if (!filters[groupName]) filters[groupName] = {};
+        if (!filters[groupName][categoryName]) filters[groupName][categoryName] = [];
 
-            // Icon Detection (using the stored label or category as the key)
-            if (targetIconKeys.includes(filter.label)) {
-                icons.add(filter.label);
-            } else if (targetIconKeys.includes(filter.category)) {
-                icons.add(filter.category);
-            }
+        filters[groupName][categoryName].push({
+            label: labelName,
+            description: filter?.description || canonical?.description
         });
 
-        // Sort items alphabetically within each category
-        Object.keys(filters).forEach(group => {
-            Object.keys(filters[group]).forEach(cat => {
-                filters[group][cat].sort((a, b) => a.label.localeCompare(b.label));
-            });
+        // Icon Detection (using canonical or fallback label / category)
+        if (targetIconKeys.includes(labelName)) {
+            icons.add(labelName);
+        } else if (targetIconKeys.includes(categoryName)) {
+            icons.add(categoryName);
+        }
+    });
+
+    // Sort items alphabetically within each category
+    Object.keys(filters).forEach(group => {
+        Object.keys(filters[group]).forEach(cat => {
+            filters[group][cat].sort((a, b) => a.label.localeCompare(b.label));
         });
+    });
 
-        const mappedIcons = Array.from(icons).map(key => ICON_MAPPING[key]);
+    const mappedIcons = Array.from(icons).map(key => ICON_MAPPING[key]);
 
-        return { derivedFilters: filters, activeIcons: mappedIcons };
-    }, [data]);
+    return { derivedFilters: filters, activeIcons: mappedIcons };
+}, [data]);
 
 
 
@@ -616,10 +618,14 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
     const targetIconKeys = Object.keys(ICON_MAPPING);
     const filterObjects = data.datasetFilters || [];
     filterObjects.forEach(filter => {
-        if (targetIconKeys.includes(filter.label)) {
-            icons.add(filter.label);
-        } else if (targetIconKeys.includes(filter.category)) {
-            icons.add(filter.category);
+        const canonical = (filter && filter.id) ? flattenedFilterData[filter.id] : null;
+        const labelName = canonical?.label || filter?.label;
+        const categoryName = canonical?.category || filter?.category;
+
+        if (targetIconKeys.includes(labelName)) {
+            icons.add(labelName);
+        } else if (targetIconKeys.includes(categoryName)) {
+            icons.add(categoryName);
         }
     });
     const mappedIcons = Array.from(icons).map(key => ICON_MAPPING[key]);

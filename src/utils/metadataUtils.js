@@ -10,7 +10,8 @@ import labResultsIcon from '../assets/lab_results.webp';
 
 export const ICON_MAPPING = {
   "Model Organisms": { src: animalIcon, label: "Model Organisms" },
-  "Background": { src: backgroundIcon, label: "Background" },
+  "Demographics": { src: backgroundIcon, label: "Demographics" },
+  "Background": { src: backgroundIcon, label: "Demographics" },
   "Biobank Samples": { src: biobankIcon, label: "Biobank Samples" },
   "In Vitro Studies": { src: invitroIcon, label: "In Vitro Studies" },
   "Longitudinal Follow up": { src: longitudinalIcon, label: "Longitudinal" },

@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { normalizeList } from '../utils/metadataUtils';
+import { flattenedFilterData } from '../utils/flattened_filter_data.js';
 
 
 const PreviewTags = ({ data, onSectionClick }) => {
@@ -16,15 +17,17 @@ const PreviewTags = ({ data, onSectionClick }) => {
         const filterObjects = data.datasetFilters || [];
 
         filterObjects.forEach(filter => {
-            const groupName = filter.primaryGroup || "Other Filters";
-            const categoryName = filter.category || "Miscellaneous";
+            const canonical = (filter && filter.id) ? flattenedFilterData[filter.id] : null;
+            const groupName = canonical?.primaryGroup || filter?.primaryGroup || "Other Filters";
+            const categoryName = canonical?.category || filter?.category || "Miscellaneous";
+            const labelName = canonical?.label || filter?.label || filter?.id;
 
             if (!filters[groupName]) filters[groupName] = {};
             if (!filters[groupName][categoryName]) filters[groupName][categoryName] = [];
 
             filters[groupName][categoryName].push({
-                label: filter.label,
-                description: filter.description
+                label: labelName,
+                description: filter?.description || canonical?.description
             });
         });
         return filters;

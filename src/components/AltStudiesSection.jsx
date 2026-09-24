@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 
 const ICON_OPTS = [
     { url: "../assets/animal.webp", label: "Model Organism Study" },
-    { url: "../assets/background.webp", label: "Background Information" },
+    { url: "../assets/background.webp", label: "Demographics" },
     { url: "../assets/biobank.webp", label: "Samples Available" },
     { url: "../assets/invitro.webp", label: "In Vitro Study" },
     { url: "../assets/lab_results.webp", label: "Lab Results" },
