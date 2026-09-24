@@ -41,8 +41,18 @@ export const Header = () => {
         }
 
         const handleOpenModal = () => setIsDataCustodiansModalOpen(true);
+        const handleExpandMenu = () => {
+            setIsDataDropdownOpen(true);
+            setIsUploadExpanded(true);
+        };
+
         window.addEventListener('openDataCustodiansModal', handleOpenModal);
-        return () => window.removeEventListener('openDataCustodiansModal', handleOpenModal);
+        window.addEventListener('expandDataCustodianMenu', handleExpandMenu);
+
+        return () => {
+            window.removeEventListener('openDataCustodiansModal', handleOpenModal);
+            window.removeEventListener('expandDataCustodianMenu', handleExpandMenu);
+        };
     }, []);
 
     const handleTeamChange = (e) => {
@@ -57,13 +67,7 @@ export const Header = () => {
         const currentPath = window.location.pathname;
 
         if (tourId === 'first_dataset_upload') {
-            const isUpload = currentPath.endsWith('upload.html');
-            if (isUpload) {
-                window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId, stepIndex: 0 } }));
-            } else {
-                sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId, stepIndex: 0 }));
-                window.location.href = './upload.html';
-            }
+            window.dispatchEvent(new CustomEvent('startGuidedTour', { detail: { tourId, stepIndex: 0 } }));
             return;
         }
 
@@ -365,7 +369,18 @@ export const Header = () => {
                                                 </a>
                                                 {isUploadExpanded && (
                                                     <ul className="bg-gray-50 border-y border-gray-200 py-1 !flex !flex-col w-full">
-                                                        <li className="w-full"><a href="./upload.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload dataset</a></li>
+                                                        <li className="w-full">
+                                                            <a 
+                                                                href="./upload.html" 
+                                                                data-tour="upload-dataset-link"
+                                                                onClick={() => {
+                                                                    sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: 'first_dataset_upload', stepIndex: 1 }));
+                                                                }}
+                                                                className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100"
+                                                            >
+                                                                Upload dataset
+                                                            </a>
+                                                        </li>
                                                         <li className="w-full"><a href="./upload_project.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload project</a></li>
                                                         <li className="w-full"><a href="./upload_publications.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a publication</a></li>
                                                         <li className="w-full"><a href="./upload_tool.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a tool</a></li>

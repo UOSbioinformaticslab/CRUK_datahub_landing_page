@@ -95,18 +95,17 @@ export const GuidedTourController = ({
   const currentStep = activeTourSteps[tourState.currentStepIndex];
 
   const handleNext = () => {
-    // If on Step 0, navigate to appropriate target page
-    if (tourState.currentStepIndex === 0) {
-      const targetPage = tourState.tourId === 'first_dataset_upload' ? './upload.html' : './datasets.html';
-      sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: tourState.tourId, stepIndex: 1 }));
-      window.location.href = targetPage;
+    // If on Step 1 (index 0) of first_dataset_upload and not on upload.html, navigate to upload.html at stepIndex 1 (Step 2)
+    if (tourState.tourId === 'first_dataset_upload' && tourState.currentStepIndex === 0 && !window.location.pathname.endsWith('upload.html')) {
+      sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: 'first_dataset_upload', stepIndex: 1 }));
+      window.location.href = './upload.html';
       return;
     }
 
-    // If step 1 of first_dataset_upload is completed from another page, navigate to upload.html
-    if (tourState.tourId === 'first_dataset_upload' && tourState.currentStepIndex === 0 && !window.location.pathname.endsWith('upload.html')) {
+    // If on Step 0 of simple/advanced filters (Dashboard navigation step), clicking Next navigates to datasets.html
+    if (tourState.tourId !== 'first_dataset_upload' && tourState.currentStepIndex === 0) {
       sessionStorage.setItem('pendingGuidedTour', JSON.stringify({ tourId: tourState.tourId, stepIndex: 1 }));
-      window.location.href = './upload.html';
+      window.location.href = './datasets.html';
       return;
     }
 
@@ -116,7 +115,7 @@ export const GuidedTourController = ({
       if (nextStep.onEnter) nextStep.onEnter();
       setTourState(prev => ({ ...prev, isActive: true, currentStepIndex: nextIndex }));
     } else {
-      setTourState({ isActive: false, currentStepIndex: 1, tourId: null });
+      setTourState({ isActive: false, currentStepIndex: 0, tourId: null });
     }
   };
 
@@ -130,13 +129,13 @@ export const GuidedTourController = ({
   };
 
   const handleClose = () => {
-    setTourState({ isActive: false, currentStepIndex: 1, tourId: null });
+    setTourState({ isActive: false, currentStepIndex: 0, tourId: null });
   };
 
   // Adjust display step number for overlay badge
-  const isDashboardStep = tourState.currentStepIndex === 0;
-  const displayStepNumber = isDashboardStep ? 1 : tourState.currentStepIndex;
-  const totalDisplaySteps = isDashboardStep ? 1 : activeTourSteps.length - 1;
+  const isDashboardStep = tourState.tourId !== 'first_dataset_upload' && tourState.currentStepIndex === 0;
+  const displayStepNumber = isDashboardStep ? 1 : (tourState.tourId === 'first_dataset_upload' ? tourState.currentStepIndex + 1 : tourState.currentStepIndex);
+  const totalDisplaySteps = isDashboardStep ? 1 : (tourState.tourId === 'first_dataset_upload' ? activeTourSteps.length : activeTourSteps.length - 1);
 
   return (
     <TourOverlay

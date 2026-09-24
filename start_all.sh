@@ -126,13 +126,37 @@ fi
 # 5. Robust Port Cleanup per port (8000, 8001, 8002, 5173)
 echo -e "${GREEN}[5/5] Freeing ports (8000, 8001, 8002, 5173)...${NC}"
 for port in 8000 8001 8002 5173; do
-    PORT_PIDS=$(lsof -t -i :$port 2>/dev/null || true)
+    PORT_PIDS=$(lsof -t -iTCP:$port -sTCP:LISTEN 2>/dev/null || true)
     if [ -n "$PORT_PIDS" ]; then
-        echo "  -> Freeing port $port (PIDs: $PORT_PIDS)..."
-        kill -9 $PORT_PIDS 2>/dev/null || true
+        for pid in $PORT_PIDS; do
+            # Find parent PID (uvicorn watcher process) to prevent auto-respawn
+            PARENT_PID=$(ps -o ppid= -p $pid 2>/dev/null | tr -d ' ' || true)
+            if [ -n "$PARENT_PID" ] && [ "$PARENT_PID" -gt 1 ] 2>/dev/null; then
+                echo "  -> Freeing port $port (Worker PID: $pid, Parent Watcher PID: $PARENT_PID)..."
+                kill -9 $PARENT_PID $pid 2>/dev/null || true
+            else
+                echo "  -> Freeing port $port (PID: $pid)..."
+                kill -9 $pid 2>/dev/null || true
+            fi
+        done
     fi
 done
-sleep 1
+
+# Secondary pkill fallback for uvicorn and vite processes
+pkill -9 -f "main:app" 2>/dev/null || true
+pkill -9 -f "uvicorn" 2>/dev/null || true
+pkill -9 -f "vite" 2>/dev/null || true
+
+# Wait until all listening sockets are verified free
+for port in 8000 8001 8002 5173; do
+    for i in {1..15}; do
+        STILL_LISTENING=$(lsof -t -iTCP:$port -sTCP:LISTEN 2>/dev/null || true)
+        if [ -z "$STILL_LISTENING" ]; then
+            break
+        fi
+        sleep 0.2
+    done
+done
 
 # Graceful Shutdown Handler for Ctrl+C
 cleanup() {
