@@ -3,7 +3,6 @@ import { filterDetailsMap, filterData } from '../utils/filter-setup.js';
 import { filterType, includeParents, plusParents, getMessage, calculateLogicTokens
 } from '../utils/logic-utils.js';
 import { executeFilterLogic } from '../utils/filterLogic.js';
-import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
 import React from 'react'; // React is now imported from node_modules
 import "../styles/style.css"
 
@@ -572,6 +571,25 @@ export const FilterApp = ({ custodianFilter }) => {
     const [showAdvancedLogic, setShowAdvancedLogic] = useState(false);
     const [expandedKeys, setExpandedKeys] = useState(new Set());
 
+    useEffect(() => {
+        const broadcastSetters = () => {
+            window.dispatchEvent(new CustomEvent('registerFilterSetters', {
+                detail: {
+                    setActivePanel,
+                    setSelectedClassification,
+                    setSearchTerm,
+                    setSelectedFilters,
+                    setExpandedKeys,
+                    setShowAdvancedLogic
+                }
+            }));
+        };
+
+        broadcastSetters();
+        window.addEventListener('requestFilterSetters', broadcastSetters);
+        return () => window.removeEventListener('requestFilterSetters', broadcastSetters);
+    }, [setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic]);
+
     // Flatten all data for efficient searching
     const allFiltersArray = useMemo(() => Array.from(filterDetailsMap.values()), []);
 
@@ -891,15 +909,6 @@ return (
                 </div>
             </div>
 
-            {/* Render Guided Tour Controller */}
-            <GuidedTourController
-                setActivePanel={setActivePanel}
-                setSelectedClassification={setSelectedClassification}
-                setSearchTerm={setSearchTerm}
-                setSelectedFilters={setSelectedFilters}
-                setExpandedKeys={setExpandedKeys}
-                setShowAdvancedLogic={setShowAdvancedLogic}
-            />
         </div>
     );
 };

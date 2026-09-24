@@ -47,15 +47,13 @@ export const TourOverlay = ({
     resetRecorder
   } = useAudioRecorder();
 
-  const stepKey = `${tourId}_step_${currentStepIndex}`;
+  const effectiveStepIndex = step?.audioStepIndex !== undefined ? step.audioStepIndex : currentStepIndex;
+  const stepKey = step?.audioKey || `${tourId}_step_${effectiveStepIndex}`;
 
   // Verify Admin Status from User Credentials / Token
   useEffect(() => {
     const storedIsAdmin = localStorage.getItem('isAdmin') === 'true';
-    const storedEmail = localStorage.getItem('userEmail') || localStorage.getItem('email') || '';
-    const adminEmails = ['test@test.com', 'skw24@sussex.ac.uk', 'b.hall@ucl.ac.uk'];
-    const isAdminUser = storedIsAdmin || adminEmails.includes(storedEmail);
-    setIsUserAdmin(isAdminUser);
+    setIsUserAdmin(storedIsAdmin);
   }, []);
 
   // Load existing audio from VITE_MIDDLELAYER_URL and IndexedDB
@@ -74,7 +72,7 @@ export const TourOverlay = ({
 
     // 1. Fetch server voiceover map from middle service (VITE_MIDDLELAYER_URL)
     fetchTourVoiceovers(tourId).then((serverVoiceovers) => {
-      const serverUrl = serverVoiceovers[String(currentStepIndex)];
+      const serverUrl = serverVoiceovers[String(effectiveStepIndex)];
       if (isMounted && serverUrl) {
         setStepAudioUrl(serverUrl);
       } else {
@@ -95,14 +93,14 @@ export const TourOverlay = ({
     return () => {
       isMounted = false;
     };
-  }, [stepKey, tourId, currentStepIndex]);
+  }, [stepKey, tourId, effectiveStepIndex]);
 
   // Handle newly recorded audio blob (Admin Only)
   useEffect(() => {
     if (audioBlob && audioBlob.size > 500 && isUserAdmin) {
       saveStepAudio(stepKey, audioBlob);
 
-      uploadStepVoiceoverAPI(tourId, currentStepIndex, audioBlob).then((res) => {
+      uploadStepVoiceoverAPI(tourId, effectiveStepIndex, audioBlob).then((res) => {
         if (res.success) {
           setSaveStatus('Voiceover saved to server!');
           setStepAudioUrl(res.audioUrl);
@@ -113,7 +111,7 @@ export const TourOverlay = ({
         setTimeout(() => setSaveStatus(null), 3500);
       });
     }
-  }, [audioBlob, audioUrl, stepKey, tourId, currentStepIndex, isUserAdmin]);
+  }, [audioBlob, audioUrl, stepKey, tourId, effectiveStepIndex, isUserAdmin]);
 
   // Auto-play voiceover snippet when advancing steps (if available and not in recording mode)
   useEffect(() => {
@@ -130,16 +128,43 @@ export const TourOverlay = ({
     if (!step || !step.target) return;
 
     const updateTargetRect = () => {
-      let el = document.querySelector(step.target);
+      const elements = Array.from(document.querySelectorAll(step.target)).filter(
+        node => node.offsetParent !== null || node.getBoundingClientRect().height > 0
+      );
 
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
-        const rect = el.getBoundingClientRect();
+      if (elements.length > 0) {
+        elements[0].scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' });
+
+        let minTop = Infinity;
+        let minLeft = Infinity;
+        let maxRight = -Infinity;
+        let maxBottom = -Infinity;
+
+        elements.forEach(el => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < minTop) minTop = rect.top;
+          if (rect.left < minLeft) minLeft = rect.left;
+          if (rect.right > maxRight) maxRight = rect.right;
+          if (rect.bottom > maxBottom) maxBottom = rect.bottom;
+
+          // Check if target contains visible child dropdown menus (e.g. for data-custodian-actions)
+          const childUls = Array.from(el.querySelectorAll('ul')).filter(
+            ul => ul.offsetParent !== null && ul.getBoundingClientRect().height > 0
+          );
+          childUls.forEach(ul => {
+            const ulRect = ul.getBoundingClientRect();
+            if (ulRect.top < minTop) minTop = ulRect.top;
+            if (ulRect.left < minLeft) minLeft = ulRect.left;
+            if (ulRect.right > maxRight) maxRight = ulRect.right;
+            if (ulRect.bottom > maxBottom) maxBottom = ulRect.bottom;
+          });
+        });
+
         setTargetRect({
-          top: rect.top,
-          left: rect.left,
-          width: rect.width,
-          height: rect.height
+          top: minTop,
+          left: minLeft,
+          width: maxRight - minLeft,
+          height: maxBottom - minTop
         });
       } else {
         setTargetRect({
@@ -170,32 +195,33 @@ export const TourOverlay = ({
   const bubbleWidth = 380;
   const bubbleHeight = isRecordMode ? 360 : 250;
 
-  let placeAbove = targetRect.top + targetRect.height + bubbleHeight + 20 > window.innerHeight;
-  let bubbleTop = placeAbove
-    ? Math.max(16, targetRect.top - bubbleHeight - 16)
-    : Math.max(16, Math.min(window.innerHeight - bubbleHeight - 16, targetRect.top + targetRect.height + 16));
+  let bubbleTop = 0;
+  let bubbleLeft = 0;
+  let placeAbove = false;
+  const isRightPlacement = step.placement === 'right' || step.placement === 'right-top' || step.placement === 'right-center';
 
-  let bubbleLeft = targetRect.left + targetRect.width / 2 - bubbleWidth / 2;
+  if (isRightPlacement) {
+    bubbleLeft = targetRect.left + targetRect.width + 20;
+    if (bubbleLeft + bubbleWidth > window.innerWidth - 16) {
+      bubbleLeft = Math.max(16, targetRect.left - bubbleWidth - 20);
+    }
+    bubbleTop = Math.max(16, Math.min(window.innerHeight - bubbleHeight - 16, targetRect.top));
+  } else {
+    placeAbove = targetRect.top + targetRect.height + bubbleHeight + 20 > window.innerHeight;
+    bubbleTop = placeAbove
+      ? Math.max(16, targetRect.top - bubbleHeight - 16)
+      : Math.max(16, Math.min(window.innerHeight - bubbleHeight - 16, targetRect.top + targetRect.height + 16));
 
-  if (bubbleLeft < 16) bubbleLeft = 16;
-  if (bubbleLeft + bubbleWidth > window.innerWidth - 16) {
-    bubbleLeft = window.innerWidth - bubbleWidth - 16;
+    bubbleLeft = targetRect.left + targetRect.width / 2 - bubbleWidth / 2;
+
+    if (bubbleLeft < 16) bubbleLeft = 16;
+    if (bubbleLeft + bubbleWidth > window.innerWidth - 16) {
+      bubbleLeft = window.innerWidth - bubbleWidth - 16;
+    }
   }
 
   const handleBackdropClick = (e) => {
-    const clickX = e.clientX;
-    const clickY = e.clientY;
-    const isInsideTarget =
-      clickX >= targetRect.left - 6 &&
-      clickX <= targetRect.left + targetRect.width + 6 &&
-      clickY >= targetRect.top - 6 &&
-      clickY <= targetRect.top + targetRect.height + 6;
-
-    if (isInsideTarget) {
-      let el = document.querySelector(step.target);
-      if (el) el.click();
-      onNext();
-    }
+    // Backdrop click handles clicks on dark shaded area
   };
 
   const handleStepNext = (e) => {
@@ -236,7 +262,7 @@ export const TourOverlay = ({
   const handleDeleteAudio = async () => {
     await deleteStepAudio(stepKey);
     if (isUserAdmin) {
-      await deleteStepVoiceoverAPI(tourId, currentStepIndex);
+      await deleteStepVoiceoverAPI(tourId, effectiveStepIndex);
     }
     setStepAudioUrl(null);
     resetRecorder();
@@ -249,6 +275,11 @@ export const TourOverlay = ({
     const s = secs % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
+
+  const holeX = Math.max(0, targetRect.left - 6);
+  const holeY = Math.max(0, targetRect.top - 6);
+  const holeW = targetRect.width + 12;
+  const holeH = targetRect.height + 12;
 
   return (
     <div className="fixed inset-0 z-[9999] pointer-events-none">
@@ -268,43 +299,28 @@ export const TourOverlay = ({
         />
       )}
 
-      {/* Darkened SVG Mask Backdrop */}
+      {/* Darkened SVG Backdrop with transparent hole for interaction */}
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-auto"
-        onClick={handleBackdropClick}
+        className="absolute inset-0 w-full h-full pointer-events-none"
       >
-        <defs>
-          <mask id="tour-spotlight-mask">
-            <rect x="0" y="0" width="100%" height="100%" fill="white" />
-            <rect
-              x={targetRect.left - 6}
-              y={targetRect.top - 6}
-              width={targetRect.width + 12}
-              height={targetRect.height + 12}
-              rx="8"
-              fill="black"
-            />
-          </mask>
-        </defs>
-        <rect
-          x="0"
-          y="0"
-          width="100%"
-          height="100%"
+        <path
+          fillRule="evenodd"
           fill="rgba(0, 0, 0, 0.65)"
-          mask="url(#tour-spotlight-mask)"
+          style={{ pointerEvents: 'auto' }}
+          onClick={handleBackdropClick}
+          d={`M 0 0 H ${window.innerWidth} V ${window.innerHeight} H 0 Z M ${holeX} ${holeY} h ${holeW} v ${holeH} h ${-holeW} Z`}
         />
         {/* Glowing Spotlight Ring around Target */}
         <rect
-          x={targetRect.left - 6}
-          y={targetRect.top - 6}
-          width={targetRect.width + 12}
-          height={targetRect.height + 12}
+          x={holeX}
+          y={holeY}
+          width={holeW}
+          height={holeH}
           rx="8"
           fill="none"
           stroke="#D10A6F"
           strokeWidth="3"
-          className="animate-pulse"
+          className="animate-pulse pointer-events-none"
         />
       </svg>
 
@@ -318,7 +334,9 @@ export const TourOverlay = ({
         }}
       >
         {/* Bubble Pointer Arrow */}
-        {placeAbove ? (
+        {isRightPlacement ? (
+          <div className="absolute top-6 -left-3 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-[var(--cruk-pink)]" />
+        ) : placeAbove ? (
           <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-[var(--cruk-pink)]" />
         ) : (
           <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-8 border-b-[var(--cruk-pink)]" />

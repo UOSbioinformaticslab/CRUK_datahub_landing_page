@@ -1,6 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
-
 
 export const DatahubDashboard = () => {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
@@ -261,7 +259,6 @@ export const DatahubDashboard = () => {
           </div>
         </a>
       </div>
-      <GuidedTourController />
     </div>
   );
 };

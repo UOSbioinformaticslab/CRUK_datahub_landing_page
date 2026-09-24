@@ -353,48 +353,50 @@ const WelcomeSection = ({
     handleSelectDataset,
     onUpload }) => (
     <div className="p-8 overflow-y-auto pb-20 w-full">
-        <h1 className="text-3xl font-extrabold mb-4 text-gray-900">Guide to Uploading and Modifying Metadata</h1>
+        <div data-tour="welcome-guide-section" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6">
+            <h1 className="text-3xl font-extrabold mb-4 text-gray-900">Guide to Uploading and Modifying Metadata</h1>
 
-        {/* Change <p> to <div> here to allow the JsonUpload div descendant */}
-        <div className="text-sm text-gray-600 mb-1 leading-relaxed">
-            If this is a new dataset, you can either input the metadata manually following the guidance in the right hand panel, switch tab to use the AI uploader, or if you have done this before, you can directly upload a json with some or all of the required information.
+            {/* Change <p> to <div> here to allow the JsonUpload div descendant */}
+            <div className="text-sm text-gray-600 mb-1 leading-relaxed">
+                If this is a new dataset, you can either input the metadata manually following the guidance in the right hand panel, switch tab to use the AI uploader, or if you have done this before, you can directly upload a json with some or all of the required information.
 
-            <JsonUpload
-                schema={DATA_SCHEMA}
-                onUpload={onUpload}
-                additionalValidations={EXTRA_VALIDATIONS}
-            />
-        </div>
+                <JsonUpload
+                    schema={DATA_SCHEMA}
+                    onUpload={onUpload}
+                    additionalValidations={EXTRA_VALIDATIONS}
+                />
+            </div>
 
-        <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-            To modify your existing dataset, choose from your existing datasets below to retrieve the existing information for manual adjustment, to download the data, or to upload amendments.
-        </p>
+            <p className="text-sm text-gray-600 mb-3 leading-relaxed">
+                To modify your existing dataset, choose from your existing datasets below to retrieve the existing information for manual adjustment, to download the data, or to upload amendments.
+            </p>
 
-        <div className="mb-6 max-w-lg">
-            {loadingDatasets ? (
-                <p className="text-sm text-gray-500">Loading datasets...</p>
-            ) : datasetError ? (
-                <p className="text-sm text-red-500">{datasetError}</p>
-            ) : (
-                <select
-                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm text-gray-700 cursor-pointer"
-                    defaultValue=""
-                    onChange={handleSelectDataset}
-                >
-                    <option value="" disabled>-- Select an existing dataset --</option>
-                    {existingDatasets.map(dataset => {
-                        const title = dataset.computed_title || dataset.metadata_blob?.summary?.title || dataset.datasetid;
-                        const statusTag = dataset.active
-                            ? (dataset.has_draft ? '[Active (Draft edits)]' : '[Active]')
-                            : '[Draft]';
-                        return (
-                            <option key={dataset.id} value={dataset.id}>
-                                {title} {statusTag}
-                            </option>
-                        );
-                    })}
-                </select>
-            )}
+            <div className="mb-2 max-w-lg">
+                {loadingDatasets ? (
+                    <p className="text-sm text-gray-500">Loading datasets...</p>
+                ) : datasetError ? (
+                    <p className="text-sm text-red-500">{datasetError}</p>
+                ) : (
+                    <select
+                        className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm text-gray-700 cursor-pointer"
+                        defaultValue=""
+                        onChange={handleSelectDataset}
+                    >
+                        <option value="" disabled>-- Select an existing dataset --</option>
+                        {existingDatasets.map(dataset => {
+                            const title = dataset.computed_title || dataset.metadata_blob?.summary?.title || dataset.datasetid;
+                            const statusTag = dataset.active
+                                ? (dataset.has_draft ? '[Active (Draft edits)]' : '[Active]')
+                                : '[Draft]';
+                            return (
+                                <option key={dataset.id} value={dataset.id}>
+                                    {title} {statusTag}
+                                </option>
+                            );
+                        })}
+                    </select>
+                )}
+            </div>
         </div>
 
         <div className="bg-white p-6 rounded-xl shadow-lg border border-gray-200 mt-4">
@@ -1385,8 +1387,18 @@ const SchemaPage = () => {
     useEffect(() => {
         fetchDatasets();
 
+        const handleSetSection = (e) => {
+            if (e.detail) {
+                setActiveSection(e.detail);
+            }
+        };
+
         window.addEventListener('authChange', fetchDatasets);
-        return () => window.removeEventListener('authChange', fetchDatasets);
+        window.addEventListener('setSchemaSection', handleSetSection);
+        return () => {
+            window.removeEventListener('authChange', fetchDatasets);
+            window.removeEventListener('setSchemaSection', handleSetSection);
+        };
     }, [fetchDatasets]);
 
     const handleSelectDataset = async (e) => {
@@ -1869,20 +1881,22 @@ return (
 
                     {/* LEFT PANEL: Navigation */}
                     <Panel defaultSize={20} minSize={15}>
-                        <SchemaNav
-                            activeSection={activeSection}
-                            setActiveSection={handleNavChange}
-                            onDownload={downloadJSON}
-                            formData={formData}
-                            visitedSections={visitedSections}
-                        />
+                        <div data-tour="metadata-sections-left" className="h-full w-full">
+                            <SchemaNav
+                                activeSection={activeSection}
+                                setActiveSection={handleNavChange}
+                                onDownload={downloadJSON}
+                                formData={formData}
+                                visitedSections={visitedSections}
+                            />
+                        </div>
                     </Panel>
 
                     <Separator className="w-1 bg-gray-200 hover:bg-indigo-400 transition-colors cursor-col-resize" />
 
                     {/* MIDDLE PANEL: Main Form */}
                     <Panel defaultSize={55} minSize={30}>
-                        <div data-tour="metadata-sections-whole" className="h-full flex justify-center w-full">
+                        <div data-tour="metadata-sections-central" className="h-full flex justify-center w-full">
                             <SchemaForm
                                 sectionKey={activeSection}
                                 formData={formData}

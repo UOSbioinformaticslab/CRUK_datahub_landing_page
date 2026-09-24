@@ -5,6 +5,7 @@ import { ManageTeamModal } from './ManageTeamModal.jsx';
 import { InvitationsModal } from './InvitationsModal.jsx';
 import { DataCustodiansModal } from './DataCustodiansModal.jsx';
 import ChatWidget from './ChatWidget.jsx';
+import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
 import "../styles/style.css"
 
 export const Header = () => {
@@ -41,16 +42,19 @@ export const Header = () => {
         }
 
         const handleOpenModal = () => setIsDataCustodiansModalOpen(true);
+        const handleOpenSignInModal = () => setIsSignInModalOpen(true);
         const handleExpandMenu = () => {
             setIsDataDropdownOpen(true);
             setIsUploadExpanded(true);
         };
 
         window.addEventListener('openDataCustodiansModal', handleOpenModal);
+        window.addEventListener('openSignInModal', handleOpenSignInModal);
         window.addEventListener('expandDataCustodianMenu', handleExpandMenu);
 
         return () => {
             window.removeEventListener('openDataCustodiansModal', handleOpenModal);
+            window.removeEventListener('openSignInModal', handleOpenSignInModal);
             window.removeEventListener('expandDataCustodianMenu', handleExpandMenu);
         };
     }, []);
@@ -407,6 +411,7 @@ export const Header = () => {
             </nav>
         </header>
         <ChatWidget />
+        <GuidedTourController />
         </>
     );
 };

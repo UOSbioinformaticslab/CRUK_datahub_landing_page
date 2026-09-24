@@ -5,14 +5,35 @@ import { getSimpleFilterSteps } from './simpleFilters.js';
 import { getFirstDatasetTourSteps } from './firstDatasetTour.js';
 
 export const GuidedTourController = ({
-  setActivePanel,
-  setSelectedClassification,
-  setSearchTerm,
-  setSelectedFilters,
-  setExpandedKeys,
-  setShowAdvancedLogic
+  setActivePanel: propsSetActivePanel,
+  setSelectedClassification: propsSetSelectedClassification,
+  setSearchTerm: propsSetSearchTerm,
+  setSelectedFilters: propsSetSelectedFilters,
+  setExpandedKeys: propsSetExpandedKeys,
+  setShowAdvancedLogic: propsSetShowAdvancedLogic
 }) => {
   const [tourState, setTourState] = useState({ isActive: false, currentStepIndex: 1, tourId: null });
+  const [filterSetters, setFilterSetters] = useState({});
+
+  useEffect(() => {
+    const handleRegister = (e) => {
+      if (e.detail) {
+        setFilterSetters(e.detail);
+      }
+    };
+    window.addEventListener('registerFilterSetters', handleRegister);
+    window.dispatchEvent(new CustomEvent('requestFilterSetters'));
+    return () => window.removeEventListener('registerFilterSetters', handleRegister);
+  }, []);
+
+  const getEffectiveParams = () => ({
+    setActivePanel: filterSetters.setActivePanel || propsSetActivePanel,
+    setSelectedClassification: filterSetters.setSelectedClassification || propsSetSelectedClassification,
+    setSearchTerm: filterSetters.setSearchTerm || propsSetSearchTerm,
+    setSelectedFilters: filterSetters.setSelectedFilters || propsSetSelectedFilters,
+    setExpandedKeys: filterSetters.setExpandedKeys || propsSetExpandedKeys,
+    setShowAdvancedLogic: filterSetters.setShowAdvancedLogic || propsSetShowAdvancedLogic
+  });
 
   const getStepsForTour = (tourId, params) => {
     if (tourId === 'simple_filters') return getSimpleFilterSteps(params);
@@ -21,24 +42,17 @@ export const GuidedTourController = ({
   };
 
   const activeTourSteps = useMemo(() => {
-    const params = {
-      setActivePanel,
-      setSelectedClassification,
-      setSearchTerm,
-      setSelectedFilters,
-      setExpandedKeys,
-      setShowAdvancedLogic
-    };
-
+    const params = getEffectiveParams();
     return getStepsForTour(tourState.tourId, params);
   }, [
     tourState.tourId,
-    setActivePanel,
-    setSelectedClassification,
-    setSearchTerm,
-    setSelectedFilters,
-    setExpandedKeys,
-    setShowAdvancedLogic
+    filterSetters,
+    propsSetActivePanel,
+    propsSetSelectedClassification,
+    propsSetSearchTerm,
+    propsSetSelectedFilters,
+    propsSetExpandedKeys,
+    propsSetShowAdvancedLogic
   ]);
 
   useEffect(() => {
@@ -46,7 +60,7 @@ export const GuidedTourController = ({
       const tourId = e.detail?.tourId || 'advanced_filters';
       let startIndex = typeof e.detail?.stepIndex === 'number' ? e.detail.stepIndex : 1;
 
-      const steps = getStepsForTour(tourId, { setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic });
+      const steps = getStepsForTour(tourId, getEffectiveParams());
 
       if (steps[startIndex] && steps[startIndex].onEnter) {
         steps[startIndex].onEnter();
@@ -71,7 +85,7 @@ export const GuidedTourController = ({
     }
 
     return () => window.removeEventListener('startGuidedTour', handleStartTour);
-  }, [setActivePanel, setSelectedClassification, setSearchTerm, setSelectedFilters, setExpandedKeys, setShowAdvancedLogic]);
+  }, [filterSetters, propsSetActivePanel, propsSetSelectedClassification, propsSetSearchTerm, propsSetSelectedFilters, propsSetExpandedKeys, propsSetShowAdvancedLogic]);
 
   // Intercept click on [data-tour="browse-datasets"] if on Step 0
   useEffect(() => {

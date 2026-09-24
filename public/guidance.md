@@ -1,9 +1,11 @@
-# CRUK Datahub Upload Guide
+# Quick Start Upload Guide
 
-This page is to help you enter your cancer research metadata onto the CRUK datahub, in a way that helps others find and potentially access the data.
+This guidance is to help you upload metadata onto the CRUK datahub, in a way that helps others find and potentially access the data.
 You can either enter the information manually or - if you have done this before - you can upload a modified json file, and use the page to check that all is as you want it. 
 
 The CRUK datahub is fully compatible with HDRUK's health data gateway portal. Once you've entered the information here you do not need to re-enter the information on their portal.
+
+You can always enter the metadata you have and come back to it, as more becomes available, or invite a colleague with extra information to join your data custodian team.
 
 ## Before you start
 You will need the following information. 
