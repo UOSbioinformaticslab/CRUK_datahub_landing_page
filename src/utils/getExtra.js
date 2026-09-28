@@ -115,16 +115,16 @@ function getMaleSpecific(extra, file, ids) {
             for (const [maleTerm, femaleTerm] of genderPairs) {
                 if (phrase.includes(maleTerm) && !phrase.includes(femaleTerm)) {
                     extra.push({
-                        id: '0_0_2_13',
+                        id: '0_0_2_57',
                         label: "Men's cancer",
                         category: 'crukTerms',
                         primaryGroup: 'cancer-type',
                         description: ''
                     });
 
-                    if (ids.has("0_0_2_14")) {
+                    if (ids.has("0_0_2_15")) {
                         extra.push({
-                            id: '0_0_2_15',
+                            id: '0_0_2_16',
                             label: "Breast cancer in men",
                             category: 'crukTerms',
                             primaryGroup: 'cancer-type',

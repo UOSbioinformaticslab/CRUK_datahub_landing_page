@@ -2,8 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import ReactDOM from 'react-dom/client';
 import { Panel, Group, Separator } from "react-resizable-panels";
 // 1. IMPORT DATA FROM UTILS
-import { filterData } from '../utils/filter-setup.js';
-import { flattenedFilterData } from '../utils/flattened_filter_data.js';
+import { filterData, flattenedFilterData } from '../utils/filter-setup.js';
 import {
     ICON_MAPPING,
     ETHNICITY_CATEGORIES,

@@ -1739,14 +1739,19 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
     let processedData = associateIcons(formData, prefixIconMapping);
     processedData = removeEmptyArrayEntries(processedData);
 
-const filters = processedData.datasetFilters || [];
-    const tops = filters.filter(f => f.id?.startsWith("0_0_0")).map(f => f.label);
-    const hist = filters.filter(f => f.id?.startsWith("0_0_1")).map(f => f.label);
+    const filters = processedData.datasetFilters || [];
+    const topoFilters = filters.filter(f => (typeof f === 'object' ? f.id : f)?.startsWith("0_0_0"));
+    const histFilters = filters.filter(f => (typeof f === 'object' ? f.id : f)?.startsWith("0_0_1"));
 
-    console.log("DEBUG 1 - Tops extracted:", tops);
-    console.log("DEBUG 2 - Hist extracted:", hist);
+    const tops = topoFilters.map(f => (typeof f === 'object' ? f.label : f)).filter(Boolean);
+    const hist = histFilters.map(f => (typeof f === 'object' ? f.label : f)).filter(Boolean);
+    const topIds = topoFilters.map(f => (typeof f === 'object' ? f.id : f)).filter(Boolean);
+    const histIds = histFilters.map(f => (typeof f === 'object' ? f.id : f)).filter(Boolean);
 
-    if (tops.length > 0 && hist.length > 0) {
+    console.log("DEBUG 1 - Tops extracted:", tops, "IDs:", topIds);
+    console.log("DEBUG 2 - Hist extracted:", hist, "IDs:", histIds);
+
+    if ((tops.length > 0 || topIds.length > 0) && (hist.length > 0 || histIds.length > 0)) {
         try {
             console.log("DEBUG 3 - Entering API block. Both tops and hist exist.");
             const token = localStorage.getItem('token');
@@ -1757,7 +1762,12 @@ const filters = processedData.datasetFilters || [];
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ topographies: tops, histologies: hist })
+                body: JSON.stringify({
+                    topographies: tops,
+                    histologies: hist,
+                    topography_ids: topIds,
+                    histology_ids: histIds
+                })
             });
 
             console.log("DEBUG 4 - API Response Status:", response.status);

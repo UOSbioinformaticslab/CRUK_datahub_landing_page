@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { normalizeList } from '../utils/metadataUtils';
-import { flattenedFilterData } from '../utils/flattened_filter_data.js';
+import { flattenedFilterData } from '../utils/filter-setup.js';
 
 
 const PreviewTags = ({ data, onSectionClick }) => {

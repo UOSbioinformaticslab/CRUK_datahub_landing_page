@@ -1,5 +1,5 @@
 import { DatasetsSection } from './DatasetsSection.jsx';
-import { filterDetailsMap, filterData } from '../utils/filter-setup.js';
+import { filterDetailsMap, filterData, getFilterData } from '../utils/filter-setup.js';
 import { filterType, includeParents, plusParents, getMessage, calculateLogicTokens
 } from '../utils/logic-utils.js';
 import { executeFilterLogic } from '../utils/filterLogic.js';
@@ -953,7 +953,7 @@ const CancerTypePanel = ({ handleFilterChange,
     selectedClassification,
     setSelectedClassification}) => {
 
-    const cancerGroups = filterData['0_0'].children;
+    const cancerGroups = filterData['0_0']?.children || {};
 
     // --- DATA RETRIEVAL and PRUNING ---
     // ICD-O (Combined Topography and Histology)
@@ -1221,15 +1221,15 @@ const CancerTypePanel = ({ handleFilterChange,
 };
 
 const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSearchTerm, filteredIds, isSearching, pruneHierarchy, expandedKeys, setExpandedKeys }) => {
-    const dataTypeGroups = filterData['0_2'].children;
-    const primaryGroup = filterData['0_2'].primaryGroup;
+    const dataTypeGroups = filterData['0_2']?.children || {};
+    const primaryGroup = filterData['0_2']?.primaryGroup || '';
 
     // Apply pruning logic to each main group
-    const filteredBiobankItems = pruneHierarchy(dataTypeGroups['0_2_0'].children, filteredIds);
-    const filteredInvitroItems = pruneHierarchy(dataTypeGroups['0_2_1'].children, filteredIds);
-    const filteredAnimalItems = pruneHierarchy(dataTypeGroups['0_2_2'].children, filteredIds);
-    const filteredPatientItems = pruneHierarchy(dataTypeGroups['0_2_3'].children, filteredIds);
-    const filteredNonBioItems = pruneHierarchy(dataTypeGroups['0_2_4'].children, filteredIds);
+    const filteredBiobankItems = pruneHierarchy(dataTypeGroups['0_2_0']?.children, filteredIds);
+    const filteredInvitroItems = pruneHierarchy(dataTypeGroups['0_2_1']?.children, filteredIds);
+    const filteredAnimalItems = pruneHierarchy(dataTypeGroups['0_2_2']?.children, filteredIds);
+    const filteredPatientItems = pruneHierarchy(dataTypeGroups['0_2_3']?.children, filteredIds);
+    const filteredNonBioItems = pruneHierarchy(dataTypeGroups['0_2_4']?.children, filteredIds);
 
     // Helper class for the lists: Added 'pb-28' for tooltip space
     const listClass = "h-40 overflow-y-auto space-y-1 text-sm pr-2 pb-28";
@@ -1311,8 +1311,8 @@ const DataTypePanel = ({ handleFilterChange, selectedFilters, searchTerm, setSea
     );
 };
 const AccessibilityPanel = ({ handleFilterChange, selectedFilters, searchTerm, setSearchTerm, filteredIds, isSearching, pruneHierarchy }) => {
-    const accessibilityItems = Object.values(filterData['0_1'].children);
-    const primaryGroup = filterData['0_1'].primaryGroup;
+    const accessibilityItems = filterData['0_1']?.children ? Object.values(filterData['0_1'].children) : [];
+    const primaryGroup = filterData['0_1']?.primaryGroup || '';
 
     // Accessibility items are flat, so we just filter them here if a search is active
     const finalAccessibilityItems = useMemo(() => {

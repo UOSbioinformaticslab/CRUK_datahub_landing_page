@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
-import { filterDetailsMap, filterData } from '../utils/filter-setup.js';
+import { filterDetailsMap, filterData, getFilterData } from '../utils/filter-setup.js';
 import "../styles/style.css"
 
 // --- Helper Components ---
@@ -157,7 +157,7 @@ const SearchInput = ({ searchTerm, setSearchTerm, isSearching, placeholder }) =>
 
 const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, setSearchTerm, filteredIds, pruneHierarchy }) => {
     // Defaulting to ICD-O views
-    const cancerGroups = filterData['0_0'].children;
+    const cancerGroups = filterData['0_0']?.children || {};
 
     const filteredTopo = pruneHierarchy(cancerGroups['0_0_0']?.children, filteredIds);
     const filteredHisto = pruneHierarchy(cancerGroups['0_0_1']?.children, filteredIds);
@@ -197,22 +197,20 @@ const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, s
 
 const DataTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, setSearchTerm, filteredIds, pruneHierarchy }) => {
     const [expandedSection, setExpandedSection] = useState(null); // Default first one open
-    const dataTypeGroups = filterData['0_2'].children;
+    const dataTypeGroups = filterData['0_2']?.children || {};
 
     const sections = [
-        { title: "Biobank", items: dataTypeGroups['0_2_0'].children },
-        { title: "In Vitro", items: dataTypeGroups['0_2_1'].children },
-        { title: "Model Organisms", items: dataTypeGroups['0_2_2'].children },
-        { title: "Patient Studies", items: dataTypeGroups['0_2_3'].children },
-        { title: "Techniques", items: dataTypeGroups['0_2_4'].children }
+        { title: "Biobank", items: dataTypeGroups['0_2_0']?.children },
+        { title: "In Vitro", items: dataTypeGroups['0_2_1']?.children },
+        { title: "Model Organisms", items: dataTypeGroups['0_2_2']?.children },
+        { title: "Patient Studies", items: dataTypeGroups['0_2_3']?.children },
+        { title: "Techniques", items: dataTypeGroups['0_2_4']?.children }
     ];
 
     return (
         <div className="flex flex-col h-full">
             <SearchInput searchTerm={searchTerm} setSearchTerm={setSearchTerm} isSearching={false} placeholder="Search data types..." />
 
-            {/* 1) grid-cols-2 creates the 2-column width.
-                2) grid-auto-rows-fr ensures rows take equal height. */}
             <div className="grid grid-cols-2 grid-auto-rows-fr gap-4 overflow-y-auto pr-2">
                 {sections.map((sec, idx) => {
                     const isOpen = expandedSection === idx;
@@ -222,7 +220,6 @@ const DataTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, set
                             key={idx}
                             className={`flex flex-col border rounded-lg transition-all duration-200 shadow-sm ${isOpen ? 'bg-white border-indigo-300 ring-1 ring-indigo-50' : 'bg-gray-50 border-gray-200'}`}
                         >
-                            {/* Header acts as the toggle for the accordion */}
                             <button
                                 onClick={() => setExpandedSection(isOpen ? null : idx)}
                                 className="w-full flex items-center justify-between p-3 text-left hover:bg-gray-100 rounded-t-lg transition-colors"
@@ -236,7 +233,6 @@ const DataTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, set
                                 </svg>
                             </button>
 
-                            {/* Collapsible Content */}
                             {isOpen && (
                                 <div className="p-3 pt-0 border-t border-gray-100 h-64 overflow-y-auto">
                                     <NestedFilterList
@@ -255,7 +251,7 @@ const DataTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, set
 };
 
 const AccessibilityPanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, setSearchTerm, filteredIds }) => {
-    const items = Object.values(filterData['0_1'].children);
+    const items = filterData['0_1']?.children ? Object.values(filterData['0_1'].children) : [];
     const visibleItems = filteredIds ? items.filter(i => filteredIds.has(i.id)) : items;
 
     return (
@@ -267,7 +263,7 @@ const AccessibilityPanel = ({ handleFilterChange, selectedFiltersSet, searchTerm
                         <input
                             type="checkbox"
                             className="rounded text-[var(--cruk-pink)] border-gray-300 mr-2"
-                            checked={selectedFiltersSet.has(item.id)} // This works because our Set now holds IDs
+                            checked={selectedFiltersSet.has(item.id)}
                             onChange={() => handleFilterChange(item.id)}
                         />
                         <span className="text-sm text-gray-700">{item.label}</span>
@@ -283,6 +279,11 @@ const DataTagger = ({ value = [], onChange }) => {
     const [activePanel, setActivePanel] = useState('cancer');
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredIds, setFilteredIds] = useState(null);
+    const [isFilterLoaded, setIsFilterLoaded] = useState(false);
+
+    useEffect(() => {
+        getFilterData().then(() => setIsFilterLoaded(true));
+    }, []);
 
     const selectedFiltersSet = useMemo(() => {
         return new Set(value.map(item => item.id));
