@@ -192,6 +192,7 @@ const ageRange = data.coverage?.typicalAgeRangeMin && data.coverage?.typicalAgeR
 
 const leadTime = data.accessibility?.access?.deliveryLeadTime;
 const followUp = data.coverage?.followUp;
+const materialType = data.coverage?.materialType;
 
 // Safe check for format array
 const fileTypes = data.accessibility?.formatAndStandards?.format
@@ -610,6 +611,7 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
   const followUp = coverage.followUp;
   const pathway = coverage.pathway;
   const spatial = coverage.spatial;
+  const materialTypeVal = coverage.materialType || data.coverage?.materialType;
   const datasetCompleteness = coverage.datasetCompleteness;
   const documentation = data.documentation || {};
 
@@ -762,6 +764,16 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
           label="Spatial Coverage"
           value={Array.isArray(spatial) ? spatial.join(', ') : spatial}
           colorClass="bg-indigo-50"
+          onClick={onSectionClick ? () => onSectionClick('coverage') : undefined}
+        />
+      )}
+      {(materialTypeVal || data.coverage?.materialType) && (
+        <StatCard
+          label="Material Type"
+          value={Array.isArray(materialTypeVal || data.coverage?.materialType) 
+            ? (materialTypeVal || data.coverage?.materialType).join(', ') 
+            : (materialTypeVal || data.coverage?.materialType)}
+          colorClass="bg-emerald-50"
           onClick={onSectionClick ? () => onSectionClick('coverage') : undefined}
         />
       )}

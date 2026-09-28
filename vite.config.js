@@ -9,17 +9,29 @@ const localSchemaDocViewer = resolve(__dirname, '../semantic-schema/cruk-semanti
 
 export default defineConfig({
   resolve: {
-    alias: {
-      'cruk-semantic-schema/src/SchemaDocViewer.jsx': existsSync(localSchemaDocViewer)
-        ? localSchemaDocViewer
-        : 'cruk-semantic-schema/src/SchemaDocViewer.jsx',
-      'cruk-semantic-schema/src/SchemaDocViewer': existsSync(localSchemaDocViewer)
-        ? localSchemaDocViewer
-        : 'cruk-semantic-schema/src/SchemaDocViewer.jsx',
-      'cruk-semantic-schema$': existsSync(localSemanticSchemaJson)
-        ? localSemanticSchemaJson
-        : 'cruk-semantic-schema/semanticSchema.json',
-    },
+    alias: [
+      {
+        find: 'cruk-semantic-schema/src/SchemaDocViewer.jsx',
+        replacement: existsSync(localSchemaDocViewer)
+          ? localSchemaDocViewer
+          : resolve(__dirname, 'node_modules/cruk-semantic-schema/src/SchemaDocViewer.jsx')
+      },
+      {
+        find: 'cruk-semantic-schema/src/SchemaDocViewer',
+        replacement: existsSync(localSchemaDocViewer)
+          ? localSchemaDocViewer
+          : resolve(__dirname, 'node_modules/cruk-semantic-schema/src/SchemaDocViewer.jsx')
+      },
+      {
+        find: /^cruk-semantic-schema$/,
+        replacement: existsSync(localSemanticSchemaJson)
+          ? localSemanticSchemaJson
+          : resolve(__dirname, 'node_modules/cruk-semantic-schema/semanticSchema.json')
+      }
+    ]
+  },
+  optimizeDeps: {
+    exclude: ['cruk-semantic-schema']
   },
 
 

@@ -103,6 +103,11 @@ const cruk_SCHEMA = crukSchema.properties ? crukSchema : (crukSchema.fullContent
 const OVERLAY_SCHEMA = semanticSchema.properties ? semanticSchema : (semanticSchema.fullContent || semanticSchema);
 const DATA_SCHEMA = deepMerge(cruk_SCHEMA, OVERLAY_SCHEMA);
 const VISIBLE_SECTIONS = DATA_SCHEMA.visibleSections || [];
+
+console.log("🔍 [SCHEMA_PAGE INIT] Raw imported semanticSchema:", semanticSchema);
+console.log("🔍 [SCHEMA_PAGE INIT] OVERLAY_SCHEMA.included:", OVERLAY_SCHEMA?.included);
+console.log("🔍 [SCHEMA_PAGE INIT] DATA_SCHEMA.included:", DATA_SCHEMA?.included);
+console.log("🔍 [SCHEMA_PAGE INIT] DATA_SCHEMA.included.coverage:", DATA_SCHEMA?.included?.coverage);
 // --- CUSTOM VALIDATION RULES ---
 const EXTRA_VALIDATIONS = {
     "datasetFilters": (value) => {
@@ -522,7 +527,6 @@ const FrequencyGrid = ({ value, onChange, enumOptions, label }) => {
 };
 
 // --- Component: Field Renderer (Recursive) ---
-// --- Component: Field Renderer (Recursive) ---
 const FieldRenderer = ({
     propKey,
     prop,
@@ -683,6 +687,7 @@ const FieldRenderer = ({
                         {items.map((item, index) => {
                             const itemSchema = fieldDef.items || {};
                             const resolvedItemDef = itemSchema.$ref ? resolveRef(itemSchema.$ref) : itemSchema;
+                            const itemEnumValues = resolvedItemDef?.enum || itemSchema?.enum;
 
                             return (
                                 <div key={index} className="bg-white p-6 rounded-lg shadow-sm border border-gray-100 relative group">
@@ -708,6 +713,21 @@ const FieldRenderer = ({
                                                 level={level + 1}
                                             />
                                         ))
+                                    ) : itemEnumValues && Array.isArray(itemEnumValues) ? (
+                                        <select
+                                            className="w-full p-3 border border-gray-300 rounded focus:ring-indigo-500 focus:border-indigo-500 text-lg pr-10 bg-white"
+                                            value={item || ''}
+                                            onFocus={() => {
+                                                const guidance = prop.guidance || prop.description || 'No guidance provided.';
+                                                setActiveGuidance({ title: prop.title || propKey, guidance });
+                                            }}
+                                            onChange={(e) => handleSimpleInputChange(index, e.target.value)}
+                                        >
+                                            <option value="">Select option...</option>
+                                            {itemEnumValues.map(opt => (
+                                                <option key={opt} value={opt}>{opt}</option>
+                                            ))}
+                                        </select>
                                     ) : (
                                         <input
                                             type="text"
@@ -791,23 +811,52 @@ const FieldRenderer = ({
     }
 
     // --- RENDER: STANDARD INPUTS ---
+    const fieldId = `field-${path.join('-')}`;
+    const minLen = prop.minLength || fieldDef?.minLength;
+    let maxLen = prop.maxLength || fieldDef?.maxLength;
+
+    if (!maxLen && (prop.guidance || prop.description)) {
+        const text = `${prop.guidance || ''} ${prop.description || ''}`;
+        const match = text.match(/(?:up to|limit(?:ed)? to|max(?:imum)? of)\s+(\d+)\s+char/i);
+        if (match) {
+            maxLen = parseInt(match[1], 10);
+        }
+    }
+
+    const isStringVal = typeof currentValue === 'string';
+    const strLength = isStringVal ? currentValue.length : 0;
+    const isDoiField = propKey.toLowerCase().includes('doi') || (prop.title && prop.title.toLowerCase().includes('doi')) || path.some(p => typeof p === 'string' && p.toLowerCase().includes('doi'));
+    const isDoiValid = isDoiField && isStringVal && strLength > 0 ? /^10\.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(currentValue.trim()) : true;
+
+    const isVersionField = propKey === 'version' || path[path.length - 1] === 'version';
+    const isVersionValid = isVersionField && isStringVal && strLength > 0 ? /^\d+\.\d+\.\d+$/.test(currentValue.trim()) : true;
+
     let inputType = 'text';
     let rows = 1;
     const examples = prop.examples;
     let placeholder = examples && examples.length > 0 ? examples.join(', ') : 'Enter value...';
     const showMarkdownToggle = prop.showMarkdown === "True";
 
+    const isCompactSingleLine = maxLen && maxLen <= 50;
+    const isSpecialSingleLine = isDoiField || isVersionField || fieldDef.format === 'uri' || fieldDef.format === 'email' || fieldDef.format === 'date-time' || propKey === 'url';
+
     if (prop.contentMediaType && prop.contentMediaType.startsWith('image/')) {
         inputType = 'file';
-    } else if (showMarkdownToggle || (prop.title && (prop.title.includes("Description") || prop.title.includes("Scope") || prop.title.includes("Guidance") || prop.title.includes("Abstract")))) {
-        inputType = 'textarea';
-        rows = 4;
     } else if (fieldDef.type === 'integer' || fieldDef.type === 'number') {
         inputType = 'number';
     } else if (fieldDef.type === 'boolean') {
         inputType = 'checkbox';
     } else if (enumValues) {
         inputType = 'select-single';
+    } else if (showMarkdownToggle || (prop.title && (prop.title.includes("Description") || prop.title.includes("Scope") || prop.title.includes("Guidance") || prop.title.includes("Abstract")))) {
+        inputType = 'textarea';
+        if (maxLen && maxLen <= 500) rows = 4;
+        else rows = 8;
+    } else if (isSpecialSingleLine || isCompactSingleLine) {
+        inputType = 'text';
+    } else if (fieldDef.type === 'string' || !fieldDef.type) {
+        inputType = 'textarea';
+        rows = 1;
     }
 
     const handleFocus = () => {
@@ -839,17 +888,6 @@ const FieldRenderer = ({
             reader.readAsDataURL(file);
         }
     };
-
-    const fieldId = `field-${path.join('-')}`;
-    const minLen = prop.minLength || fieldDef?.minLength;
-    const maxLen = prop.maxLength || fieldDef?.maxLength;
-    const isStringVal = typeof currentValue === 'string';
-    const strLength = isStringVal ? currentValue.length : 0;
-    const isDoiField = propKey.toLowerCase().includes('doi') || (prop.title && prop.title.toLowerCase().includes('doi')) || path.some(p => typeof p === 'string' && p.toLowerCase().includes('doi'));
-    const isDoiValid = isDoiField && isStringVal && strLength > 0 ? /^10\.\d{4,9}\/[-._;()/:a-zA-Z0-9]+$/.test(currentValue.trim()) : true;
-
-    const isVersionField = propKey === 'version' || path[path.length - 1] === 'version';
-    const isVersionValid = isVersionField && isStringVal && strLength > 0 ? /^\d+\.\d+\.\d+$/.test(currentValue.trim()) : true;
 
     return (
         <div className={`bg-white p-4 rounded-lg shadow-sm border border-gray-100 mb-4 ${level > 0 ? 'ml-0' : ''}`}>
@@ -901,7 +939,7 @@ const FieldRenderer = ({
                 <textarea
                     id={fieldId}
                     ref={textareaRef}
-                    className={`w-full p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500 overflow-hidden resize-none ${
+                    className={`w-full p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500 overflow-hidden resize-none transition-all ${
                         (maxLen && strLength > maxLen) || (minLen && strLength > 0 && strLength < minLen) ? 'border-red-500 bg-red-50' : 'border-gray-300'
                     }`}
                     placeholder={placeholder}
@@ -960,23 +998,25 @@ const FieldRenderer = ({
                 />
             )}
 
-            {isStringVal && (minLen || maxLen || isDoiField || isVersionField) && (
+            {isStringVal && (minLen || maxLen || inputType === 'textarea' || isDoiField || isVersionField) && (
                 <div className="mt-1 flex justify-between items-center text-xs">
-                    {isDoiField && strLength > 0 && (
-                        <span className={isDoiValid ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                            {isDoiValid ? "✓ Valid DOI format (10.xxxx/yyyy)" : "⚠️ DOI must match pattern 10.xxxx/yyyy"}
-                        </span>
-                    )}
-                    {isVersionField && strLength > 0 && (
-                        <span className={isVersionValid ? "text-green-600 font-semibold" : "text-red-600 font-semibold"}>
-                            {isVersionValid ? "✓ Valid Version format (3 numbers separated by period, e.g. 1.0.0)" : "⚠️ Version must be 3 numbers separated by a period (e.g. 1.0.0)"}
-                        </span>
-                    )}
-                    {(minLen || maxLen) && (
+                    <div>
+                        {isDoiField && (
+                            <span className={strLength === 0 ? "text-gray-400" : (isDoiValid ? "text-green-600 font-semibold" : "text-red-600 font-semibold")}>
+                                {strLength === 0 ? "DOI Identifier" : (isDoiValid ? "✓ Valid DOI format (10.xxxx/yyyy)" : "⚠️ DOI must match pattern 10.xxxx/yyyy")}
+                            </span>
+                        )}
+                        {isVersionField && (
+                            <span className={strLength === 0 ? "text-gray-400" : (isVersionValid ? "text-green-600 font-semibold" : "text-red-600 font-semibold")}>
+                                {strLength === 0 ? "Semantic Versioning" : (isVersionValid ? "✓ Valid Version format (3 numbers separated by period, e.g. 1.0.0)" : "⚠️ Version must be 3 numbers separated by a period (e.g. 1.0.0)")}
+                            </span>
+                        )}
+                    </div>
+                    {(minLen || maxLen || inputType === 'textarea') && (
                         <span className={`ml-auto ${
                             (maxLen && strLength > maxLen) || (minLen && strLength > 0 && strLength < minLen)
                                 ? "text-red-600 font-bold"
-                                : "text-gray-400"
+                                : (maxLen && strLength > maxLen * 0.9 ? "text-amber-600 font-medium" : "text-gray-400")
                         }`}>
                             {strLength} {maxLen ? `/ ${maxLen}` : ''} chars
                             {maxLen && strLength > maxLen && ` (Exceeded by ${strLength - maxLen})`}
@@ -989,7 +1029,7 @@ const FieldRenderer = ({
     );
 };
 
-// --- Component: Structural Metadata Wrapper ---
+
 // --- Component: Structural Metadata Wrapper ---
 const StructuralMetadataSection = ({ formData, onFormChange, DATA_SCHEMA, onUpdateGuidance }) => {
     const [flatGridData, setFlatGridData] = useState([]);
@@ -1192,20 +1232,19 @@ const SchemaForm = ({
             {isContainer ? (
                 <div className="space-y-6">
 
-                   {propertyKeys
-                    .filter((propKey) => {
-                        // 1. Check top-level inclusion (e.g., summary)
+                   {(() => {
                         const sectionIncluded = DATA_SCHEMA.included?.[sectionKey];
-                        if (sectionIncluded && !sectionIncluded.includes(propKey)) return false;
-
-                        // 2. Check if this specific field has its own inclusion list (e.g., datasetCustodian)
-                        const fieldIncluded = DATA_SCHEMA.included?.[propKey];
-                        if (fieldIncluded && Array.isArray(fieldIncluded)) {
+                        const filtered = propertyKeys.filter((propKey) => {
+                            if (sectionIncluded && !sectionIncluded.includes(propKey)) {
+                                console.log(`🔍 [SCHEMA_PAGE FILTER] Section "${sectionKey}": Filtered OUT propKey "${propKey}" (not in included:`, sectionIncluded, `)`);
+                                return false;
+                            }
+                            console.log(`🔍 [SCHEMA_PAGE FILTER] Section "${sectionKey}": Included propKey "${propKey}"`);
                             return true;
-                        }
-
-                        return true;
-                    })
+                        });
+                        console.log(`🔍 [SCHEMA_PAGE RENDER] Section "${sectionKey}" -> Raw keys:`, propertyKeys, `| Included list:`, sectionIncluded, `| Final rendered keys:`, filtered);
+                        return filtered;
+                    })()
                     .map((propKey) => {
         return (
             <React.Fragment key={propKey}>
