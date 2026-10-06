@@ -21,10 +21,10 @@ const TargetSelector = ({ datasets, projects, selectedTarget, onSelectionChange,
     // Helper function to extract the correct name based on your specifications
     const getDisplayName = (item, type) => {
         if (type === 'dataset') {
-            return item.metadata_blob?.summary?.title || item.name || item.title || '';
+            return item.metadata_blob?.summary?.title || item.computed_title || item.name || item.title || '';
         }
         if (type === 'project') {
-            return item.projectGrantName || item.name || item.title || '';
+            return item.project_grant_name || item.projectGrantName || item.metadata_blob?.project_grant_name || item.metadata_blob?.projectGrantName || item.metadata_blob?.summary?.title || item.name || item.title || '';
         }
         return '';
     };

@@ -23,6 +23,10 @@ export const ToolUploadPage = () => {
     const [projectSearchText, setProjectSearchText] = useState('');
     const [linkedProjects, setLinkedProjects] = useState([]);
     const [teamProjects, setTeamProjects] = useState([]);
+
+    // Existing Tools State for Active Team Amendment
+    const [teamTools, setTeamTools] = useState([]);
+    const [editingToolId, setEditingToolId] = useState(null);
     
     // AI Assistant state
     const [teamDatasets, setTeamDatasets] = useState([]);
@@ -34,6 +38,19 @@ export const ToolUploadPage = () => {
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     
+    const fetchTeamTools = (activeTeamId) => {
+        if (!activeTeamId) return;
+        fetch(`${API_BASE_URL}/tools/`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) {
+                    const teamTls = data.filter(t => t.team_id === parseInt(activeTeamId, 10));
+                    setTeamTools(teamTls);
+                }
+            })
+            .catch(err => console.error("Error fetching team tools:", err));
+    };
+
     useEffect(() => {
         const activeTeamId = localStorage.getItem('activeTeamId');
         if (activeTeamId) {
@@ -56,8 +73,58 @@ export const ToolUploadPage = () => {
                     }
                 })
                 .catch(err => console.error("Error fetching projects:", err));
+
+            fetchTeamTools(activeTeamId);
         }
     }, []);
+
+    const handleSelectTool = (toolIdStr) => {
+        setError(null);
+        setSuccess(false);
+        if (!toolIdStr) {
+            setEditingToolId(null);
+            setFormData({
+                name: '',
+                url: '',
+                category_id: '',
+                description: '',
+                results_insights: '',
+                associated_authors: '',
+                tech_stack: '',
+                license: '',
+                any_dataset: false,
+            });
+            setLinkedDatasets([]);
+            setLinkedProjects([]);
+            return;
+        }
+
+        const selected = teamTools.find(t => t.id.toString() === toolIdStr.toString());
+        if (selected) {
+            setEditingToolId(selected.id);
+            setFormData({
+                name: selected.name || '',
+                url: selected.url || '',
+                category_id: selected.category_id !== null && selected.category_id !== undefined ? selected.category_id : '',
+                description: selected.description || '',
+                results_insights: selected.results_insights || '',
+                associated_authors: Array.isArray(selected.associated_authors) ? selected.associated_authors.join(', ') : (selected.associated_authors || ''),
+                tech_stack: Array.isArray(selected.tech_stack) ? selected.tech_stack.join(', ') : (selected.tech_stack || ''),
+                license: selected.license || '',
+                any_dataset: selected.any_dataset || false,
+            });
+            
+            const dsTitles = (selected.datasets || []).map(d =>
+                d.metadata_blob?.summary?.title || d.computed_title || d.title || `Dataset ID: ${d.id}`
+            );
+            setLinkedDatasets(dsTitles);
+            
+            const projNames = (selected.projects || []).map(p =>
+                p.project_grant_name || p.projectGrantName || p.metadata_blob?.project_grant_name || p.metadata_blob?.summary?.title || p.title || `Project ID: ${p.id}`
+            );
+            setLinkedProjects(projNames);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
@@ -96,11 +163,11 @@ export const ToolUploadPage = () => {
         const activeTeamId = localStorage.getItem('activeTeamId');
 
         if (!token) {
-            setError("You must be logged in to upload a tool.");
+            setError("You must be logged in to save a tool.");
             return;
         }
         if (!activeTeamId) {
-            setError("You must select an active team before uploading.");
+            setError("You must select an active team before saving.");
             return;
         }
         
@@ -116,7 +183,7 @@ export const ToolUploadPage = () => {
         // Resolve linked datasets from names to IDs
         const resolvedDatasetIds = linkedDatasets.map(name => {
             const ds = teamDatasets.find(d => {
-                const dName = d.metadata_blob?.summary?.title || d.title || `Dataset ID: ${d.id}`;
+                const dName = d.metadata_blob?.summary?.title || d.computed_title || d.title || `Dataset ID: ${d.id}`;
                 return dName === name;
             });
             return ds ? parseInt(ds.id, 10) : null;
@@ -125,7 +192,7 @@ export const ToolUploadPage = () => {
         // Resolve linked projects from names to IDs
         const resolvedProjectIds = linkedProjects.map(name => {
             const proj = teamProjects.find(p => {
-                const pName = p.project_grant_name || p.projectGrantName || p.title || `Project ID: ${p.id}`;
+                const pName = p.project_grant_name || p.projectGrantName || p.metadata_blob?.project_grant_name || p.metadata_blob?.summary?.title || p.title || `Project ID: ${p.id}`;
                 return pName === name;
             });
             return proj ? parseInt(proj.id, 10) : null;
@@ -142,9 +209,12 @@ export const ToolUploadPage = () => {
             status: "ACTIVE",
         };
 
+        const endpoint = editingToolId ? `${API_BASE_URL}/tools/${editingToolId}` : `${API_BASE_URL}/tools/`;
+        const method = editingToolId ? 'PUT' : 'POST';
+
         try {
-            const res = await fetch(`${API_BASE_URL}/tools/`, {
-                method: 'POST',
+            const res = await fetch(endpoint, {
+                method: method,
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -161,6 +231,29 @@ export const ToolUploadPage = () => {
             setTimeout(() => {
                 window.location.href = '/src/tools.html';
             }, 1500);
+        } catch (err) {
+            setError(err.message);
+        }
+    };
+
+    const handleDeleteTool = async () => {
+        if (!editingToolId) return;
+        if (!window.confirm("Are you sure you want to delete this tool?")) return;
+        
+        const token = localStorage.getItem('token');
+        try {
+            const res = await fetch(`${API_BASE_URL}/tools/${editingToolId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(text || "Failed to delete tool.");
+            }
+            alert("Tool deleted successfully.");
+            window.location.href = '/src/tools.html';
         } catch (err) {
             setError(err.message);
         }
@@ -231,14 +324,63 @@ export const ToolUploadPage = () => {
                     
                     {/* LEFT PANEL: Manual Form */}
                     <div className="w-full lg:w-2/3 bg-white p-8 rounded shadow-sm border border-gray-200">
-                        <div className="flex justify-between items-center mb-6 border-b pb-4">
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b pb-4 gap-4">
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-800">Manage or create analysis script, tool or software</h1>
-                                <p className="text-sm text-gray-500 mt-1">Analysis script, tool or software can be anything you or someone else created or used during a research project</p>
+                                <h1 className="text-2xl font-bold text-gray-800">
+                                    {editingToolId ? "Amend Analysis Script, Tool or Software" : "Create Analysis Script, Tool or Software"}
+                                </h1>
+                                <p className="text-sm text-gray-500 mt-1">
+                                    {editingToolId
+                                        ? `Editing Tool #${editingToolId}. Changes will update this tool in-place.`
+                                        : "Analysis script, tool or software can be anything you or someone else created or used during a research project."}
+                                </p>
                             </div>
-                            <button onClick={handleSave} className="bg-[var(--cruk-blue)] hover:bg-blue-800 text-white font-medium py-2 px-6 rounded text-sm transition-colors shadow-sm whitespace-nowrap ml-4">
-                                Save Tool
-                            </button>
+                            <div className="flex items-center gap-2">
+                                {editingToolId && (
+                                    <button 
+                                        onClick={handleDeleteTool}
+                                        className="bg-red-50 text-red-600 hover:bg-red-100 border border-red-200 font-medium py-2 px-4 rounded text-sm transition-colors shadow-sm whitespace-nowrap"
+                                    >
+                                        Delete Tool
+                                    </button>
+                                )}
+                                <button onClick={handleSave} className="bg-[var(--cruk-blue)] hover:bg-blue-800 text-white font-medium py-2 px-6 rounded text-sm transition-colors shadow-sm whitespace-nowrap">
+                                    {editingToolId ? "Update Tool" : "Save Tool"}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Select existing tool for active team */}
+                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
+                            <label className="block text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">
+                                Select uploaded tool to amend (Active Team)
+                            </label>
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                                <select
+                                    value={editingToolId || ''}
+                                    onChange={(e) => handleSelectTool(e.target.value)}
+                                    className="flex-1 bg-white border border-indigo-300 rounded px-3 py-2 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                >
+                                    <option value="">-- Create New Tool --</option>
+                                    {teamTools.map(t => (
+                                        <option key={t.id} value={t.id}>
+                                            {t.name} (ID: {t.id})
+                                        </option>
+                                    ))}
+                                </select>
+                                {editingToolId ? (
+                                    <button
+                                        onClick={() => handleSelectTool('')}
+                                        className="px-4 py-2 bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-100 rounded text-sm font-semibold whitespace-nowrap"
+                                    >
+                                        + Create New Tool
+                                    </button>
+                                ) : (
+                                    <span className="text-xs text-indigo-700 italic flex items-center">
+                                        {teamTools.length} tool(s) found in active team
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         
                         {error && <div className="bg-red-50 text-red-600 p-4 rounded mb-6 text-sm border border-red-200">{error}</div>}

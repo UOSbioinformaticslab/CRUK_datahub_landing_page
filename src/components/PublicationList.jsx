@@ -73,7 +73,7 @@ const PublicationCard = ({ publication }) => {
                 href={`/src/project_meta?pid=${project.id}`}
                 className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-md font-medium hover:bg-purple-100 transition-colors"
               >
-                {project.projectGrantName || `Project ID: ${project.id}`}
+                {project.project_grant_name || project.projectGrantName || project.metadata_blob?.project_grant_name || project.metadata_blob?.projectGrantName || project.metadata_blob?.summary?.title || project.name || project.title || `Project ID: ${project.id}`}
               </a>
             ))
           ) : (

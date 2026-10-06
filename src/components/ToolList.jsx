@@ -1,76 +1,83 @@
 import React from 'react';
 
-const ToolCard = ({ tool }) => {
+const ToolRow = ({ tool }) => {
+  const externalUrl = tool.url
+    ? (tool.url.startsWith('http') ? tool.url : `https://${tool.url}`)
+    : null;
+
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-4 hover:shadow-md transition-shadow">
-      <h3 className="text-xl font-bold text-gray-900 mb-2 flex items-baseline">
-        <span>{tool.name}</span>
-        {tool.url && (
+    <div className="bg-white border border-gray-200 rounded-lg shadow-sm mb-4 overflow-hidden hover:shadow-md transition-shadow">
+      {/* LINE 1: Name, External URL, Linked Datasets, Linked Projects */}
+      <div className="p-4 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center gap-3 min-w-0">
           <a
-            href={tool.url.startsWith('http') ? tool.url : `https://${tool.url}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-sm font-normal text-blue-600 hover:underline ml-3"
+            href={`/src/tool.html?id=${tool.id}`}
+            className="text-lg font-bold text-blue-700 hover:text-blue-900 hover:underline truncate"
           >
-            (link to external website)
+            {tool.name}
           </a>
-        )}
-      </h3>
 
-      <div className="text-sm text-gray-600 flex flex-wrap gap-2 mb-4">
-        <span className="font-medium">{(tool.associated_authors || []).join(', ') || 'No authors'}</span>
-      </div>
-
-      {/* Data Dependencies Section */}
-      <div className="bg-gray-50 rounded-md p-4 mb-4 border border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 block uppercase tracking-wider mb-2">
-          Data Dependencies
-        </span>
-
-        {/* Linked Datasets */}
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          <span className="text-sm font-medium text-gray-700 w-20">Datasets:</span>
-          {tool.datasets && tool.datasets.length > 0 ? (
-            tool.datasets.map((dataset) => (
-              <a
-                key={dataset.id}
-                href={`/src/meta?id=${dataset.id}`}
-                className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1 rounded-md font-medium hover:bg-blue-100 transition-colors"
-              >
-                {dataset.computed_title || dataset.title || `Dataset ID: ${dataset.id}`}
-              </a>
-            ))
-          ) : (
-            <span className="text-xs text-gray-400 italic">None linked</span>
+          {externalUrl && (
+            <a
+              href={externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-xs font-medium text-blue-600 hover:underline bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"
+            >
+              <span>link to external website</span>
+              <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+              </svg>
+            </a>
           )}
         </div>
 
-        {/* Linked Projects */}
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-sm font-medium text-gray-700 w-20">Projects:</span>
-          {tool.projects && tool.projects.length > 0 ? (
-            tool.projects.map((project) => (
-              <a
-                key={project.id}
-                href={`/src/project_meta?pid=${project.id}`}
-                className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2.5 py-1 rounded-md font-medium hover:bg-purple-100 transition-colors"
-              >
-                {project.project_grant_name || project.projectGrantName || project.title || `Project ID: ${project.id}`}
-              </a>
-            ))
-          ) : (
-            <span className="text-xs text-gray-400 italic">None linked</span>
-          )}
+        {/* Linked Datasets & Projects */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Linked Datasets */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Datasets:</span>
+            {tool.datasets && tool.datasets.length > 0 ? (
+              tool.datasets.map((ds) => (
+                <a
+                  key={ds.id}
+                  href={`/src/meta?id=${ds.id}`}
+                  className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 transition-colors"
+                >
+                  {ds.computed_title || ds.title || `Dataset ${ds.id}`}
+                </a>
+              ))
+            ) : (
+              <span className="text-xs text-gray-400 italic">None</span>
+            )}
+          </div>
+
+          {/* Linked Projects */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Projects:</span>
+            {tool.projects && tool.projects.length > 0 ? (
+              tool.projects.map((proj) => (
+                <a
+                  key={proj.id}
+                  href={`/src/project_meta?pid=${proj.id}`}
+                  className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md font-medium hover:bg-purple-100 transition-colors"
+                >
+                  {proj.project_grant_name || proj.projectGrantName || proj.title || `Project ${proj.id}`}
+                </a>
+              ))
+            ) : (
+              <span className="text-xs text-gray-400 italic">None</span>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="bg-gray-50 rounded-md p-4 mb-4 border border-gray-100">
-        <span className="text-xs font-semibold text-gray-500 block uppercase tracking-wider mb-2">
-          Description
+      {/* LINE 2: Description (1 line only) */}
+      <div className="px-4 py-3 bg-white text-sm text-gray-600 flex items-center">
+        <span className="font-semibold text-gray-700 mr-2 flex-shrink-0">Description:</span>
+        <span className="line-clamp-1 text-gray-600 truncate" title={tool.description}>
+          {tool.description || 'No description provided.'}
         </span>
-        <p className="text-sm text-gray-700 line-clamp-3">
-            {tool.description || 'No description provided.'}
-        </p>
       </div>
     </div>
   );
@@ -90,9 +97,9 @@ export default function ToolList({ tools }) {
   }
 
   return (
-    <div className="overflow-y-auto pr-4 custom-scrollbar">
-      {tools.map(tool => (
-        <ToolCard key={tool.id} tool={tool} />
+    <div className="overflow-y-auto pr-2 custom-scrollbar">
+      {tools.map((tool) => (
+        <ToolRow key={tool.id} tool={tool} />
       ))}
     </div>
   );

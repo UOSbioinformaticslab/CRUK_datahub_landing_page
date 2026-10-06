@@ -72,7 +72,9 @@ const PublicationUpload = () => {
                 const projData = projRes.ok ? await projRes.json() : [];
                 const fetchedProjects = projData.filter(p => p.team_id === teamId);
 
-                const sortAlpha = (a, b) => (a.name || a.title || '').localeCompare(b.name || b.title || '');
+                const getProjectName = p => p.project_grant_name || p.projectGrantName || p.metadata_blob?.project_grant_name || p.metadata_blob?.projectGrantName || p.metadata_blob?.summary?.title || p.name || p.title || '';
+                const getDatasetName = d => d.metadata_blob?.summary?.title || d.computed_title || d.name || d.title || '';
+                const sortAlpha = (a, b) => (getProjectName(a) || getDatasetName(a)).localeCompare(getProjectName(b) || getDatasetName(b));
                 setDatasets(fetchedDatasets.sort(sortAlpha));
                 setProjects(fetchedProjects.sort(sortAlpha));
             } catch (error) {
@@ -203,9 +205,14 @@ const PublicationUpload = () => {
 
             if (doiObj.status === 'success') continue;
 
+            console.log(`\n🔍 [DOI DEBUG 1/3] Processing DOI #${i + 1}: '${doiObj.value}' for Team ID: ${teamId}`);
+
             try {
                 // 1. Fetch structured JSON from Microservice
-                const pubRes = await fetch(`${MICROSERVICE_URL}/api/publications/from-doi`, {
+                const microserviceEndpoint = `${MICROSERVICE_URL}/api/publications/from-doi`;
+                console.log(`🚀 [DOI DEBUG] Step 1: POST to Microservice -> ${microserviceEndpoint}`);
+                
+                const pubRes = await fetch(microserviceEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -213,11 +220,20 @@ const PublicationUpload = () => {
                     body: JSON.stringify({ doi: doiObj.value, team_id: teamId })
                 });
 
-                if (!pubRes.ok) throw new Error('Invalid DOI or Microservice Error');
+                if (!pubRes.ok) {
+                    const errBody = await pubRes.text();
+                    console.error(`❌ [DOI DEBUG] Step 1 Failed (${pubRes.status}):`, errBody);
+                    throw new Error(`Microservice Error (${pubRes.status}): ${errBody}`);
+                }
+                
                 const pubPayload = await pubRes.json();
+                console.log(`✅ [DOI DEBUG] Step 1 Success! Extracted payload:`, pubPayload);
 
                 // 2. Save structured JSON to Main Backend
-                const saveRes = await fetch(`${API_BASE_URL}/publications/`, {
+                const backendEndpoint = `${API_BASE_URL}/publications/`;
+                console.log(`🚀 [DOI DEBUG] Step 2: POST to Backend -> ${backendEndpoint}`);
+                
+                const saveRes = await fetch(backendEndpoint, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -225,27 +241,46 @@ const PublicationUpload = () => {
                     },
                     body: JSON.stringify(pubPayload)
                 });
-                
-                if (!saveRes.ok) throw new Error('Failed to save publication to backend');
+
+                if (!saveRes.ok) {
+                    const errBody = await saveRes.text();
+                    console.error(`❌ [DOI DEBUG] Step 2 Failed (${saveRes.status}):`, errBody);
+                    throw new Error(`Save Backend Error (${saveRes.status}): ${errBody}`);
+                }
 
                 const pubData = await saveRes.json();
                 const pubId = pubData.id;
+                console.log(`✅ [DOI DEBUG] Step 2 Success! Created Publication ID: ${pubId}`);
 
+                // 3. Link publication to target dataset/project
                 const linkPath = selectedTarget.type === 'dataset'
                     ? `/publications/${pubId}/datasets/${selectedTarget.id}`
                     : `/publications/${pubId}/projects/${selectedTarget.id}`;
 
-                const linkRes = await fetch(`${API_BASE_URL}${linkPath}`, {
+                const linkEndpoint = `${API_BASE_URL}${linkPath}`;
+                console.log(`🚀 [DOI DEBUG] Step 3: POST Link -> ${linkEndpoint}`);
+
+                const linkRes = await fetch(linkEndpoint, {
                     method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
                 });
 
-                if (linkRes.ok === false) throw new Error('Linking failed');
+                if (!linkRes.ok) {
+                    const errBody = await linkRes.text();
+                    console.error(`❌ [DOI DEBUG] Step 3 Failed (${linkRes.status}):`, errBody);
+                    throw new Error(`Linking Error (${linkRes.status}): ${errBody}`);
+                }
 
+                console.log(`✅ [DOI DEBUG] Step 3 Success! Linked Publication ${pubId} to ${selectedTarget.type} ${selectedTarget.id}`);
                 updatedDois[i].status = 'success';
 
             } catch (error) {
+                console.error(`❌ [DOI DEBUG] Failed processing DOI '${doiObj.value}':`, error);
                 updatedDois[i].status = 'error';
+                updatedDois[i].errorMessage = error.message;
                 allSuccess = false;
             }
         }
@@ -256,7 +291,8 @@ const PublicationUpload = () => {
             setFeedback({ message: 'All publications created and linked successfully. Resetting form.', type: 'success' });
             startResetTimer();
         } else {
-            setFeedback({ message: 'Some DOIs encountered errors. Please correct them and try again.', type: 'error' });
+            const failedDetails = updatedDois.filter(d => d.status === 'error').map(d => `${d.value}: ${d.errorMessage || 'Error'}`).join(' | ');
+            setFeedback({ message: `Errors encountered: ${failedDetails}`, type: 'error' });
             setIsSubmitting(false);
         }
     };

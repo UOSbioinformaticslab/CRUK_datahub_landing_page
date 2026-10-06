@@ -31,22 +31,56 @@ export function ToolDashboard() {
   const filteredTools = useMemo(() => {
     return allTools.filter((tool) => {
       // 1. Text Search Filter
-      const matchesSearch = searchQuery === '' ||
-        (tool.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (tool.description || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (tool.associated_authors && tool.associated_authors.some(a => a.toLowerCase().includes(searchQuery.toLowerCase())));
+      const matchesSearch = searchQuery.trim() === '' ||
+        (tool.name || '').toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+        (tool.description || '').toLowerCase().includes(searchQuery.trim().toLowerCase()) ||
+        (tool.associated_authors && tool.associated_authors.some(a => {
+          if (typeof a === 'string') return a.toLowerCase().includes(searchQuery.trim().toLowerCase());
+          return (a.family && a.family.toLowerCase().includes(searchQuery.trim().toLowerCase())) ||
+                 (a.given && a.given.toLowerCase().includes(searchQuery.trim().toLowerCase())) ||
+                 (a.name && a.name.toLowerCase().includes(searchQuery.trim().toLowerCase()));
+        }));
 
       // 2. Dataset Search Filter
-      const matchesDatasets = datasetSearchQuery === '' ||
-        (tool.datasets && tool.datasets.some(ds =>
-          (ds.computed_title || ds.title || '').toLowerCase().includes(datasetSearchQuery.toLowerCase())
-        ));
+      const matchesDatasets = datasetSearchQuery.trim() === '' ||
+        (tool.datasets && tool.datasets.some(ds => {
+          const dsTitle = (
+            ds.computed_title ||
+            ds.title ||
+            ds.name ||
+            ds.metadata_blob?.summary?.title ||
+            ds.datasetid ||
+            ''
+          ).toLowerCase();
+          return dsTitle.includes(datasetSearchQuery.trim().toLowerCase());
+        }));
 
       // 3. Project Search Filter
-      const matchesProjects = projectSearchQuery === '' ||
-        (tool.projects && tool.projects.some(proj =>
-          (proj.projectGrantName || proj.title || '').toLowerCase().includes(projectSearchQuery.toLowerCase())
-        ));
+      const matchesProjects = projectSearchQuery.trim() === '' ||
+        (tool.projects && tool.projects.some(proj => {
+          const searchLower = projectSearchQuery.trim().toLowerCase();
+          const pName = (
+            proj.project_grant_name ||
+            proj.projectGrantName ||
+            proj.metadata_blob?.project_grant_name ||
+            proj.metadata_blob?.projectGrantName ||
+            proj.metadata_blob?.summary?.title ||
+            proj.metadata_blob?.title ||
+            proj.name ||
+            proj.title ||
+            ''
+          ).toLowerCase();
+          const pScope = (proj.project_grant_scope || proj.metadata_blob?.summary?.abstract || proj.metadata_blob?.abstract || proj.metadata_blob?.description || '').toLowerCase();
+          const pPid = (proj.pid || '').toLowerCase();
+          const pGrantNum = (proj.grant_numbers || '').toLowerCase();
+          const pResearcher = (proj.lead_researcher || '').toLowerCase();
+
+          return pName.includes(searchLower) ||
+                 pScope.includes(searchLower) ||
+                 pPid.includes(searchLower) ||
+                 pGrantNum.includes(searchLower) ||
+                 pResearcher.includes(searchLower);
+        }));
 
       return matchesSearch && matchesDatasets && matchesProjects;
     });
