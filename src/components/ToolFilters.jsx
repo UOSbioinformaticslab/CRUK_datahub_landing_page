@@ -13,7 +13,7 @@ export default function ToolFilters({
 
       {/* Tool Search Field */}
       <div className="mb-6">
-        <label htmlFor="searchTools" className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+        <label htmlFor="searchTools" className="block text-xs font-bold text-[#00468C] uppercase tracking-wider mb-2">
           Search Tools
         </label>
         <div className="relative">
@@ -23,7 +23,7 @@ export default function ToolFilters({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, description, or author..."
-            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]"
           />
           {searchQuery && (
             <button
@@ -39,7 +39,7 @@ export default function ToolFilters({
 
       {/* Dataset Search Field */}
       <div className="mb-6">
-        <label htmlFor="searchLinkedDatasets" className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+        <label htmlFor="searchLinkedDatasets" className="block text-xs font-bold text-[#00468C] uppercase tracking-wider mb-2">
           Search Linked Datasets
         </label>
         <div className="relative">
@@ -49,7 +49,7 @@ export default function ToolFilters({
             value={datasetSearchQuery}
             onChange={(e) => setDatasetSearchQuery(e.target.value)}
             placeholder="Search datasets..."
-            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]"
           />
           {datasetSearchQuery && (
             <button
@@ -65,7 +65,7 @@ export default function ToolFilters({
 
       {/* Project Search Field */}
       <div className="mb-6">
-        <label htmlFor="searchLinkedProjects" className="block text-xs font-semibold text-gray-600 uppercase tracking-wider mb-2">
+        <label htmlFor="searchLinkedProjects" className="block text-xs font-bold text-[#00468C] uppercase tracking-wider mb-2">
           Search Linked Projects
         </label>
         <div className="relative">
@@ -75,7 +75,7 @@ export default function ToolFilters({
             value={projectSearchQuery}
             onChange={(e) => setProjectSearchQuery(e.target.value)}
             placeholder="Search projects..."
-            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            className="w-full bg-white border border-gray-300 rounded-md pl-3 pr-8 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]"
           />
           {projectSearchQuery && (
             <button

@@ -351,15 +351,15 @@ export const ToolUploadPage = () => {
                         </div>
 
                         {/* Select existing tool for active team */}
-                        <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-6">
-                            <label className="block text-xs font-bold text-indigo-900 uppercase tracking-wider mb-2">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <label className="block text-xs font-bold text-[#00468C] uppercase tracking-wider mb-2">
                                 Select uploaded tool to amend (Active Team)
                             </label>
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                                 <select
                                     value={editingToolId || ''}
                                     onChange={(e) => handleSelectTool(e.target.value)}
-                                    className="flex-1 bg-white border border-indigo-300 rounded px-3 py-2 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="flex-1 bg-white border border-blue-300 rounded px-3 py-2 text-sm font-medium text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#00468C]"
                                 >
                                     <option value="">-- Create New Tool --</option>
                                     {teamTools.map(t => (
@@ -371,12 +371,12 @@ export const ToolUploadPage = () => {
                                 {editingToolId ? (
                                     <button
                                         onClick={() => handleSelectTool('')}
-                                        className="px-4 py-2 bg-white text-indigo-700 border border-indigo-300 hover:bg-indigo-100 rounded text-sm font-semibold whitespace-nowrap"
+                                        className="px-4 py-2 bg-white text-[#00468C] border border-blue-300 hover:bg-blue-100 rounded text-sm font-semibold whitespace-nowrap"
                                     >
                                         + Create New Tool
                                     </button>
                                 ) : (
-                                    <span className="text-xs text-indigo-700 italic flex items-center">
+                                    <span className="text-xs text-[#00468C] italic flex items-center">
                                         {teamTools.length} tool(s) found in active team
                                     </span>
                                 )}
@@ -390,37 +390,37 @@ export const ToolUploadPage = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">URL or Github link</label>
                                 <p className="text-xs text-gray-400 mb-2">Where can we find this analysis script, tool or software?</p>
-                                <input type="text" name="url" value={formData.url} onChange={handleChange} className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                                <input type="text" name="url" value={formData.url} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" />
                             </div>
                             
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Name <span className="text-red-500">*</span></label>
-                                <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" required />
+                                <input type="text" name="name" value={formData.name} onChange={handleChange} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" required />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
+                                <textarea name="description" value={formData.description} onChange={handleChange} rows="4" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]"></textarea>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Results / Insights</label>
-                                <textarea name="results_insights" value={formData.results_insights} onChange={handleChange} rows="4" className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
+                                <textarea name="results_insights" value={formData.results_insights} onChange={handleChange} rows="4" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]"></textarea>
                             </div>
 
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Authors</label>
-                                <input type="text" name="associated_authors" value={formData.associated_authors} onChange={handleChange} placeholder="e.g. Jane Doe, John Smith" className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                                <input type="text" name="associated_authors" value={formData.associated_authors} onChange={handleChange} placeholder="e.g. Jane Doe, John Smith" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" />
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Tech Stack (comma separated)</label>
-                                    <input type="text" name="tech_stack" value={formData.tech_stack} onChange={handleChange} placeholder="e.g. Python, R, React" className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                                    <input type="text" name="tech_stack" value={formData.tech_stack} onChange={handleChange} placeholder="e.g. Python, R, React" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" />
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">License</label>
-                                    <input type="text" name="license" list="license-options" value={formData.license} onChange={handleChange} placeholder="e.g. MIT, GPL-3.0" className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" />
+                                    <input type="text" name="license" list="license-options" value={formData.license} onChange={handleChange} placeholder="e.g. MIT, GPL-3.0" className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" />
                                     <datalist id="license-options">
                                         <option value="MIT" />
                                         <option value="GPL-3.0" />
@@ -445,7 +445,7 @@ export const ToolUploadPage = () => {
                                             onChange={(e) => setDatasetSearchText(e.target.value)} 
                                             placeholder="Search dataset by name..." 
                                             list="dataset-options"
-                                            className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" 
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" 
                                         />
                                         <datalist id="dataset-options">
                                             {teamDatasets.map(ds => {
@@ -453,7 +453,7 @@ export const ToolUploadPage = () => {
                                                 return <option key={ds.id} value={displayName} />;
                                             })}
                                         </datalist>
-                                        <button onClick={handleAddDataset} className="bg-teal-600 text-white px-4 py-2 rounded text-sm hover:bg-teal-700">Add</button>
+                                        <button onClick={handleAddDataset} className="bg-[#00468C] text-white px-4 py-2 rounded text-sm hover:bg-blue-800 transition-colors">Add</button>
                                     </div>
                                     {linkedDatasets.length > 0 && (
                                         <ul className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
@@ -478,7 +478,7 @@ export const ToolUploadPage = () => {
                                             onChange={(e) => setProjectSearchText(e.target.value)} 
                                             placeholder="Search project by name..." 
                                             list="project-options"
-                                            className="w-full border border-teal-400 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-teal-500" 
+                                            className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] focus:border-[#00468C]" 
                                         />
                                         <datalist id="project-options">
                                             {teamProjects.map(proj => {
@@ -486,7 +486,7 @@ export const ToolUploadPage = () => {
                                                 return <option key={proj.id} value={displayName} />;
                                             })}
                                         </datalist>
-                                        <button onClick={handleAddProject} className="bg-teal-600 text-white px-4 py-2 rounded text-sm hover:bg-teal-700">Add</button>
+                                        <button onClick={handleAddProject} className="bg-[#00468C] text-white px-4 py-2 rounded text-sm hover:bg-blue-800 transition-colors">Add</button>
                                     </div>
                                     {linkedProjects.length > 0 && (
                                         <ul className="text-sm text-gray-600 bg-gray-50 p-3 rounded">
@@ -513,8 +513,8 @@ export const ToolUploadPage = () => {
                     {/* RIGHT PANEL: AI Assistant */}
                     <div className="w-full lg:w-1/3 bg-gradient-to-b from-blue-50 to-white p-6 rounded shadow-sm border border-blue-100 flex flex-col">
                         <div className="mb-4">
-                            <h2 className="text-xl font-bold text-blue-900 flex items-center">
-                                <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            <h2 className="text-xl font-bold text-[#00468C] flex items-center">
+                                <svg className="w-5 h-5 mr-2 text-[#00468C]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                                 AI Auto-Discovery
                             </h2>
                             <p className="text-sm text-gray-600 mt-1">Let our AI find tools used with your datasets on GitHub.</p>
@@ -524,7 +524,7 @@ export const ToolUploadPage = () => {
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">Select Dataset</label>
                                 <select 
-                                    className="w-full border border-blue-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white"
+                                    className="w-full border border-blue-200 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#00468C] bg-white"
                                     value={selectedAiDatasetId}
                                     onChange={(e) => setSelectedAiDatasetId(e.target.value)}
                                 >
@@ -537,7 +537,7 @@ export const ToolUploadPage = () => {
                             <button 
                                 onClick={handleAutoDiscover} 
                                 disabled={!selectedAiDatasetId || isAiLoading}
-                                className={`w-full py-2 px-4 rounded font-medium text-sm transition-colors flex justify-center items-center ${!selectedAiDatasetId || isAiLoading ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'} text-white shadow-sm`}
+                                className={`w-full py-2 px-4 rounded font-medium text-sm transition-colors flex justify-center items-center ${!selectedAiDatasetId || isAiLoading ? 'bg-blue-300 cursor-not-allowed' : 'bg-[#00468C] hover:bg-blue-800'} text-white shadow-sm`}
                             >
                                 {isAiLoading ? (
                                     <>

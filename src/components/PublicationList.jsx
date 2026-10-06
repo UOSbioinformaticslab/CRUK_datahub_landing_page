@@ -1,7 +1,12 @@
 import React, { useState } from 'react';
+import { EditPublicationModal } from './EditPublicationModal';
 
-const PublicationCard = ({ publication }) => {
+const PublicationCard = ({ publication, onPublicationUpdated }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [currentPub, setCurrentPub] = useState(publication);
+
+  const isLoggedIn = Boolean(localStorage.getItem('token'));
 
   // Format authors to show "First Author et al." if there are multiple
   const formatAuthors = (authorsList) => {
@@ -19,24 +24,44 @@ const PublicationCard = ({ publication }) => {
     const match = plainText.match(/[^.!?]+[.!?]/);
     return match ? match[0] : plainText.substring(0, 100) + "...";
   };
-  console.log("found these datasets", publication.datasets);
+
+  const handleSaved = (updated) => {
+    setCurrentPub(prev => ({ ...prev, ...updated }));
+    if (onPublicationUpdated) {
+      onPublicationUpdated(updated);
+    }
+  };
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-4 hover:shadow-md transition-shadow">
-      {/* Title */}
-      <h3 className="text-xl font-bold text-gray-900 mb-2 hover:text-blue-600">
-        <a href={publication.url} target="_blank" rel="noopener noreferrer">
-          {publication.paper_title}
-        </a>
-      </h3>
+    <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm mb-4 hover:shadow-md transition-shadow relative">
+      {/* Title & Edit Header */}
+      <div className="flex justify-between items-start gap-4 mb-2">
+        <h3 className="text-xl font-bold text-gray-900 hover:text-blue-600 flex-1">
+          <a href={currentPub.url || (currentPub.paper_doi ? `https://doi.org/${currentPub.paper_doi}` : '#')} target="_blank" rel="noopener noreferrer">
+            {currentPub.paper_title}
+          </a>
+        </h3>
+
+        {isLoggedIn && (
+          <button
+            onClick={() => setIsEditOpen(true)}
+            className="inline-flex items-center gap-1 text-xs font-semibold text-[#00468C] bg-blue-50 hover:bg-blue-100 border border-blue-200 px-2.5 py-1 rounded transition-colors shrink-0"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            Edit
+          </button>
+        )}
+      </div>
 
       {/* Citation Metadata */}
       <div className="text-sm text-gray-600 flex flex-wrap gap-2 mb-4">
-        <span>{formatAuthors(publication.authors)}</span>
+        <span>{formatAuthors(currentPub.authors)}</span>
         <span className="text-gray-300">|</span>
-        <span className="font-medium">{publication.journal_name}</span>
+        <span className="font-medium text-[#00468C]">{currentPub.journal_name || "Journal Unknown"}</span>
         <span className="text-gray-300">|</span>
-        <span>Published: {publication.year_of_publication}</span>
+        <span>Published: {currentPub.year_of_publication || "N/A"}</span>
       </div>
 
       {/* Data Dependencies Section */}
@@ -48,8 +73,8 @@ const PublicationCard = ({ publication }) => {
         {/* Linked Datasets */}
         <div className="flex flex-wrap items-center gap-2 mb-2">
           <span className="text-sm font-medium text-gray-700 w-20">Datasets:</span>
-          {publication.datasets && publication.datasets.length > 0 ? (
-            publication.datasets.map((dataset) => (
+          {currentPub.datasets && currentPub.datasets.length > 0 ? (
+            currentPub.datasets.map((dataset) => (
               <a
                 key={dataset.id}
                 href={`/src/meta?id=${dataset.id}`}
@@ -66,8 +91,8 @@ const PublicationCard = ({ publication }) => {
         {/* Linked Projects */}
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-sm font-medium text-gray-700 w-20">Projects:</span>
-          {publication.projects && publication.projects.length > 0 ? (
-            publication.projects.map((project) => (
+          {currentPub.projects && currentPub.projects.length > 0 ? (
+            currentPub.projects.map((project) => (
               <a
                 key={project.id}
                 href={`/src/project_meta?pid=${project.id}`}
@@ -96,11 +121,11 @@ const PublicationCard = ({ publication }) => {
 
         <div className="pl-4 text-gray-600 leading-relaxed">
           {isExpanded ? (
-            <div dangerouslySetInnerHTML={{ __html: publication.abstract }} />
+            <div dangerouslySetInnerHTML={{ __html: currentPub.abstract || "No abstract available." }} />
           ) : (
-            getFirstLine(publication.abstract)
+            getFirstLine(currentPub.abstract)
           )}
-          {!isExpanded && publication.abstract && (
+          {!isExpanded && currentPub.abstract && (
             <button
               onClick={() => setIsExpanded(true)}
               className="text-blue-600 ml-1 hover:underline text-xs font-medium"
@@ -110,11 +135,19 @@ const PublicationCard = ({ publication }) => {
           )}
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <EditPublicationModal
+        publication={currentPub}
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        onSaved={handleSaved}
+      />
     </div>
   );
 };
 
-export default function PublicationList({ publications }) {
+export default function PublicationList({ publications, onPublicationUpdated }) {
   if (publications.length === 0) {
     return (
       <div className="text-center py-12 border border-dashed border-gray-300 rounded-lg text-gray-500">
@@ -126,7 +159,7 @@ export default function PublicationList({ publications }) {
   return (
     <div className="flex-1 overflow-y-auto pr-2">
       {publications.map((pub) => (
-        <PublicationCard key={pub.id} publication={pub} />
+        <PublicationCard key={pub.id} publication={pub} onPublicationUpdated={onPublicationUpdated} />
       ))}
     </div>
   );

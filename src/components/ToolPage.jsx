@@ -41,18 +41,18 @@ export const ToolPage = () => {
         <div className="flex flex-col min-h-screen bg-gray-50">
             <Header />
             <div className="flex-1 overflow-auto">
-                {/* Banner using CRUK Blue Palette */}
-                <div className="bg-gradient-to-r from-[#00468C] to-[#002D5C] text-white py-10 px-8 shadow-md">
+                {/* Banner using CRUK Primary Blue (#00468C) */}
+                <div className="bg-[#00468C] text-white py-8 px-8 shadow-sm">
                     <div className="max-w-6xl mx-auto">
                         {/* Back button to tools directory */}
                         <a
                             href="/src/tools.html"
-                            className="inline-flex items-center text-sm font-semibold tracking-wider text-blue-100 hover:text-white hover:underline uppercase mb-3 transition-colors group"
+                            className="inline-flex items-center text-xs font-semibold tracking-wider text-blue-100 hover:text-white hover:underline uppercase mb-3 transition-colors group"
                         >
                             <svg className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
-                            Back to Tools Directory
+                            ← Back to Tools Directory
                         </a>
 
                         <h1 className="text-3xl md:text-4xl font-extrabold mb-3">{tool.name}</h1>
@@ -62,7 +62,7 @@ export const ToolPage = () => {
                                 href={tool.url.startsWith('http') ? tool.url : `https://${tool.url}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center text-sm font-medium text-blue-100 hover:text-white hover:underline transition-colors bg-white/10 px-3 py-1.5 rounded-md backdrop-blur-sm"
+                                className="inline-flex items-center text-sm font-medium text-white hover:bg-white/20 transition-colors bg-white/10 border border-white/30 px-3.5 py-1.5 rounded-md backdrop-blur-sm"
                             >
                                 <span>View Source / Website</span>
                                 <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -79,7 +79,7 @@ export const ToolPage = () => {
                     {/* LEFT COLUMN: Main Panel (Description, Results & Insights) */}
                     <div className="w-full md:w-2/3 space-y-8">
                         <section>
-                            <h2 className="text-xl font-bold text-[#00468C] border-b pb-2 mb-4 flex items-center">
+                            <h2 className="text-xl font-bold text-[#00468C] border-b border-gray-200 pb-2 mb-4 flex items-center">
                                 Description
                             </h2>
                             <div className="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -88,7 +88,7 @@ export const ToolPage = () => {
                         </section>
 
                         <section>
-                            <h2 className="text-xl font-bold text-[#00468C] border-b pb-2 mb-4 flex items-center">
+                            <h2 className="text-xl font-bold text-[#00468C] border-b border-gray-200 pb-2 mb-4 flex items-center">
                                 Results & Insights
                             </h2>
                             <div className="prose max-w-none text-gray-800 leading-relaxed whitespace-pre-wrap bg-white p-6 rounded-lg shadow-sm border border-gray-200">
@@ -100,20 +100,20 @@ export const ToolPage = () => {
                     {/* RIGHT COLUMN: Metadata Panel */}
                     <div className="w-full md:w-1/3 space-y-6">
                         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-                            <h3 className="text-lg font-bold text-[#00468C] border-b pb-2 mb-4">Metadata</h3>
+                            <h3 className="text-lg font-bold text-[#00468C] border-b border-gray-200 pb-2 mb-4">Metadata</h3>
                             <dl className="space-y-4">
                                 <div>
-                                    <dt className="text-xs font-bold text-gray-500 uppercase tracking-wider">License</dt>
+                                    <dt className="text-xs font-bold text-[#00468C] uppercase tracking-wider">License</dt>
                                     <dd className="mt-1 text-sm font-medium text-gray-900">{tool.license || 'Not specified'}</dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold text-gray-500 uppercase tracking-wider">Tech Stack / Language</dt>
+                                    <dt className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Tech Stack / Language</dt>
                                     <dd className="mt-1 text-sm font-medium text-gray-900">
                                         {tool.tech_stack ? (Array.isArray(tool.tech_stack) ? tool.tech_stack.join(', ') : tool.tech_stack) : 'Not specified'}
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold text-gray-500 uppercase tracking-wider">Authors</dt>
+                                    <dt className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Authors</dt>
                                     <dd className="mt-1 text-sm font-medium text-gray-900">
                                         {tool.associated_authors && tool.associated_authors.length > 0 
                                             ? tool.associated_authors.join(', ') 
@@ -121,11 +121,11 @@ export const ToolPage = () => {
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold text-gray-500 uppercase tracking-wider">Linked Datasets</dt>
+                                    <dt className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Linked Datasets</dt>
                                     <dd className="mt-1 text-sm text-gray-900 flex flex-wrap gap-1.5">
                                         {tool.datasets && tool.datasets.length > 0 ? (
                                             tool.datasets.map(ds => (
-                                                <a key={ds.id} href={`/src/meta?id=${ds.id}`} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:underline">
+                                                <a key={ds.id} href={`/src/meta?id=${ds.id}`} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
                                                     {ds.computed_title || ds.title || `Dataset ${ds.id}`}
                                                 </a>
                                             ))
@@ -133,11 +133,11 @@ export const ToolPage = () => {
                                     </dd>
                                 </div>
                                 <div>
-                                    <dt className="text-xs font-bold text-gray-500 uppercase tracking-wider">Linked Projects</dt>
+                                    <dt className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Linked Projects</dt>
                                     <dd className="mt-1 text-sm text-gray-900 flex flex-wrap gap-1.5">
                                         {tool.projects && tool.projects.length > 0 ? (
                                             tool.projects.map(proj => (
-                                                <a key={proj.id} href={`/src/project_meta?pid=${proj.id}`} className="text-xs bg-purple-50 text-purple-800 border border-purple-200 px-2 py-1 rounded font-medium hover:underline">
+                                                <a key={proj.id} href={`/src/project_meta?pid=${proj.id}`} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
                                                     {proj.project_grant_name || proj.projectGrantName || proj.title || `Project ${proj.id}`}
                                                 </a>
                                             ))

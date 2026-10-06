@@ -12,7 +12,7 @@ const ToolRow = ({ tool }) => {
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           <a
             href={`/src/tool.html?id=${tool.id}`}
-            className="text-lg font-bold text-blue-700 hover:text-blue-900 hover:underline truncate"
+            className="text-lg font-bold text-[#00468C] hover:text-[#002D5C] hover:underline truncate"
           >
             {tool.name}
           </a>
@@ -22,7 +22,7 @@ const ToolRow = ({ tool }) => {
               href={externalUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center text-xs font-medium text-blue-600 hover:underline bg-blue-50 border border-blue-200 px-2 py-0.5 rounded-full"
+              className="inline-flex items-center text-xs font-medium text-[#00468C] hover:underline bg-blue-50 border border-blue-200 px-2.5 py-0.5 rounded-full hover:bg-blue-100 transition-colors"
             >
               <span>link to external website</span>
               <svg className="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,13 +36,13 @@ const ToolRow = ({ tool }) => {
         <div className="flex flex-wrap items-center gap-3">
           {/* Linked Datasets */}
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Datasets:</span>
+            <span className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Datasets:</span>
             {tool.datasets && tool.datasets.length > 0 ? (
               tool.datasets.map((ds) => (
                 <a
                   key={ds.id}
                   href={`/src/meta?id=${ds.id}`}
-                  className="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 transition-colors"
+                  className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 hover:underline transition-colors"
                 >
                   {ds.computed_title || ds.title || `Dataset ${ds.id}`}
                 </a>
@@ -54,13 +54,13 @@ const ToolRow = ({ tool }) => {
 
           {/* Linked Projects */}
           <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Projects:</span>
+            <span className="text-xs font-bold text-[#00468C] uppercase tracking-wider">Projects:</span>
             {tool.projects && tool.projects.length > 0 ? (
               tool.projects.map((proj) => (
                 <a
                   key={proj.id}
                   href={`/src/project_meta?pid=${proj.id}`}
-                  className="text-xs bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded-md font-medium hover:bg-purple-100 transition-colors"
+                  className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 hover:underline transition-colors"
                 >
                   {proj.project_grant_name || proj.projectGrantName || proj.title || `Project ${proj.id}`}
                 </a>
@@ -74,7 +74,7 @@ const ToolRow = ({ tool }) => {
 
       {/* LINE 2: Description (1 line only) */}
       <div className="px-4 py-3 bg-white text-sm text-gray-600 flex items-center">
-        <span className="font-semibold text-gray-700 mr-2 flex-shrink-0">Description:</span>
+        <span className="font-semibold text-[#00468C] mr-2 flex-shrink-0">Description:</span>
         <span className="line-clamp-1 text-gray-600 truncate" title={tool.description}>
           {tool.description || 'No description provided.'}
         </span>

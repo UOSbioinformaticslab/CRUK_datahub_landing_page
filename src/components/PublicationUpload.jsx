@@ -229,6 +229,16 @@ const PublicationUpload = () => {
                 const pubPayload = await pubRes.json();
                 console.log(`✅ [DOI DEBUG] Step 1 Success! Extracted payload:`, pubPayload);
 
+                // Auto-detect bioRxiv DOIs (10.1101) if journal_name is missing or "Journal Unknown"
+                const rawDoi = String(doiObj.value || '');
+                const rawUrl = String(pubPayload.url || '');
+                if (rawDoi.includes('10.1101') || rawUrl.toLowerCase().includes('biorxiv')) {
+                    const currentJournal = (pubPayload.journal_name || '').toLowerCase().trim();
+                    if (!currentJournal || ['journal unknown', 'unknown journal', 'unknown', ''].includes(currentJournal)) {
+                        pubPayload.journal_name = 'bioRxiv';
+                    }
+                }
+
                 // 2. Save structured JSON to Main Backend
                 const backendEndpoint = `${API_BASE_URL}/publications/`;
                 console.log(`🚀 [DOI DEBUG] Step 2: POST to Backend -> ${backendEndpoint}`);
