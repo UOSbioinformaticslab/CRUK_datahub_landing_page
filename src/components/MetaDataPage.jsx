@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Panel, Group, Separator } from "react-resizable-panels";
+import { getToolUrl } from '../utils/urlUtils';
 // 1. IMPORT DATA FROM UTILS
 import { filterData, flattenedFilterData } from '../utils/filter-setup.js';
 import {
@@ -1176,7 +1177,7 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
                         <ul className="space-y-3">
                             {dbTools.map(t => (
                                 <li key={t.id}>
-                                    <a href={`/src/tool?id=${t.id}`} className="text-lg font-medium text-blue-600 hover:underline break-all">
+                                    <a href={getToolUrl(t.id)} className="text-lg font-medium text-blue-600 hover:underline break-all">
                                         {t.name}
                                     </a>
                                 </li>

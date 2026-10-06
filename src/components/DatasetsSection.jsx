@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { extractMetadataConstants } from '../utils/metadataUtils';
 import { executeFilterLogic } from '../utils/filterLogic.js';
+import { getDatasetUrl } from '../utils/urlUtils';
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 
@@ -292,7 +293,7 @@ export const DatasetsSection = ({ custodianFilter }) => {
                                             <tr className="dataset-title-row">
                                                 <td colSpan="5" style={{ padding: '15px' }}>
                                                     <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
-                                                        <a href={`/src/meta?id=${dataset.id}`} className="dataset-title-link">
+                                                        <a href={getDatasetUrl(dataset.id)} className="dataset-title-link">
                                                             <CellValue value={dataset.title} />
                                                         </a>
                                                     </div>

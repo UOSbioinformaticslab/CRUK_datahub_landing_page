@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getDatasetsUrl, getProjectsUrl, getPublicationsUrl, getToolsUrl, getPageUrl } from '../utils/urlUtils';
 
 export const DatahubDashboard = () => {
   const [isBannerVisible, setIsBannerVisible] = useState(true);
@@ -239,21 +240,21 @@ export const DatahubDashboard = () => {
 
       {/* Navigation Grid */}
       <div style={gridStyle}>
-        <a href="./datasets.html" id="browse-datasets-btn" data-tour="browse-datasets" style={buttonStyle}>Browse or Search Datasets</a>
-        <a href="./projects.html" style={buttonStyle}>Browse or Search Projects</a>
-        <a href="./publications.html" style={buttonStyle}>Browse or Search Associated Publications</a>
-        <a href="./tools.html" style={buttonStyle}>Browse or Search Associated Tools</a>
+        <a href={getDatasetsUrl()} id="browse-datasets-btn" data-tour="browse-datasets" style={buttonStyle}>Browse or Search Datasets</a>
+        <a href={getProjectsUrl()} style={buttonStyle}>Browse or Search Projects</a>
+        <a href={getPublicationsUrl()} style={buttonStyle}>Browse or Search Associated Publications</a>
+        <a href={getToolsUrl()} style={buttonStyle}>Browse or Search Associated Tools</a>
       </div>
 
       {/* Research Focus Section */}
       <div style={focusSectionStyle}>
-        <a href="./horizons.html" style={ctaContainerStyle}>
+        <a href={getPageUrl('horizons')} style={ctaContainerStyle}>
           <div style={ctaImageStyle} aria-hidden="true"></div>
           <div style={ctaTextStyle}>
             Explore Cancer Research Horizons Data Resources
           </div>
         </a>
-        <a href="./data_custodians.html" style={{...ctaContainerStyle, marginTop: '20px'}}>
+        <a href={getPageUrl('data_custodians')} style={{...ctaContainerStyle, marginTop: '20px'}}>
           <div style={{...ctaTextStyle, width: '100%', textAlign: 'center'}}>
             Meet our Data Custodians
           </div>

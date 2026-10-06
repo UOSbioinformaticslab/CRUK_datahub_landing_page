@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { getDatasetUrl } from '../utils/urlUtils';
 
 const ICON_OPTS = [
     { url: "../assets/animal.webp", label: "Model Organism Study" },
@@ -546,7 +547,7 @@ export const StudiesSection = () => {
                                                 </div>
 
                                                 {/* Title Link */}
-                                                <a href={`/src/meta?id=${study.id}`} className="study-title-link">
+                                                <a href={getDatasetUrl(study.id)} className="study-title-link">
                                                     {study.studyTitle}
                                                 </a>
 

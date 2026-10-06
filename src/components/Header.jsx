@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SignInModal from './SignInModal.jsx';
+import { getPageUrl } from '../utils/urlUtils';
 import { ChangePasswordModal } from './ChangePasswordModal.jsx';
 import { ManageTeamModal } from './ManageTeamModal.jsx';
 import { InvitationsModal } from './InvitationsModal.jsx';
@@ -147,7 +148,7 @@ export const Header = () => {
                     </p>
                 </div>
 
-                <a href="./dashboard.html" style={titleStyle}>
+                <a href={getPageUrl('dashboard')} style={titleStyle}>
                     <h1 className="strap-line">CRUK Data Hub</h1>
                 </a>
 
@@ -205,17 +206,17 @@ export const Header = () => {
 
             <nav className="thin-navbar">
                 <ul>
-                    <li><a href="./about.html">About</a></li>
+                    <li><a href={getPageUrl('about')}>About</a></li>
                     <li>
                         <a href="https://www.cancerresearchuk.org/funding-for-researchers/research-opportunities-in-data-science">
                             CRUK Data Strategy
                         </a>
                     </li>
-                    <li><a href="./protect_data.html">How we protect your data</a></li>
+                    <li><a href={getPageUrl('protect_data')}>How we protect your data</a></li>
 
                     {isAdmin && (
                         <li>
-                            <a href="./manage_hub.html" className="nav-link-main font-bold text-red-300">
+                            <a href={getPageUrl('manage_hub')} className="nav-link-main font-bold text-red-300">
                                 Manage the hub
                             </a>
                         </li>
@@ -375,16 +376,16 @@ export const Header = () => {
                                                     <ul className="bg-gray-50 border-y border-gray-200 py-1 !flex !flex-col w-full">
                                                         <li className="w-full">
                                                             <a 
-                                                                href="./upload.html" 
+                                                                href={getPageUrl('upload')} 
                                                                 data-tour="upload-dataset-link"
                                                                 className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100"
                                                             >
                                                                 Upload dataset
                                                             </a>
                                                         </li>
-                                                        <li className="w-full"><a href="./upload_project.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload project</a></li>
-                                                        <li className="w-full"><a href="./upload_publications.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a publication</a></li>
-                                                        <li className="w-full"><a href="./upload_tool.html" className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a tool</a></li>
+                                                        <li className="w-full"><a href={getPageUrl('upload_project')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload project</a></li>
+                                                        <li className="w-full"><a href={getPageUrl('upload_publications')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a publication</a></li>
+                                                        <li className="w-full"><a href={getPageUrl('upload_tool')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a tool</a></li>
                                                     </ul>
                                                 )}
                                             </li>

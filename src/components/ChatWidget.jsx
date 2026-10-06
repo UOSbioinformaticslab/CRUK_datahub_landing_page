@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Turnstile } from '@marsidev/react-turnstile';
 import ReactMarkdown from 'react-markdown';
+import { getProjectUrl, getDatasetUrl } from '../utils/urlUtils';
 
 const getPageContext = () => {
     const url = new URL(window.location.href);
@@ -275,7 +276,7 @@ const ChatWidget = () => {
                             {msg.actions && msg.actions.length > 0 && (
                                 <div className="flex flex-col gap-2 mt-2 pt-2 border-t border-gray-200">
                                     {msg.actions.map((act, i) => (
-                                        <a key={i} href={act.type === 'view_project' ? `./project_meta.html?pid=${act.id}` : `./meta.html?id=${act.id}`} className="block text-center bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
+                                        <a key={i} href={act.type === 'view_project' ? getProjectUrl(act.id) : getDatasetUrl(act.id)} className="block text-center bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 px-3 py-1.5 rounded-md text-sm font-medium transition-colors">
                                             {act.label}
                                         </a>
                                     ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header.jsx';
+import { getToolsUrl, getDatasetUrl, getProjectUrl } from '../utils/urlUtils';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -46,7 +47,7 @@ export const ToolPage = () => {
                     <div className="max-w-6xl mx-auto">
                         {/* Back button to tools directory */}
                         <a
-                            href="/src/tools.html"
+                            href={getToolsUrl()}
                             className="inline-flex items-center text-xs font-semibold tracking-wider text-blue-100 hover:text-white hover:underline uppercase mb-3 transition-colors group"
                         >
                             <svg className="w-4 h-4 mr-2 transform group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -125,7 +126,7 @@ export const ToolPage = () => {
                                     <dd className="mt-1 text-sm text-gray-900 flex flex-wrap gap-1.5">
                                         {tool.datasets && tool.datasets.length > 0 ? (
                                             tool.datasets.map(ds => (
-                                                <a key={ds.id} href={`/src/meta?id=${ds.id}`} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
+                                                <a key={ds.id} href={getDatasetUrl(ds.id)} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
                                                     {ds.computed_title || ds.title || `Dataset ${ds.id}`}
                                                 </a>
                                             ))
@@ -137,7 +138,7 @@ export const ToolPage = () => {
                                     <dd className="mt-1 text-sm text-gray-900 flex flex-wrap gap-1.5">
                                         {tool.projects && tool.projects.length > 0 ? (
                                             tool.projects.map(proj => (
-                                                <a key={proj.id} href={`/src/project_meta?pid=${proj.id}`} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
+                                                <a key={proj.id} href={getProjectUrl(proj.id)} className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-1 rounded font-medium hover:bg-blue-100 hover:underline transition-colors">
                                                     {proj.project_grant_name || proj.projectGrantName || proj.title || `Project ${proj.id}`}
                                                 </a>
                                             ))

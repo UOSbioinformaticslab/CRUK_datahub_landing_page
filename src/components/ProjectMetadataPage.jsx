@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { getToolUrl, getDatasetUrl, getPageUrl } from '../utils/urlUtils';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -79,7 +80,7 @@ export const ProjectMetadataPage = () => {
         return (
             <div className="flex flex-col justify-center items-center py-20 px-4 bg-gray-50">
                 <p className="text-xl text-red-600 font-semibold mb-4">{error}</p>
-                <a href="/src/projects.html" className="text-[#00468C] hover:underline font-medium">
+                <a href={getPageUrl('projects')} className="text-[#00468C] hover:underline font-medium">
                     ← Back to Projects Directory
                 </a>
             </div>
@@ -94,7 +95,7 @@ export const ProjectMetadataPage = () => {
                     
                     {/* Top Navigation */}
                     <div className="mb-6">
-                        <a href="/src/projects.html" className="inline-flex items-center text-sm font-semibold text-[#00468C] hover:underline gap-1">
+                        <a href={getPageUrl('projects')} className="inline-flex items-center text-sm font-semibold text-[#00468C] hover:underline gap-1">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
                             </svg>
@@ -176,7 +177,7 @@ export const ProjectMetadataPage = () => {
                                     return (
                                         <div key={ds.id} className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-all flex items-center justify-between gap-4">
                                             <div className="min-w-0 flex-1">
-                                                <a href={`/src/meta?id=${ds.id}`} className="text-base font-bold text-[#00468C] hover:text-[#002D5C] hover:underline truncate block">
+                                                <a href={getDatasetUrl(ds.id)} className="text-base font-bold text-[#00468C] hover:text-[#002D5C] hover:underline truncate block">
                                                     {title}
                                                 </a>
                                                 {ds.datasetid && (
@@ -184,7 +185,7 @@ export const ProjectMetadataPage = () => {
                                                 )}
                                             </div>
                                             <a
-                                                href={`/src/meta?id=${ds.id}`}
+                                                href={getDatasetUrl(ds.id)}
                                                 className="inline-flex items-center text-xs font-medium text-[#00468C] bg-blue-50 hover:bg-blue-100 border border-blue-200 px-3 py-1.5 rounded-md transition-colors shrink-0"
                                             >
                                                 View Dataset Metadata →
@@ -286,7 +287,7 @@ export const ProjectMetadataPage = () => {
                                     return (
                                         <div key={t.id} className="bg-white p-5 rounded-lg shadow-sm border border-gray-200 hover:border-blue-300 transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                             <div className="min-w-0 flex-1">
-                                                <a href={`/src/tool.html?id=${t.id}`} className="text-base font-bold text-[#00468C] hover:text-[#002D5C] hover:underline block truncate">
+                                                <a href={getToolUrl(t.id)} className="text-base font-bold text-[#00468C] hover:text-[#002D5C] hover:underline block truncate">
                                                     {t.name}
                                                 </a>
                                                 {firstLineDesc && (

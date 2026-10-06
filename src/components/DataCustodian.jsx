@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { getToolUrl } from '../utils/urlUtils';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -153,7 +153,7 @@ export const DataCustodian = () => {
                                 <ul className="space-y-3">
                                     {sortedTools.map(t => (
                                         <li key={t.id}>
-                                            <a href={`/src/tool?id=${t.id}`} className="text-lg font-medium text-blue-600 hover:underline break-all">
+                                            <a href={getToolUrl(t.id)} className="text-lg font-medium text-blue-600 hover:underline break-all">
                                                 {t.name}
                                             </a>
                                         </li>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { getToolUrl, getDatasetUrl, getProjectUrl } from '../utils/urlUtils';
 
 const ToolRow = ({ tool }) => {
   const externalUrl = tool.url
@@ -11,7 +12,7 @@ const ToolRow = ({ tool }) => {
       <div className="p-4 bg-gray-50/70 border-b border-gray-200 flex flex-wrap items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-3 min-w-0">
           <a
-            href={`/src/tool.html?id=${tool.id}`}
+            href={getToolUrl(tool.id)}
             className="text-lg font-bold text-[#00468C] hover:text-[#002D5C] hover:underline truncate"
           >
             {tool.name}
@@ -41,7 +42,7 @@ const ToolRow = ({ tool }) => {
               tool.datasets.map((ds) => (
                 <a
                   key={ds.id}
-                  href={`/src/meta?id=${ds.id}`}
+                  href={getDatasetUrl(ds.id)}
                   className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 hover:underline transition-colors"
                 >
                   {ds.computed_title || ds.title || `Dataset ${ds.id}`}
@@ -59,7 +60,7 @@ const ToolRow = ({ tool }) => {
               tool.projects.map((proj) => (
                 <a
                   key={proj.id}
-                  href={`/src/project_meta?pid=${proj.id}`}
+                  href={getProjectUrl(proj.id)}
                   className="text-xs bg-blue-50 text-[#00468C] border border-blue-200 px-2 py-0.5 rounded-md font-medium hover:bg-blue-100 hover:underline transition-colors"
                 >
                   {proj.project_grant_name || proj.projectGrantName || proj.title || `Project ${proj.id}`}

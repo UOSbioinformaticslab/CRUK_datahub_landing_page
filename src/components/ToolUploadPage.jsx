@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header.jsx';
+import { getToolsUrl } from '../utils/urlUtils';
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const AI_MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL || "http://localhost:8001";
 
@@ -229,7 +230,7 @@ export const ToolUploadPage = () => {
 
             setSuccess(true);
             setTimeout(() => {
-                window.location.href = '/src/tools.html';
+                window.location.href = getToolsUrl();
             }, 1500);
         } catch (err) {
             setError(err.message);
@@ -253,7 +254,7 @@ export const ToolUploadPage = () => {
                 throw new Error(text || "Failed to delete tool.");
             }
             alert("Tool deleted successfully.");
-            window.location.href = '/src/tools.html';
+            window.location.href = getToolsUrl();
         } catch (err) {
             setError(err.message);
         }
