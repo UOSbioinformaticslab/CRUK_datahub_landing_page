@@ -108,9 +108,6 @@ export const ProjectMetadataPage = () => {
                         <h1 className="text-3xl md:text-4xl font-extrabold text-[#00468C] mb-2">
                             {project.project_grant_name || project.title || "Unnamed Project"}
                         </h1>
-                        <div className="text-xs font-mono text-gray-500 bg-white inline-block px-2.5 py-1 rounded border border-gray-200">
-                            Project ID: {project.pid || project.id}
-                        </div>
                     </div>
 
                     {/* Project Details Card */}

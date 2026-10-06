@@ -1,14 +1,10 @@
 /**
- * Ultra-robust environment-aware navigation helper for CRUK Datahub.
- * Seamlessly handles:
- *  - Local Vite Dev (/src/*.html)
- *  - Local Static (.html)
- *  - Railway Production Deployment (Clean URLs like /tool?id=3, /tools, /project_meta?pid=1)
+ * Navigation helper for CRUK Datahub.
+ * Generates unified clean /src/page_name?query URLs matching working dataset & project routes.
  */
 export function getPageUrl(pageName, params = {}) {
     if (!pageName) return '#';
     
-    const pathname = typeof window !== 'undefined' ? window.location.pathname : '';
     const searchParams = new URLSearchParams();
 
     Object.entries(params).forEach(([key, val]) => {
@@ -19,19 +15,13 @@ export function getPageUrl(pageName, params = {}) {
 
     const queryString = searchParams.toString() ? `?${searchParams.toString()}` : '';
 
-    // Strip leading slashes, /src/ prefix, or .html extension if passed
+    // Strip any leading slashes, /src/ prefix, or .html extension if passed
     const cleanPage = String(pageName)
         .replace(/^\/src\//, '')
         .replace(/^\/+/, '')
         .replace(/\.html$/, '');
 
-    if (pathname.includes('/src/')) {
-        return `/src/${cleanPage}.html${queryString}`;
-    } else if (pathname.endsWith('.html')) {
-        return `./${cleanPage}.html${queryString}`;
-    } else {
-        return `/${cleanPage}${queryString}`;
-    }
+    return `/src/${cleanPage}${queryString}`;
 }
 
 export function getToolUrl(toolId) {
