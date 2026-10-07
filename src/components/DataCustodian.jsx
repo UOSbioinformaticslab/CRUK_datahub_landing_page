@@ -79,7 +79,9 @@ export const DataCustodian = () => {
                         ) : (
                             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{team.name}</h1>
                         )}
-                        <p className="text-gray-600 text-lg max-w-4xl">{team.description}</p>
+                        {team.introduction && (
+                            <p className="text-gray-600 text-base md:text-lg max-w-4xl leading-relaxed whitespace-pre-wrap">{team.introduction}</p>
+                        )}
                     </div>
 
                     <div className="px-8 space-y-12 pb-12">

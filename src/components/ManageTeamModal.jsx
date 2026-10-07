@@ -5,6 +5,8 @@ const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000"
 
 
 export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode = 'members' }) => {
+    const [teamName, setTeamName] = useState('');
+    const [teamIntroduction, setTeamIntroduction] = useState('');
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteAsAdmin, setInviteAsAdmin] = useState(false);
     const [notificationEmail, setNotificationEmail] = useState('');
@@ -35,6 +37,8 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
 
             if (teamRes.ok) {
                 const teamData = await teamRes.json();
+                setTeamName(teamData.name || '');
+                setTeamIntroduction(teamData.introduction || '');
                 setNotificationEmail(teamData.notification_email || '');
             }
             if (membersRes.ok) {
@@ -68,6 +72,32 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
             setStatus('idle');
             setMessage('');
         }, 3000);
+    };
+
+    const handleSaveTeamDetails = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE_URL}/teams/${activeTeamId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ 
+                    name: teamName, 
+                    introduction: teamIntroduction 
+                })
+            });
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.detail || 'Failed to update team details');
+            }
+            showMessage('Team details updated successfully!');
+            window.dispatchEvent(new Event('authChange'));
+            fetchData();
+        } catch (err) {
+            showMessage(err.message, true);
+        }
     };
 
     const handleSaveNotificationEmail = async () => {
@@ -193,6 +223,41 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
                     <>
                         {mode === 'members' && (
                             <>
+                                {/* 0. Team Name & Introduction Settings */}
+                                <div className="mb-8 p-5 border border-blue-200 bg-blue-50/40 rounded-lg">
+                                    <h3 className="font-bold text-lg mb-1 text-[var(--cruk-darkblue)]">Team Name & Introduction</h3>
+                                    <p className="text-sm text-gray-600 mb-4">
+                                        Update your team's public name and introduction. The introduction will appear on your Data Custodian Profile.
+                                    </p>
+                                    <div className="space-y-4">
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Team Name</label>
+                                            <input
+                                                type="text"
+                                                value={teamName}
+                                                onChange={(e) => setTeamName(e.target.value)}
+                                                placeholder="e.g. University of Sussex"
+                                                className="w-full p-2 border border-gray-300 rounded focus:border-[var(--cruk-darkblue)] focus:outline-none bg-white text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-bold uppercase text-gray-700 mb-1">Team Introduction</label>
+                                            <textarea
+                                                rows="4"
+                                                value={teamIntroduction}
+                                                onChange={(e) => setTeamIntroduction(e.target.value)}
+                                                placeholder="Write a brief introduction to your team, datasets, and research focus..."
+                                                className="w-full p-2 border border-gray-300 rounded focus:border-[var(--cruk-darkblue)] focus:outline-none bg-white text-sm"
+                                            />
+                                        </div>
+                                        <div className="flex justify-end">
+                                            <button onClick={handleSaveTeamDetails} className="btn py-2 px-5 text-sm font-semibold">
+                                                Save Team Details
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 {/* 1. Notification Email Settings */}
                                 <div className="mb-8 p-4 border border-gray-200 rounded-lg">
                                     <h3 className="font-bold text-lg mb-2">Team Notification Email</h3>

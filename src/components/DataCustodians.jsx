@@ -57,13 +57,16 @@ export const DataCustodians = () => {
                             {filteredTeams.length > 0 ? (
                                 filteredTeams.map(team => (
                                     <tr key={team.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-900">
                                             <a 
                                                 href={`/src/data_custodian?team_id=${team.id}`}
-                                                className="text-blue-600 hover:text-blue-900 hover:underline"
+                                                className="text-blue-600 hover:text-blue-900 hover:underline font-bold text-base block"
                                             >
                                                 {team.name}
                                             </a>
+                                            {team.introduction && (
+                                                <p className="text-gray-500 font-normal text-xs mt-1 line-clamp-2 max-w-3xl">{team.introduction}</p>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
