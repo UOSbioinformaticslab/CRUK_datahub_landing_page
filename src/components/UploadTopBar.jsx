@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
 import { getExtra } from '../utils/getExtra.js';
+import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 import DeleteConfirmationModal from './DeleteConfirmationModal.jsx';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
@@ -294,6 +295,11 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
     const confirmDeleteRecord = async () => {
         try {
             const token = localStorage.getItem('token');
+            if (!token || isTokenExpired(token)) {
+                handleAuthExpired();
+                return;
+            }
+
             const baseEndpoint = isProject
                 ? `${API_BASE_URL}/projects/`
                 : `${API_BASE_URL}/datasets/`;
@@ -306,6 +312,11 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                     'Authorization': `Bearer ${token}`
                 }
             });
+
+            if (response.status === 401) {
+                handleAuthExpired();
+                return;
+            }
 
             if (!response.ok) {
                 const errorData = await response.json();
@@ -320,13 +331,22 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
 
         } catch (error) {
             console.error("Delete error:", error);
-            alert(`Error: ${error.message}`);
+            if (error.message && error.message.includes('401')) {
+                handleAuthExpired();
+            } else {
+                alert(`Error: ${error.message}`);
+            }
         }
     };
 
     const handleSaveToDatabase = async ({ markActive = false, unpublish = false } = {}) => {
         try {
             const token = localStorage.getItem('token');
+            if (!token || isTokenExpired(token)) {
+                handleAuthExpired();
+                return;
+            }
+
             const activeTeamId = localStorage.getItem('activeTeamId');
 
             const baseEndpoint = isProject
@@ -351,6 +371,11 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                         },
                         body: JSON.stringify({ topographies: tops, histologies: hist })
                     });
+
+                    if (lookupResponse.status === 401) {
+                        handleAuthExpired();
+                        return;
+                    }
 
                     if (lookupResponse.ok) {
                         const lookupMap = await lookupResponse.json();
@@ -394,6 +419,11 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                 body: JSON.stringify(payload)
             });
 
+            if (response.status === 401) {
+                handleAuthExpired();
+                return;
+            }
+
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || 'Failed to save to database');
@@ -416,7 +446,11 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
 
         } catch (error) {
             console.error("Save error:", error);
-            alert(`Error: ${error.message}`);
+            if (error.message && error.message.includes('401')) {
+                handleAuthExpired();
+            } else {
+                alert(`Error: ${error.message}`);
+            }
         }
     };
 

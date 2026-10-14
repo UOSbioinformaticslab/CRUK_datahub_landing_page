@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import PublicationUpload from './components/PublicationUpload.jsx';
 import FloatingQRCode from './components/FloatingQRCode.jsx';
 import { Header } from './components/Header.jsx'
+import './utils/fetchInterceptor.js';
 
 
 function renderReactComponent(targetId, Component) {

@@ -16,6 +16,7 @@ import { filterData } from '../utils/filter-setup.js';
 import { flattenSchemaToGrid } from '../utils/flattenSchemaToGrid.js';
 import prefixIconMapping from '../utils/prefix_icon_mapping.json';
 import { getExtra } from '../utils/getExtra.js';
+import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -356,7 +357,10 @@ const WelcomeSection = ({
     loadingDatasets,
     datasetError,
     handleSelectDataset,
-    onUpload }) => (
+    onUpload }) => {
+    const isLoggedIn = !!localStorage.getItem('token');
+
+    return (
     <div className="p-8 overflow-y-auto pb-20 w-full">
         <div data-tour="welcome-guide-section" className="bg-white p-6 rounded-xl shadow-md border border-slate-200 mb-6">
             <h1 className="text-3xl font-extrabold mb-4 text-gray-900">Guide to Uploading and Modifying Metadata</h1>
@@ -377,7 +381,18 @@ const WelcomeSection = ({
             </p>
 
             <div className="mb-2 max-w-lg">
-                {loadingDatasets ? (
+                {!isLoggedIn ? (
+                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg text-amber-900 text-sm flex items-center justify-between">
+                        <span>Please sign in to view and modify your existing datasets.</span>
+                        <button
+                            type="button"
+                            onClick={() => window.dispatchEvent(new CustomEvent('openSignInModal'))}
+                            className="ml-4 px-3 py-1.5 bg-[var(--cruk-darkblue,#00007A)] text-white text-xs font-semibold rounded hover:opacity-90 transition-opacity whitespace-nowrap"
+                        >
+                            Sign In
+                        </button>
+                    </div>
+                ) : loadingDatasets ? (
                     <p className="text-sm text-gray-500">Loading datasets...</p>
                 ) : datasetError ? (
                     <p className="text-sm text-red-500">{datasetError}</p>
@@ -458,7 +473,8 @@ const WelcomeSection = ({
             </div>
         </div>
     </div>
-);
+    );
+};
 
 // --- Component: Frequency Grid (Matrix Input) ---
 const FrequencyGrid = ({ value, onChange, enumOptions, label }) => {
@@ -1396,9 +1412,21 @@ const SchemaPage = () => {
         const token = localStorage.getItem('token');
         const currentUserId = parseInt(localStorage.getItem('userId'), 10);
 
-        if (!token || !currentUserId) return;
+        if (!token || !currentUserId) {
+            setExistingDatasets([]);
+            setDatasetError('');
+            return;
+        }
+
+        if (isTokenExpired(token)) {
+            setExistingDatasets([]);
+            setDatasetError('');
+            handleAuthExpired();
+            return;
+        }
 
         setLoadingDatasets(true);
+        setDatasetError('');
         try {
             const activeTeamId = localStorage.getItem('activeTeamId');
             const url = activeTeamId 
@@ -1409,6 +1437,13 @@ const SchemaPage = () => {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
 
+            if (response.status === 401) {
+                setExistingDatasets([]);
+                setDatasetError('');
+                handleAuthExpired();
+                return;
+            }
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -1417,7 +1452,13 @@ const SchemaPage = () => {
             setExistingDatasets(data);
         } catch (err) {
             console.error("❌ Fetch failed:", err.message);
-            setDatasetError(err.message);
+            if (err.message && err.message.includes('401')) {
+                setExistingDatasets([]);
+                setDatasetError('');
+                handleAuthExpired();
+            } else {
+                setDatasetError(err.message);
+            }
         } finally {
             setLoadingDatasets(false);
         }

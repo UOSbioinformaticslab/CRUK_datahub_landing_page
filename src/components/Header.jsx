@@ -7,11 +7,14 @@ import { InvitationsModal } from './InvitationsModal.jsx';
 import { DataCustodiansModal } from './DataCustodiansModal.jsx';
 import ChatWidget from './ChatWidget.jsx';
 import { GuidedTourController } from './guided_tour/GuidedTourController.jsx';
+import { clearAuthStorage, isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
+import '../utils/fetchInterceptor.js';
 import "../styles/style.css"
 
 export const Header = () => {
     const [userName, setUserName] = useState(null);
     const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
+    const [signInInitialMessage, setSignInInitialMessage] = useState('');
     const [isChangePasswordModalOpen, setIsChangePasswordModalOpen] = useState(false);
     const [userTeams, setUserTeams] = useState([]);
     const [activeTeamId, setActiveTeamId] = useState(null);
@@ -25,25 +28,30 @@ export const Header = () => {
     const [isTourDropdownOpen, setIsTourDropdownOpen] = useState(false);
 
     useEffect(() => {
-        const storedName = localStorage.getItem('userName');
-        if (storedName) {
-            setUserName(storedName);
-        }
-        const storedTeams = localStorage.getItem('userTeams');
-        if (storedTeams) {
-            setUserTeams(JSON.parse(storedTeams));
-        }
-        const storedActiveTeam = localStorage.getItem('activeTeamId');
-        if (storedActiveTeam) {
-            setActiveTeamId(storedActiveTeam);
-        }
-        const storedIsAdmin = localStorage.getItem('isAdmin');
-        if (storedIsAdmin === 'true') {
-            setIsAdmin(true);
+        const token = localStorage.getItem('token');
+        if (token && isTokenExpired(token)) {
+            handleAuthExpired();
+            return;
         }
 
+        const syncUserState = () => {
+            const storedName = localStorage.getItem('userName');
+            setUserName(storedName || null);
+            const storedTeams = localStorage.getItem('userTeams');
+            setUserTeams(storedTeams ? JSON.parse(storedTeams) : []);
+            const storedActiveTeam = localStorage.getItem('activeTeamId');
+            setActiveTeamId(storedActiveTeam || null);
+            const storedIsAdmin = localStorage.getItem('isAdmin');
+            setIsAdmin(storedIsAdmin === 'true');
+        };
+
+        syncUserState();
+
         const handleOpenModal = () => setIsDataCustodiansModalOpen(true);
-        const handleOpenSignInModal = () => setIsSignInModalOpen(true);
+        const handleOpenSignInModal = (e) => {
+            setSignInInitialMessage(e?.detail?.message || '');
+            setIsSignInModalOpen(true);
+        };
         const handleExpandMenu = () => {
             setIsDataDropdownOpen(true);
             setIsUploadExpanded(true);
@@ -52,11 +60,13 @@ export const Header = () => {
         window.addEventListener('openDataCustodiansModal', handleOpenModal);
         window.addEventListener('openSignInModal', handleOpenSignInModal);
         window.addEventListener('expandDataCustodianMenu', handleExpandMenu);
+        window.addEventListener('authChange', syncUserState);
 
         return () => {
             window.removeEventListener('openDataCustodiansModal', handleOpenModal);
             window.removeEventListener('openSignInModal', handleOpenSignInModal);
             window.removeEventListener('expandDataCustodianMenu', handleExpandMenu);
+            window.removeEventListener('authChange', syncUserState);
         };
     }, []);
 
@@ -90,16 +100,12 @@ export const Header = () => {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userName');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('user_id');
-        localStorage.removeItem('teamId');
-        localStorage.removeItem('activeTeamId');
-        localStorage.removeItem('userTeams');
-        localStorage.removeItem('isAdmin');
+        clearAuthStorage();
         setUserName(null);
+        setUserTeams([]);
+        setActiveTeamId(null);
         setIsAdmin(false);
+        window.dispatchEvent(new Event('authChange'));
         window.location.reload();
     };
 
@@ -157,7 +163,7 @@ export const Header = () => {
                         <button className="btn">Help</button>
                     </a>
                     {!userName ? (
-                        <button className="btn" onClick={() => setIsSignInModalOpen(true)}>Sign In / Register</button>
+                        <button className="btn" onClick={() => { setSignInInitialMessage(''); setIsSignInModalOpen(true); }}>Sign In / Register</button>
                     ) : (
                         <>
                             <button className="btn" style={{backgroundColor: '#6b7280'}} onClick={handleLogout}>Sign out</button>
@@ -180,7 +186,11 @@ export const Header = () => {
 
             <SignInModal 
                 isOpen={isSignInModalOpen} 
-                onClose={() => setIsSignInModalOpen(false)} 
+                initialMessage={signInInitialMessage}
+                onClose={() => {
+                    setIsSignInModalOpen(false);
+                    setSignInInitialMessage('');
+                }} 
                 onLoginSuccess={handleLoginSuccess} 
             />
 

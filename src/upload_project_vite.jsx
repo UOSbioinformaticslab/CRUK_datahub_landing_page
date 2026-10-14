@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import SchemaPage from './components/ProjectGrantSchemaPage.jsx';
 import FloatingQRCode from './components/FloatingQRCode.jsx';
 import { Header } from './components/Header.jsx'
+import './utils/fetchInterceptor.js';
 import { InstructionsWidget } from './components/InstructionsWidget.jsx';
 
 function renderReactComponent(targetId, Component) {

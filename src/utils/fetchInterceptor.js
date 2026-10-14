@@ -1,4 +1,5 @@
 import { injectGlobalToast } from '../components/ToastContainer.jsx';
+import { handleAuthExpired } from './authUtils.js';
 
 // Ensure the toast container is in the DOM
 injectGlobalToast();
@@ -33,6 +34,14 @@ window.fetch = async (...args) => {
 
     try {
         const response = await originalFetch(...args);
+        
+        // Intercept 401 Unauthorized errors on authenticated calls (excluding login /token)
+        if (response.status === 401) {
+            const isLoginRequest = typeof targetUrl === 'string' && (targetUrl.endsWith('/token') || targetUrl.includes('/token?'));
+            if (!isLoginRequest) {
+                handleAuthExpired();
+            }
+        }
         
         // Intercept 5xx errors from our backends or API gateways
         if (response.status >= 500) {

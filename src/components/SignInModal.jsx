@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
-const SignInModal = ({ isOpen, onClose, onLoginSuccess }) => {
+const SignInModal = ({ isOpen, onClose, onLoginSuccess, initialMessage = '' }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -19,8 +19,17 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess }) => {
 
     const [status, setStatus] = useState('idle'); // idle, loading, success, error
     const [message, setMessage] = useState('');
+    const [notice, setNotice] = useState(initialMessage);
     const [step, setStep] = useState('login'); // 'login', 'register', or 'selectTeam'
     const [userData, setUserData] = useState(null);
+
+    useEffect(() => {
+        if (isOpen && initialMessage) {
+            setNotice(initialMessage);
+        } else if (!isOpen) {
+            setNotice('');
+        }
+    }, [isOpen, initialMessage]);
 
     if (!isOpen) return null;
 
@@ -37,6 +46,7 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess }) => {
         setShowRegConfirmPassword(false);
         setStatus('idle');
         setMessage('');
+        setNotice('');
         setStep('login');
         setUserData(null);
     };
@@ -186,6 +196,15 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess }) => {
                     <>
                         <h2 className="text-xl font-bold mb-4 text-[var(--cruk-darkblue)]">Researcher Sign In</h2>
                         
+                        {notice && status !== 'error' && status !== 'success' && (
+                            <div className="mb-4 p-3 bg-amber-50 text-amber-800 border border-amber-200 rounded text-sm flex items-start">
+                                <svg className="w-5 h-5 mr-2 mt-0.5 flex-shrink-0 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                </svg>
+                                <span>{notice}</span>
+                            </div>
+                        )}
+
                         {status === 'error' && (
                             <div className="mb-4 p-3 bg-red-50 text-red-700 border border-red-200 rounded text-sm">
                                 {message}

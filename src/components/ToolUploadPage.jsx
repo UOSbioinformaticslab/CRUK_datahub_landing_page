@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Header } from './Header.jsx';
 import { getToolsUrl } from '../utils/urlUtils';
+import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const AI_MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL || "http://localhost:8001";
 
@@ -163,8 +164,8 @@ export const ToolUploadPage = () => {
         const token = localStorage.getItem('token');
         const activeTeamId = localStorage.getItem('activeTeamId');
 
-        if (!token) {
-            setError("You must be logged in to save a tool.");
+        if (!token || isTokenExpired(token)) {
+            handleAuthExpired();
             return;
         }
         if (!activeTeamId) {
@@ -223,6 +224,11 @@ export const ToolUploadPage = () => {
                 body: JSON.stringify(payload)
             });
 
+            if (res.status === 401) {
+                handleAuthExpired();
+                return;
+            }
+
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || "Failed to save tool.");
@@ -233,7 +239,11 @@ export const ToolUploadPage = () => {
                 window.location.href = getToolsUrl();
             }, 1500);
         } catch (err) {
-            setError(err.message);
+            if (err.message && err.message.includes('401')) {
+                handleAuthExpired();
+            } else {
+                setError(err.message);
+            }
         }
     };
 
@@ -242,6 +252,11 @@ export const ToolUploadPage = () => {
         if (!window.confirm("Are you sure you want to delete this tool?")) return;
         
         const token = localStorage.getItem('token');
+        if (!token || isTokenExpired(token)) {
+            handleAuthExpired();
+            return;
+        }
+
         try {
             const res = await fetch(`${API_BASE_URL}/tools/${editingToolId}`, {
                 method: 'DELETE',
@@ -249,6 +264,12 @@ export const ToolUploadPage = () => {
                     'Authorization': `Bearer ${token}`
                 }
             });
+
+            if (res.status === 401) {
+                handleAuthExpired();
+                return;
+            }
+
             if (!res.ok) {
                 const text = await res.text();
                 throw new Error(text || "Failed to delete tool.");
@@ -256,7 +277,11 @@ export const ToolUploadPage = () => {
             alert("Tool deleted successfully.");
             window.location.href = getToolsUrl();
         } catch (err) {
-            setError(err.message);
+            if (err.message && err.message.includes('401')) {
+                handleAuthExpired();
+            } else {
+                setError(err.message);
+            }
         }
     };
 

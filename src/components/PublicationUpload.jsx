@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import TargetSelector from './TargetSelector';
+import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 const MICROSERVICE_URL = import.meta.env.VITE_MICROSERVICE_URL || "http://localhost:8001";
@@ -58,17 +59,29 @@ const PublicationUpload = () => {
     useEffect(() => {
         const fetchData = async () => {
             if (isNaN(teamId) || !token) return;
+            if (isTokenExpired(token)) {
+                handleAuthExpired();
+                return;
+            }
 
             try {
                 const dsRes = await fetch(`${API_BASE_URL}/datasets/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (dsRes.status === 401) {
+                    handleAuthExpired();
+                    return;
+                }
                 const dsData = dsRes.ok ? await dsRes.json() : [];
                 const fetchedDatasets = dsData.filter(d => d.team_id === teamId);
 
                 const projRes = await fetch(`${API_BASE_URL}/projects/`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                if (projRes.status === 401) {
+                    handleAuthExpired();
+                    return;
+                }
                 const projData = projRes.ok ? await projRes.json() : [];
                 const fetchedProjects = projData.filter(p => p.team_id === teamId);
 
@@ -79,6 +92,9 @@ const PublicationUpload = () => {
                 setProjects(fetchedProjects.sort(sortAlpha));
             } catch (error) {
                 console.error("Failed to fetch initial data:", error);
+                if (error.message && error.message.includes('401')) {
+                    handleAuthExpired();
+                }
             }
         };
         fetchData();
@@ -189,6 +205,11 @@ const PublicationUpload = () => {
     };
 
     const handleSubmit = async () => {
+        if (!token || isTokenExpired(token)) {
+            handleAuthExpired();
+            return;
+        }
+
         if (selectedTarget === null) {
             setFeedback({ message: 'Please select a dataset or project first.', type: 'error' });
             return;
@@ -252,6 +273,11 @@ const PublicationUpload = () => {
                     body: JSON.stringify(pubPayload)
                 });
 
+                if (saveRes.status === 401) {
+                    handleAuthExpired();
+                    return;
+                }
+
                 if (!saveRes.ok) {
                     const errBody = await saveRes.text();
                     console.error(`❌ [DOI DEBUG] Step 2 Failed (${saveRes.status}):`, errBody);
@@ -278,6 +304,11 @@ const PublicationUpload = () => {
                     }
                 });
 
+                if (linkRes.status === 401) {
+                    handleAuthExpired();
+                    return;
+                }
+
                 if (!linkRes.ok) {
                     const errBody = await linkRes.text();
                     console.error(`❌ [DOI DEBUG] Step 3 Failed (${linkRes.status}):`, errBody);
@@ -289,6 +320,10 @@ const PublicationUpload = () => {
 
             } catch (error) {
                 console.error(`❌ [DOI DEBUG] Failed processing DOI '${doiObj.value}':`, error);
+                if (error.message && error.message.includes('401')) {
+                    handleAuthExpired();
+                    return;
+                }
                 updatedDois[i].status = 'error';
                 updatedDois[i].errorMessage = error.message;
                 allSuccess = false;
