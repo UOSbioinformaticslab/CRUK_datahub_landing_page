@@ -21,7 +21,7 @@ const FloatingQRCode = () => {
     <div
       style={{
         position: 'fixed',
-        bottom: '24px',
+        top: '24px',
         right: '24px',
         width: '85px',
         height: '100px',

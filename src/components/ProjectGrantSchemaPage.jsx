@@ -123,13 +123,13 @@ const WelcomeSection = ({ onUpload }) => (
         <h1 className="text-3xl font-extrabold mb-4 text-gray-900">Guide to Uploading and Modifying Information about your CRUK project</h1>
 
         <div className="text-sm text-gray-600 mb-1 leading-relaxed">
-            If this is a new project, you will find here a data stub that we have derived from your accepted CRUK grant proposal. Feel free to add details - particularly to the
+            If this is a new project, you will find here some initial information that we have derived from your accepted CRUK grant proposal. Feel free to add details - particularly to the
             section about the project scope.
 
         </div>
 
         <p className="text-sm text-gray-600 mb-3 leading-relaxed">
-            To modify an existing project dataset, choose from your existing projects below to retrieve the existing information for manual adjustment, to download the information, or to upload amendments.
+            To modify information about an existing project, select from the list below to view and edit the information displayed.
         </p>
 
         <div className="mb-6 max-w-lg">
@@ -142,7 +142,7 @@ const WelcomeSection = ({ onUpload }) => (
                     }
                 }}
             >
-                <option value="" disabled>-- Select an existing dataset --</option>
+                <option value="" disabled>-- Select an existing project --</option>
                 <option value="dataset1">Dataset for histopathology reports for prostatic carcinoma</option>
                 <option value="dataset2">The Cancer Imaging Archive</option>
                 <option value="dataset3">Longitudinal breast cancer data</option>

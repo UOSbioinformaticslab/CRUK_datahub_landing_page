@@ -191,15 +191,41 @@ const ChatWidget = () => {
         }
     };
 
-    const starterPrompts = [
-        "Which datasets have information on Breast Cancer?",
-        "Find datasets with genomic sequences",
-        "How many datasets include ethnicity data?"
-    ];
+    const getStarterPrompts = (pageType) => {
+        switch(pageType) {
+            case 'projects_list':
+            case 'project_detail':
+                return [
+                    "Which projects focus on Breast Cancer?",
+                    "Find projects led by researchers at The Francis Crick Institute",
+                    "Which projects have grant numbers starting with C?"
+                ];
+            case 'publications_list':
+                return [
+                    "Find publications from 2023 or 2024",
+                    "Which publications have associated datasets?",
+                    "Find publications on colorectal cancer"
+                ];
+            case 'tools_list':
+                return [
+                    "What bioinformatics tools are available?",
+                    "Find tools using Python or R",
+                    "Which tools are linked to datasets?"
+                ];
+            default:
+                return [
+                    "Which datasets have information on Breast Cancer?",
+                    "Find datasets with genomic sequences",
+                    "How many datasets include ethnicity data?"
+                ];
+        }
+    };
+
+    const starterPrompts = getStarterPrompts(pageContext.current.page);
 
     if (!isOpen) {
         return (
-            <div className="fixed bottom-6 right-6 z-50 group">
+            <div className="fixed bottom-6 right-6 z-[1000] group">
                 {/* Custom Tooltip */}
                 <div className="absolute bottom-full right-0 mb-3 w-max px-3 py-2 bg-white text-gray-800 border border-gray-200 text-xs font-medium rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
                     AI chatbot - powered by Gemini 3.5
