@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import { getExtra } from '../utils/getExtra.js';
 import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 import DeleteConfirmationModal from './DeleteConfirmationModal.jsx';
+import FilterRecommendationModal from './FilterRecommendationModal.jsx';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 console.log("🔍 Diagnostic: VITE_BACKEND_URL =", import.meta.env.VITE_BACKEND_URL, "| Active API_BASE_URL =", API_BASE_URL);
@@ -33,8 +34,23 @@ const InfoIcon = () => (
 );
 
 // --- Component ---
-const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteSuccess, datasetStatus, onSaveSuccess }) => {
+const UploadTopBar = ({ 
+    formData, 
+    schema, 
+    prefixIconMapping, 
+    pageType, 
+    onDeleteSuccess, 
+    datasetStatus, 
+    onSaveSuccess,
+    suggestedFilters = [],
+    onSuggestionsGenerated,
+    onNavigateToSection
+}) => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [isRecommendationModalOpen, setIsRecommendationModalOpen] = useState(false);
+    const [recommendationModalMode, setRecommendationModalMode] = useState('prompt'); // 'prompt' | 'scanning' | 'error'
+    const [modalMissingCategories, setModalMissingCategories] = useState([]);
+    const [modalErrorMessage, setModalErrorMessage] = useState('');
 
     // --- 1. Helper Logic ---
 
@@ -339,7 +355,7 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
         }
     };
 
-    const handleSaveToDatabase = async ({ markActive = false, unpublish = false } = {}) => {
+    const handleSaveToDatabase = async ({ markActive = false, unpublish = false, silent = false } = {}) => {
         try {
             const token = localStorage.getItem('token');
             if (!token || isTokenExpired(token)) {
@@ -432,12 +448,14 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
             const result = await response.json();
             const displayId = isProject ? (result.pid || result.id) : result.datasetid;
 
-            if (markActive) {
-                alert(`Successfully published ${isProject ? 'Project' : 'Dataset'}! ID: ${displayId}\nIt is now live on datasets.html and meta.html.`);
-            } else if (unpublish) {
-                alert(`Successfully unpublished ${isProject ? 'Project' : 'Dataset'}. ID: ${displayId}\nIt is now hidden from public view.`);
-            } else {
-                alert(`Successfully saved draft for ${isProject ? 'Project' : 'Dataset'}. ID: ${displayId}`);
+            if (!silent) {
+                if (markActive) {
+                    alert(`Successfully published ${isProject ? 'Project' : 'Dataset'}! ID: ${displayId}\nIt is now live on datasets.html and meta.html.`);
+                } else if (unpublish) {
+                    alert(`Successfully unpublished ${isProject ? 'Project' : 'Dataset'}. ID: ${displayId}\nIt is now hidden from public view.`);
+                } else {
+                    alert(`Successfully saved draft for ${isProject ? 'Project' : 'Dataset'}. ID: ${displayId}`);
+                }
             }
 
             if (onSaveSuccess) {
@@ -451,6 +469,112 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
             } else {
                 alert(`Error: ${error.message}`);
             }
+        }
+    };
+
+    // --- 3. Filter Recommendation Workflow on Draft Save ---
+
+    const checkFilterCompleteness = (filters = []) => {
+        let hasCancer = false;
+        let hasData = false;
+        let hasAccess = false;
+
+        filters.forEach(item => {
+            const id = typeof item === 'object' ? item.id : item;
+            const group = typeof item === 'object' ? item.primaryGroup : null;
+            if (id?.startsWith('0_0') || group === 'cancer-type') hasCancer = true;
+            if (id?.startsWith('0_2') || group === 'data-type') hasData = true;
+            if (id?.startsWith('0_1') || group === 'access') hasAccess = true;
+        });
+
+        const missing = [];
+        if (!hasCancer) missing.push('Cancer Type');
+        if (!hasData) missing.push('Data Type');
+        if (!hasAccess) missing.push('Access Type');
+
+        return {
+            hasCancer,
+            hasData,
+            hasAccess,
+            allPresent: hasCancer && hasData && hasAccess,
+            missing
+        };
+    };
+
+    const runScanAndSaveDraft = async (missing = []) => {
+        try {
+            const token = localStorage.getItem('token');
+            const cleanBaseUrl = API_BASE_URL.replace(/\/+$/, '');
+            const response = await fetch(`${cleanBaseUrl}/datasets/recommend-filters`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                },
+                body: JSON.stringify({
+                    metadata: formData,
+                    dataset_id: existingId
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json().catch(() => ({}));
+                throw new Error(err.message || err.detail || `Recommendation service failed with status ${response.status}`);
+            }
+
+            const data = await response.json();
+            const incomingSuggestions = data.suggestions || [];
+
+            // Deduplicate incoming suggestions against filters already active
+            const activeIds = new Set((formData.datasetFilters || []).map(f => typeof f === 'object' ? f.id : f));
+            const novelSuggestions = incomingSuggestions.filter(s => !activeIds.has(s.id));
+
+            if (onSuggestionsGenerated) {
+                onSuggestionsGenerated(novelSuggestions);
+            }
+            if (onNavigateToSection) {
+                onNavigateToSection('datasetFilters');
+            }
+
+            setIsRecommendationModalOpen(false);
+
+            // Save draft without modifying schema (recommendations kept in-memory)
+            await handleSaveToDatabase({
+                markActive: false,
+                silent: true
+            });
+
+            if (novelSuggestions.length > 0) {
+                alert(`Draft saved! We found ${novelSuggestions.length} recommended filter tags. Please review them in the Dataset Filters section.`);
+            } else {
+                alert(`Draft saved! (No new filter recommendations were identified).`);
+            }
+
+        } catch (err) {
+            console.error("Filter recommendation error during draft save:", err);
+            setModalErrorMessage(err.message || 'Network error scanning metadata');
+            setRecommendationModalMode('error');
+        }
+    };
+
+    const handleSaveDraftClick = () => {
+        if (isProject) {
+            handleSaveToDatabase({ markActive: false });
+            return;
+        }
+
+        const { allPresent, missing } = checkFilterCompleteness(formData.datasetFilters || []);
+        if (allPresent) {
+            // All 3 categories present: offer user opportunity to get more suggestions
+            setModalMissingCategories([]);
+            setRecommendationModalMode('prompt');
+            setIsRecommendationModalOpen(true);
+        } else {
+            // 1+ categories missing: scan automatically with progress indicator
+            setModalMissingCategories(missing);
+            setRecommendationModalMode('scanning');
+            setIsRecommendationModalOpen(true);
+            runScanAndSaveDraft(missing);
         }
     };
 
@@ -524,7 +648,7 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                     </button>
 
                     <button
-                        onClick={() => handleSaveToDatabase({ markActive: false })}
+                        onClick={handleSaveDraftClick}
                         className="flex items-center bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"
                         title="Save working progress as a draft"
                     >
@@ -570,6 +694,23 @@ const UploadTopBar = ({ formData, schema, prefixIconMapping, pageType, onDeleteS
                 onConfirm={confirmDeleteRecord}
                 title={recordTitle}
                 itemType={isProject ? "Project" : "Dataset"}
+            />
+
+            {/* Automated Filter Recommendation Modal */}
+            <FilterRecommendationModal
+                isOpen={isRecommendationModalOpen}
+                mode={recommendationModalMode}
+                missingCategories={modalMissingCategories}
+                errorMessage={modalErrorMessage}
+                onProceedScan={() => {
+                    setRecommendationModalMode('scanning');
+                    runScanAndSaveDraft([]);
+                }}
+                onSkipToSave={() => {
+                    setIsRecommendationModalOpen(false);
+                    handleSaveToDatabase({ markActive: false });
+                }}
+                onClose={() => setIsRecommendationModalOpen(false)}
             />
         </>
     );

@@ -10,6 +10,8 @@ import semanticSchema from 'cruk-semantic-schema';
 
 import { MarkdownRenderer } from './MarkdownRenderer.jsx';
 import DataTagger, { FilterChipArea } from './DataTagger.jsx';
+import ProposedFilterArea from './ProposedFilterArea.jsx';
+import useFilterRecommendations from '../hooks/useFilterRecommendations.js';
 import JsonUpload from './JsonUpload.jsx';
 import UploadTopBar from './UploadTopBar.jsx';
 import { filterData } from '../utils/filter-setup.js';
@@ -1141,7 +1143,16 @@ const SchemaForm = ({
     existingDatasets,
     loadingDatasets,
     datasetError,
-    handleSelectDataset
+    handleSelectDataset,
+    suggestedFilters = [],
+    onAcceptSuggestion,
+    onDismissSuggestion,
+    onAcceptAllSuggestions,
+    onDismissAllSuggestions,
+    onGenerateSuggestions,
+    isGeneratingSuggestions,
+    suggestionNotice,
+    setSuggestionNotice
 }) => {
 
     // 0. Welcome Section
@@ -1162,14 +1173,107 @@ const SchemaForm = ({
     if (sectionKey === 'datasetFilters') {
         return (
             <div className="w-full p-8 overflow-y-auto pb-20">
-                <h1 className="text-3xl font-extrabold mb-2 text-gray-800">Dataset Filters</h1>
-                <p className="text-gray-600 mb-8 border-b pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h1 className="text-3xl font-extrabold text-gray-800">Dataset Filters</h1>
+                        <p className="text-xs text-indigo-600 font-semibold mt-1">
+                            ✨ Suggestions can be auto-generated from your study title, abstract, documentation, and data access.
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={onGenerateSuggestions}
+                        disabled={isGeneratingSuggestions}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 shadow-md hover:shadow transition-all disabled:opacity-60 disabled:cursor-not-allowed flex-shrink-0 active:scale-95"
+                        title="Scan metadata and auto-generate recommended filters"
+                    >
+                        {isGeneratingSuggestions ? (
+                            <>
+                                <svg className="animate-spin h-3.5 w-3.5 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span>Scanning Metadata...</span>
+                            </>
+                        ) : (
+                            <>
+                                <span className="text-sm">✨</span>
+                                <span>Auto-Generate Suggestions</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                <p className="text-gray-600 mb-6 border-b pb-4 text-sm leading-relaxed">
                     Please tag your dataset with specific filters identifying the type of cancer covered, the type of data it contains and accessibility. This improves the searchability of your dataset.
 
-                    <br/><span className="text-sm text-red-600 font-bold mt-2 block">
-                        Required: At least one Topography, one Histology, one Data Type, and one Access Type.
+                    <br/><span className="text-xs text-red-600 font-bold mt-2 block">
+                        Required: At least one Cancer Filter, one Data Type Filter, and one Access Filter.
                     </span>
                 </p>
+
+                {/* Suggestion status notification */}
+                {suggestionNotice && (
+                    <div className={`mb-4 p-3 rounded-lg text-xs font-medium flex items-center justify-between border ${
+                        suggestionNotice.type === 'error'
+                            ? 'bg-rose-50 text-rose-800 border-rose-200'
+                            : suggestionNotice.type === 'success'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                                : 'bg-slate-50 text-slate-700 border-slate-200'
+                    }`}>
+                        <span>{suggestionNotice.message}</span>
+                        <button
+                            type="button"
+                            onClick={() => setSuggestionNotice && setSuggestionNotice(null)}
+                            className="text-slate-400 hover:text-slate-700 font-bold ml-2 text-sm leading-none"
+                        >
+                            &times;
+                        </button>
+                    </div>
+                )}
+
+                {/* Active Tags & Proposed Filter Areas */}
+                {(() => {
+                    const activeTags = formData['datasetFilters'] || [];
+                    const hasActiveTags = activeTags.length > 0;
+
+                    return (
+                        <>
+                            {hasActiveTags && (
+                                <div className="mb-6 p-4 rounded-xl border border-gray-200 bg-white shadow-sm">
+                                    <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                                        <h3 className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+                                            <span>🏷️</span> Active Tags
+                                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-blue-50 text-blue-700 border border-blue-200">
+                                                {activeTags.length}
+                                            </span>
+                                        </h3>
+                                    </div>
+                                    <FilterChipArea
+                                        selectedFilters={activeTags}
+                                        handleFilterChange={(idToRemove) => {
+                                            const newTags = activeTags.filter(tag => (typeof tag === 'object' ? tag.id : tag) !== idToRemove);
+                                            onFormChange(['datasetFilters'], newTags);
+                                        }}
+                                    />
+                                </div>
+                            )}
+
+                            {/* Proposed Filter Area */}
+                            {suggestedFilters && suggestedFilters.length > 0 && (
+                                <ProposedFilterArea
+                                    suggestions={suggestedFilters}
+                                    title={hasActiveTags ? "Additional Recommended Filters" : "Recommended Filters"}
+                                    onAccept={onAcceptSuggestion}
+                                    onDismiss={onDismissSuggestion}
+                                    onAcceptAll={onAcceptAllSuggestions}
+                                    onDismissAll={onDismissAllSuggestions}
+                                />
+                            )}
+                        </>
+                    );
+                })()}
+
                 <DataTagger
                     value={formData['datasetFilters'] || []}
                     onChange={(newTags) => onFormChange(['datasetFilters'], newTags)}
@@ -1396,6 +1500,7 @@ const SchemaPage = () => {
     const [loadingDatasets, setLoadingDatasets] = useState(false);
     const [datasetError, setDatasetError] = useState('');
     const [datasetStatus, setDatasetStatus] = useState({ active: false, has_draft: false, status: 'DRAFT' });
+    const [formData, setFormData] = useState({});
 
     // Safety Check on Initialization
     if (!DATA_SCHEMA || !DATA_SCHEMA.properties) {
@@ -1481,6 +1586,67 @@ const SchemaPage = () => {
         };
     }, [fetchDatasets]);
 
+    // --- UPDATED HANDLE DATA CHANGE (DEEP MERGE + LOGGING) ---
+    const handleDataChange = useCallback((path, value) => {
+        console.group("Data Change Debug");
+        console.log("1. Path being updated:", path);
+        console.log("2. New Value to set:", value);
+
+        setFormData(prev => {
+            console.log("3. State BEFORE update:", JSON.parse(JSON.stringify(prev)));
+
+            const newData = { ...prev };
+            let current = newData;
+
+            for (let i = 0; i < path.length - 1; i++) {
+                const key = path[i];
+                const nextKey = path[i + 1];
+
+                // Ensure the current level exists
+                if (current[key] === undefined) {
+                    current[key] = typeof nextKey === 'number' ? [] : {};
+                }
+
+                // Clone the container to ensure we don't mutate state directly
+                // but ONLY clone the branch we are traversing (preserving siblings)
+                if (Array.isArray(current[key])) {
+                    current[key] = [...current[key]];
+                } else {
+                    current[key] = { ...current[key] };
+                }
+
+                // Move pointer down
+                current = current[key];
+            }
+
+            // Set the value at the target
+            current[path[path.length - 1]] = value;
+
+            console.log("4. State AFTER update:", JSON.parse(JSON.stringify(newData)));
+            console.groupEnd();
+
+            return newData;
+        });
+    }, []);
+
+    const {
+        suggestedFilters,
+        isGeneratingSuggestions,
+        suggestionNotice,
+        setSuggestionNotice,
+        handleGenerateSuggestions,
+        handleAcceptSuggestion,
+        handleDismissSuggestion,
+        handleAcceptAllSuggestions,
+        handleDismissAllSuggestions,
+        addSuggestedFilters,
+        clearSuggestedFilters
+    } = useFilterRecommendations({
+        formData,
+        onFormChange: handleDataChange,
+        apiBaseUrl: API_BASE_URL
+    });
+
     const handleSelectDataset = async (e) => {
         const selectedId = e.target.value;
         if (!selectedId) return;
@@ -1494,6 +1660,8 @@ const SchemaPage = () => {
                     datasetid: result.id
                 };
                 setFormData(dataWithId);
+                clearSuggestedFilters();
+
                 setDatasetStatus({
                     active: result.active,
                     has_draft: result.has_draft,
@@ -1507,6 +1675,7 @@ const SchemaPage = () => {
 
     const handleRecordDeleted = () => {
         setFormData({});
+        clearSuggestedFilters();
         setDatasetStatus({ active: false, has_draft: false, status: 'DRAFT' });
         fetchDatasets();
     };
@@ -1576,7 +1745,6 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
     setIsFeedbackOpen(false);
 };
 
-    const [formData, setFormData] = useState({});
     const [welcomeGuidanceContent, setWelcomeGuidanceContent] = useState('');
         useEffect(() => {
             fetch('../guidance.md')
@@ -1624,48 +1792,7 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
         setActiveGuidance(null);
     };
 
-    // --- UPDATED HANDLE DATA CHANGE (DEEP MERGE + LOGGING) ---
-    const handleDataChange = useCallback((path, value) => {
-        console.group("Data Change Debug");
-        console.log("1. Path being updated:", path);
-        console.log("2. New Value to set:", value);
 
-        setFormData(prev => {
-            console.log("3. State BEFORE update:", JSON.parse(JSON.stringify(prev)));
-
-            const newData = { ...prev };
-            let current = newData;
-
-            for (let i = 0; i < path.length - 1; i++) {
-                const key = path[i];
-                const nextKey = path[i + 1];
-
-                // Ensure the current level exists
-                if (current[key] === undefined) {
-                    current[key] = typeof nextKey === 'number' ? [] : {};
-                }
-
-                // Clone the container to ensure we don't mutate state directly
-                // but ONLY clone the branch we are traversing (preserving siblings)
-                if (Array.isArray(current[key])) {
-                    current[key] = [...current[key]];
-                } else {
-                    current[key] = { ...current[key] };
-                }
-
-                // Move pointer down
-                current = current[key];
-            }
-
-            // Set the value at the target
-            current[path[path.length - 1]] = value;
-
-            console.log("4. State AFTER update:", JSON.parse(JSON.stringify(newData)));
-            console.groupEnd();
-
-            return newData;
-        });
-    }, []);
 
     const preprocessData = (data, schemaDefinition) => {
         if (!data || typeof data !== 'object') return data;
@@ -1960,6 +2087,12 @@ return (
                 pageType="datasets"
                 onDeleteSuccess={handleRecordDeleted}
                 datasetStatus={datasetStatus}
+                suggestedFilters={suggestedFilters}
+                onSuggestionsGenerated={(newSuggestions) => {
+                    addSuggestedFilters(newSuggestions);
+                    handleNavChange('datasetFilters');
+                }}
+                onNavigateToSection={handleNavChange}
                 onSaveSuccess={(result) => {
                     setDatasetStatus({ active: result.active, has_draft: result.has_draft, status: result.status });
                     fetchDatasets();
@@ -1997,6 +2130,15 @@ return (
                                 loadingDatasets={loadingDatasets}
                                 datasetError={datasetError}
                                 handleSelectDataset={handleSelectDataset}
+                                suggestedFilters={suggestedFilters}
+                                onAcceptSuggestion={handleAcceptSuggestion}
+                                onDismissSuggestion={handleDismissSuggestion}
+                                onAcceptAllSuggestions={handleAcceptAllSuggestions}
+                                onDismissAllSuggestions={handleDismissAllSuggestions}
+                                onGenerateSuggestions={handleGenerateSuggestions}
+                                isGeneratingSuggestions={isGeneratingSuggestions}
+                                suggestionNotice={suggestionNotice}
+                                setSuggestionNotice={setSuggestionNotice}
                             />
                         </div>
                     </Panel>
