@@ -56,7 +56,10 @@ export const fetchFilterRecommendations = async ({ formData = {}, datasetId = nu
     }
 
     const data = await response.json();
-    return data.suggestions || [];
+    return {
+        suggestions: data.suggestions || [],
+        silentDerived: data.silentDerived || []
+    };
 };
 
 /**

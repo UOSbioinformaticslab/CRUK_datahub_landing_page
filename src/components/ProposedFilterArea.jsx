@@ -133,13 +133,21 @@ export const ProposedFilterArea = ({
                         >
                             {/* Card Top: Category Badge, Label & Actions */}
                             <div className="flex items-start justify-between gap-2 mb-2 pb-2 border-b border-slate-100">
-                                <div className="flex flex-wrap items-center gap-1.5">
-                                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeClass}`}>
-                                        {categoryLabel}
-                                    </span>
-                                    <span className="text-sm font-bold text-slate-900 leading-tight">
-                                        {item.label}
-                                    </span>
+                                <div className="flex flex-col gap-1 min-w-0">
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                        <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border ${badgeClass}`}>
+                                            {categoryLabel}
+                                        </span>
+                                        <span className="text-sm font-bold text-slate-900 leading-tight">
+                                            {item.label}
+                                        </span>
+                                    </div>
+                                    {item.hierarchyText && (
+                                        <div className="text-[11px] font-medium text-slate-500 flex items-center gap-1">
+                                            <span className="text-slate-400 select-none">↳</span>
+                                            <span className="leading-snug" title={item.hierarchyText}>{item.hierarchyText}</span>
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="flex items-center gap-1.5 flex-shrink-0">
