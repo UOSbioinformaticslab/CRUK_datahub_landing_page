@@ -31,12 +31,13 @@ function getExtraTerms(file, extraTerms, existingIds) {
 
     const extra = [];
     const seenIds = new Set();
+    const effectiveHist = hist.length > 0 ? hist : ["800 Neoplasms, NOS"];
 
     for (const t of tops) {
         const histMap = extraTerms[t];
         if (!histMap) continue;
 
-        for (const h of hist) {
+        for (const h of effectiveHist) {
             const termsList = histMap[h];
             if (!Array.isArray(termsList)) continue;
 

@@ -21,6 +21,7 @@ const filterType = (id) => {
         else if (second === "2") return "cruk";
         else if (second === "3") return "snomed";
         else if (second === "4") return "tcga";
+        else if (second === "5") return "pan";
         return "unknown";
     }
 };
@@ -69,7 +70,8 @@ const calculateLogicMessage = (filters, filterType, plusParents, includeParents,
     const top = filters.filter(f => filterType(f) === "top"
         || filterType(f) === "cruk"
         || filterType(f) === "snomed"
-        || filterType(f) === "tcga");
+        || filterType(f) === "tcga"
+        || filterType(f) === "pan");
     const data = filters.filter(f => filterType(f) === "data");
     const access = filters.filter(f => filterType(f) === "access");
 
@@ -105,12 +107,12 @@ const getTokenArray = (thelist, joiner) => {
     const validIds = thelist.filter(id => filterDetailsMap.has(id));
     if (validIds.length === 0) return [];
     if (validIds.length === 1) {
-        return [{ type: 'filter', id: validIds[0], label: filterDetailsMap.get(validIds[0]).label }];
+        return [{ type: 'filter', id: validIds[0], label: filterDetailsMap.get(validIds[0])?.label || validIds[0] }];
     }
     
     const validTokens = [{ type: 'bracket', value: '(' }];
     validIds.forEach((id, idx) => {
-        validTokens.push({ type: 'filter', id, label: filterDetailsMap.get(id).label });
+        validTokens.push({ type: 'filter', id, label: filterDetailsMap.get(id)?.label || id });
         if (idx < validIds.length - 1) validTokens.push({ type: 'operator', value: joiner });
     });
     validTokens.push({ type: 'bracket', value: ')' });
@@ -122,7 +124,8 @@ const calculateLogicTokens = (filters) => {
     const top = filters.filter(f => filterType(f) === "top"
         || filterType(f) === "cruk"
         || filterType(f) === "snomed"
-        || filterType(f) === "tcga");
+        || filterType(f) === "tcga"
+        || filterType(f) === "pan");
     const data = filters.filter(f => filterType(f) === "data");
     const access = filters.filter(f => filterType(f) === "access");
 

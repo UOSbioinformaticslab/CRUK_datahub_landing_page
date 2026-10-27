@@ -170,14 +170,14 @@ const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, s
             {/* Guidance banner clarifying Pan Cancer vs ICD-O */}
             <div className="mb-3">
                 <p className="text-xs text-gray-600">
-                    Specify <strong>Pan Cancer</strong> if your dataset applies to multiple cancer types — <strong>or</strong> use the <strong>ICD-O Classification</strong> below to specify individual cancer topography and histology.
+                    Specify <strong>Pan Cancer</strong> if your dataset applies to multiple cancer types, <strong>and/or</strong> use the <strong>ICD-O Classification</strong> below to specify cancer topography (primary site) and, where relevant, histology.
                 </p>
             </div>
 
             {/* Option 1: Pan-Cancer Filter Card */}
             <div className={`mb-3 p-3 rounded-lg border-2 transition-all shadow-sm flex items-center justify-between ${
                 selectedFiltersSet.has("0_0_5")
-                    ? "border-[var(--cruk-pink)] bg-pink-50/40 ring-2 ring-[var(--cruk-pink)]/20"
+                    ? "border-[var(--cruk-pink)] bg-white"
                     : "border-gray-200 bg-white hover:border-[var(--cruk-pink)]"
             }`}>
                 <div className="flex items-center space-x-3">
@@ -212,18 +212,18 @@ const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, s
                 </div>
             </div>
 
-            {/* Visual Divider: OR */}
+            {/* Visual Divider: AND / OR */}
             <div className="relative flex py-1 items-center mb-3">
                 <div className="flex-grow border-t border-gray-200"></div>
                 <span className="flex-shrink mx-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 bg-white px-2">
-                    — OR specify ICD-O classification —
+                    — AND / OR specify ICD-O classification —
                 </span>
                 <div className="flex-grow border-t border-gray-200"></div>
             </div>
 
             {/* Option 2: ICD-O Classification */}
             <h3 className="text-sm font-bold text-gray-700 mb-1">ICD-O Classification</h3>
-            <p className="text-xs text-gray-500 mb-2">Please provide the ICD-O Topography and Histology codes. You will be asked to provide translations later.</p>
+            <p className="text-xs text-gray-500 mb-2">Please provide the ICD-O Topography code (primary site) and, if relevant, the Histology code. (If histology is not applicable, general neoplasms are assumed for automated TCGA and CRUK mappings).</p>
 
             <SearchInput
                 searchTerm={searchTerm}
@@ -240,7 +240,10 @@ const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, s
                     </div>
                 </div>
                 <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 flex flex-col">
-                    <h4 className="font-bold text-gray-700 mb-2 border-b pb-1">Histology</h4>
+                    <h4 className="font-bold text-gray-700 mb-2 border-b pb-1 flex items-center justify-between">
+                        <span>Histology</span>
+                        <span className="text-[11px] font-normal text-gray-500">(Optional / Where Relevant)</span>
+                    </h4>
                     <div className={listClass}>
                         <NestedFilterList items={filteredHisto} {...listProps} />
                     </div>

@@ -21,7 +21,7 @@ export const getTourSteps = ({
   {
     target: '#classification-card-icdo',
     title: 'Step 2: Choose ICD-O Classification',
-    content: 'Click on the "ICD-O Classification" card to view official pathology terms split into Topography and Histology.',
+    content: 'Click on the "ICD-O Classification" card to view official pathology terms split into Topography (primary site) and optional Histology (morphology).',
     onEnter: () => {
       setActivePanel('cancer');
       setSelectedClassification(null);

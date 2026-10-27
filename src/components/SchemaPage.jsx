@@ -189,7 +189,7 @@ const calculateSectionStatus = (sectionKey, formData) => {
             if (!hasAccess && idExistsInBranch(id, accessBranch)) hasAccess = true;
         });
 
-        if ((hasPanCancer || (hasTopo && hasHisto)) && hasData && hasAccess) return 'complete';
+        if ((hasPanCancer || hasTopo) && hasData && hasAccess) return 'complete';
         return 'incomplete';
     }
 
@@ -1921,10 +1921,12 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
     console.log("DEBUG 1 - Tops extracted:", tops, "IDs:", topIds);
     console.log("DEBUG 2 - Hist extracted:", hist, "IDs:", histIds);
 
-    if ((tops.length > 0 || topIds.length > 0) && (hist.length > 0 || histIds.length > 0)) {
+    if (tops.length > 0 || topIds.length > 0) {
         try {
-            console.log("DEBUG 3 - Entering API block. Both tops and hist exist.");
+            console.log("DEBUG 3 - Entering API block for extra-terms lookup.");
             const token = localStorage.getItem('token');
+            const lookupHist = (hist.length > 0 || histIds.length > 0) ? hist : ["800 Neoplasms, NOS"];
+            const lookupHistIds = histIds.length > 0 ? histIds : (hist.length > 0 ? [] : ["0_0_1_0"]);
 
             const response = await fetch(`${API_BASE_URL}datasets/extra-terms`, {
                 method: 'POST',
@@ -1934,9 +1936,9 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
                 },
                 body: JSON.stringify({
                     topographies: tops,
-                    histologies: hist,
+                    histologies: lookupHist,
                     topography_ids: topIds,
-                    histology_ids: histIds
+                    histology_ids: lookupHistIds
                 })
             });
 
@@ -1958,7 +1960,7 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
             console.error("DEBUG ERROR - Network failure:", err);
         }
     } else {
-        console.log("DEBUG - Bypassing lookup. Missing either topography or histology tags.");
+        console.log("DEBUG - Bypassing lookup. No topography tags provided.");
     }
 
     // 3. Apply Semantic Defaults
@@ -2094,10 +2096,20 @@ return (
                     addSuggestedFilters(newSuggestions);
                     handleNavChange('datasetFilters');
                 }}
-                onNavigateToSection={handleNavChange}
-                onSaveSuccess={(result) => {
+                onSaveSuccess={(result, processedData) => {
                     setDatasetStatus({ active: result.active, has_draft: result.has_draft, status: result.status });
                     fetchDatasets();
+                    const savedFilters = result?.metadata_blob?.datasetFilters 
+                        || result?.draft_metadata_blob?.datasetFilters 
+                        || processedData?.datasetFilters;
+                    if (savedFilters && savedFilters.length > 0) {
+                        setFormData(prev => ({
+                            ...prev,
+                            ...(result?.id ? { id: result.id } : {}),
+                            ...(result?.datasetid ? { datasetid: result.datasetid } : {}),
+                            datasetFilters: savedFilters
+                        }));
+                    }
                 }}
             />
 

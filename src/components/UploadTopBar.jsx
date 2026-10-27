@@ -365,9 +365,10 @@ const UploadTopBar = ({
 
             const activeTeamId = localStorage.getItem('activeTeamId');
 
+            const cleanBaseUrl = API_BASE_URL.replace(/\/+$/, '');
             const baseEndpoint = isProject
-                ? `${API_BASE_URL}/projects/`
-                : `${API_BASE_URL}/datasets/`;
+                ? `${cleanBaseUrl}/projects/`
+                : `${cleanBaseUrl}/datasets/`;
 
             const endpoint = isUpdate ? `${baseEndpoint}${existingId}` : baseEndpoint;
 
@@ -377,15 +378,16 @@ const UploadTopBar = ({
             const tops = filters.filter(f => f.id?.startsWith("0_0_0")).map(f => f.label);
             const hist = filters.filter(f => f.id?.startsWith("0_0_1")).map(f => f.label);
 
-            if (tops.length > 0 && hist.length > 0) {
+            if (tops.length > 0) {
+                const lookupHist = hist.length > 0 ? hist : ["800 Neoplasms, NOS"];
                 try {
-                    const lookupResponse = await fetch(`${API_BASE_URL}/datasets/extra-terms`, {
+                    const lookupResponse = await fetch(`${cleanBaseUrl}/datasets/extra-terms`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         },
-                        body: JSON.stringify({ topographies: tops, histologies: hist })
+                        body: JSON.stringify({ topographies: tops, histologies: lookupHist })
                     });
 
                     if (lookupResponse.status === 401) {
@@ -459,7 +461,7 @@ const UploadTopBar = ({
             }
 
             if (onSaveSuccess) {
-                onSaveSuccess(result);
+                onSaveSuccess(result, processedData);
             }
 
         } catch (error) {

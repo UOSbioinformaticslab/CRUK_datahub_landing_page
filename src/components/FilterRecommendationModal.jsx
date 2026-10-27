@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const ANALYSIS_STEPS = [
     { id: 1, label: "Scanning title, abstract, and study documentation...", duration: 600 },
-    { id: 2, label: "Matching ICD-O-3 topographies (C18, C20, C42.1) & histology morphology...", duration: 800 },
+    { id: 2, label: "Matching ICD-O-3 topographies (primary site) & optional histology morphology...", duration: 800 },
     { id: 3, label: "Classifying data type modalities & technologies...", duration: 700 },
     { id: 4, label: "Extracting governance & data access criteria...", duration: 600 },
     { id: 5, label: "Cross-referencing CRUK & TCGA vocabulary mappings...", duration: 500 }

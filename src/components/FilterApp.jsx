@@ -1139,7 +1139,10 @@ const CancerTypePanel = ({ handleFilterChange,
                             </div>
 
                             <div className="bg-gray-50 p-3 rounded-md shadow-inner border border-gray-200">
-                                <h4 className="text-base font-bold text-gray-700 mb-2">Histology</h4>
+                                <h4 className="text-base font-bold text-gray-700 mb-2 flex items-center justify-between">
+                                    <span>Histology</span>
+                                    <span className="text-xs font-normal text-gray-500">(Optional)</span>
+                                </h4>
                                 <div id="icdo-histology-list" className={baseListClass}>
                                     <NestedFilterList
                                         items={filteredHistologyItems}
@@ -1161,19 +1164,41 @@ const CancerTypePanel = ({ handleFilterChange,
     return (
         <div id="cancer-type-panel" className="md:col-span-3 bg-white rounded-xl overflow-hidden flex flex-col">
             <div className="p-3 sm:p-4 text-gray-600 flex-grow overflow-hidden">
-                <div className="text-2xl font-bold text-gray-800 mb-3 border-b pb-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 mb-3 border-b pb-2">
                     {selectedClassification && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSelectedClassification(null);
+                                setSearchTerm("");
+                            }}
+                            className="px-3 py-1 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700"
+                        >
+                            ← Back to Cancer Type Selection
+                        </button>
+                    )}
+                    {selectedClassification && (
+                        <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Also apply:</span>
                             <button
                                 type="button"
-                                onClick={() => {
-                                    setSelectedClassification(null);
-                                    setSearchTerm("");
-                                }}
-                                className="px-3 py-1 text-sm rounded-md border border-gray-300 bg-white hover:bg-gray-100 text-gray-700"
+                                id="pan-cancer-sub-filter-button"
+                                onClick={() => handleFilterChange("0_0_5")}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md border text-xs font-semibold transition-all shadow-sm ${
+                                    selectedFilters.has("0_0_5")
+                                        ? "bg-white text-[var(--cruk-pink)] border-[var(--cruk-pink)]"
+                                        : "bg-white text-gray-700 border-gray-300 hover:border-[var(--cruk-pink)] hover:text-[var(--cruk-pink)]"
+                                }`}
+                                title="Applies to multiple cancer types"
                             >
-                                ← Back to Cancer Type Selection
+                                <span>🌐</span>
+                                <span>Pan-cancer</span>
+                                {selectedFilters.has("0_0_5") && (
+                                    <span className="ml-1 text-[10px] bg-[var(--cruk-pink)] text-white rounded-full w-3.5 h-3.5 inline-flex items-center justify-center font-bold">✓</span>
+                                )}
                             </button>
-                        )}
+                        </div>
+                    )}
                 </div>
                 {!selectedClassification && (
                     <div className="mt-4">
@@ -1185,7 +1210,7 @@ const CancerTypePanel = ({ handleFilterChange,
                                 onClick={() => handleFilterChange("0_0_5")}
                                 className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md border-2 text-sm font-semibold transition-all shadow-sm ${
                                     selectedFilters.has("0_0_5")
-                                        ? "bg-[var(--cruk-pink)] text-white border-[var(--cruk-pink)] ring-2 ring-[var(--cruk-pink)]/30 scale-105"
+                                        ? "bg-white text-[var(--cruk-pink)] border-[var(--cruk-pink)]"
                                         : "bg-white text-gray-800 border-gray-300 hover:border-[var(--cruk-pink)] hover:text-[var(--cruk-pink)]"
                                 }`}
                                 title="applies to multiple cancer types."
@@ -1193,10 +1218,10 @@ const CancerTypePanel = ({ handleFilterChange,
                                 <span className="text-base">🌐</span>
                                 <span>Pan-cancer</span>
                                 {selectedFilters.has("0_0_5") && (
-                                    <span className="ml-1 text-xs bg-white text-[var(--cruk-pink)] rounded-full px-1.5 py-0.2 font-extrabold">✓</span>
+                                    <span className="ml-1 text-xs bg-[var(--cruk-pink)] text-white rounded-full w-4 h-4 inline-flex items-center justify-center font-bold">✓</span>
                                 )}
                             </button>
-                            <span>datasets or Click on your choice of classification to begin</span>
+                            <span>datasets and/or click on a classification below to specify individual cancers</span>
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <ClassificationCard
@@ -1219,7 +1244,7 @@ const CancerTypePanel = ({ handleFilterChange,
                             />
                             <ClassificationCard
                                 title="ICD-O Classification"
-                                description="Official pathology terms (Topography & Histology)."
+                                description="Official pathology terms: Topography (site) & optional Histology (morphology)."
                                 classificationKey="icdo"
                                 emoji="🔬"
                             />
