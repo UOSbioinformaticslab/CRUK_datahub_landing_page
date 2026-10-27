@@ -1177,9 +1177,27 @@ const CancerTypePanel = ({ handleFilterChange,
                 </div>
                 {!selectedClassification && (
                     <div className="mt-4">
-                        <p className="text-lg font-medium text-gray-700 mb-6">
-                            Click on your choice of classification to begin
-                        </p>
+                        <div className="flex flex-wrap items-center gap-2 text-lg font-medium text-gray-700 mb-6">
+                            <span>Browse</span>
+                            <button
+                                type="button"
+                                id="pan-cancer-filter-button"
+                                onClick={() => handleFilterChange("0_0_5")}
+                                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-md border-2 text-sm font-semibold transition-all shadow-sm ${
+                                    selectedFilters.has("0_0_5")
+                                        ? "bg-[var(--cruk-pink)] text-white border-[var(--cruk-pink)] ring-2 ring-[var(--cruk-pink)]/30 scale-105"
+                                        : "bg-white text-gray-800 border-gray-300 hover:border-[var(--cruk-pink)] hover:text-[var(--cruk-pink)]"
+                                }`}
+                                title="applies to multiple cancer types."
+                            >
+                                <span className="text-base">🌐</span>
+                                <span>Pan-cancer</span>
+                                {selectedFilters.has("0_0_5") && (
+                                    <span className="ml-1 text-xs bg-white text-[var(--cruk-pink)] rounded-full px-1.5 py-0.2 font-extrabold">✓</span>
+                                )}
+                            </button>
+                            <span>datasets or Click on your choice of classification to begin</span>
+                        </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                             <ClassificationCard
                                 title="CRUK Cancer Terms"

@@ -176,18 +176,20 @@ const calculateSectionStatus = (sectionKey, formData) => {
         let hasHisto = false;
         let hasData = false;
         let hasAccess = false;
+        let hasPanCancer = false;
 
         tags.forEach(tag => {
             // Extract ID from the object structure
             const id = typeof tag === 'object' ? tag.id : tag;
 
+            if (id === '0_0_5') hasPanCancer = true;
             if (!hasTopo && idExistsInBranch(id, topographyBranch)) hasTopo = true;
             if (!hasHisto && idExistsInBranch(id, histologyBranch)) hasHisto = true;
             if (!hasData && idExistsInBranch(id, dataTypeBranch)) hasData = true;
             if (!hasAccess && idExistsInBranch(id, accessBranch)) hasAccess = true;
         });
 
-        if (hasTopo && hasHisto && hasData && hasAccess) return 'complete';
+        if ((hasPanCancer || (hasTopo && hasHisto)) && hasData && hasAccess) return 'complete';
         return 'incomplete';
     }
 

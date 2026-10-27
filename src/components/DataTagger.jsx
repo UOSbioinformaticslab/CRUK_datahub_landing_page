@@ -167,8 +167,63 @@ const CancerTypePanel = ({ handleFilterChange, selectedFiltersSet, searchTerm, s
 
     return (
         <div className="flex flex-col h-full">
-            <h3 className="text-sm font-bold text-gray-700 mb-2">ICD-O Classification</h3>
-            <p className="text-xs text-gray-500 mb-3">Please provide the ICD-O Topography and Histology codes. You will be asked to provide translations later.</p>
+            {/* Guidance banner clarifying Pan Cancer vs ICD-O */}
+            <div className="mb-3">
+                <p className="text-xs text-gray-600">
+                    Specify <strong>Pan Cancer</strong> if your dataset applies to multiple cancer types — <strong>or</strong> use the <strong>ICD-O Classification</strong> below to specify individual cancer topography and histology.
+                </p>
+            </div>
+
+            {/* Option 1: Pan-Cancer Filter Card */}
+            <div className={`mb-3 p-3 rounded-lg border-2 transition-all shadow-sm flex items-center justify-between ${
+                selectedFiltersSet.has("0_0_5")
+                    ? "border-[var(--cruk-pink)] bg-pink-50/40 ring-2 ring-[var(--cruk-pink)]/20"
+                    : "border-gray-200 bg-white hover:border-[var(--cruk-pink)]"
+            }`}>
+                <div className="flex items-center space-x-3">
+                    <input
+                        type="checkbox"
+                        id="pan-cancer-checkbox-upload"
+                        className="rounded text-[var(--cruk-pink)] border-gray-300 focus:ring-[var(--cruk-pink)] w-4 h-4 cursor-pointer"
+                        checked={selectedFiltersSet.has("0_0_5")}
+                        onChange={() => handleFilterChange("0_0_5")}
+                    />
+                    <div className="flex items-center gap-1.5">
+                        <span className="text-base">🌐</span>
+                        <label
+                            htmlFor="pan-cancer-checkbox-upload"
+                            className="text-sm font-bold text-gray-800 cursor-pointer select-none"
+                        >
+                            Pan Cancer
+                        </label>
+                        <span className="text-xs text-gray-500 hidden sm:inline">
+                            — applies to multiple cancer types.
+                        </span>
+                    </div>
+                </div>
+                <div className="relative group/tooltip flex items-center">
+                    <svg className="w-4 h-4 text-gray-400 opacity-60 group-hover/tooltip:opacity-100 transition-opacity cursor-help" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <div className="absolute right-0 bottom-full mb-2 hidden group-hover/tooltip:block w-64 p-2 bg-gray-900 text-white text-[11px] leading-relaxed rounded shadow-2xl z-[100] pointer-events-none">
+                        applies to multiple cancer types.
+                        <div className="absolute top-full right-2 border-4 border-transparent border-t-gray-900"></div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Visual Divider: OR */}
+            <div className="relative flex py-1 items-center mb-3">
+                <div className="flex-grow border-t border-gray-200"></div>
+                <span className="flex-shrink mx-3 text-[11px] font-bold uppercase tracking-wider text-gray-400 bg-white px-2">
+                    — OR specify ICD-O classification —
+                </span>
+                <div className="flex-grow border-t border-gray-200"></div>
+            </div>
+
+            {/* Option 2: ICD-O Classification */}
+            <h3 className="text-sm font-bold text-gray-700 mb-1">ICD-O Classification</h3>
+            <p className="text-xs text-gray-500 mb-2">Please provide the ICD-O Topography and Histology codes. You will be asked to provide translations later.</p>
 
             <SearchInput
                 searchTerm={searchTerm}

@@ -61,12 +61,14 @@ export async function getFilterData() {
         const stored = sessionStorage.getItem('cruk_filter_data_cache');
         if (stored) {
             const parsed = JSON.parse(stored);
-            setCaches(parsed);
-            return {
-                flattenedData: filterDataMemoryCache,
-                treeData: filterTreeMemoryCache,
-                filterDetailsMap: filterDetailsMapMemoryCache
-            };
+            if (parsed && parsed['0_0_5']) {
+                setCaches(parsed);
+                return {
+                    flattenedData: filterDataMemoryCache,
+                    treeData: filterTreeMemoryCache,
+                    filterDetailsMap: filterDetailsMapMemoryCache
+                };
+            }
         }
     } catch (e) {
         console.warn("sessionStorage read error:", e);
