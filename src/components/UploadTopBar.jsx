@@ -1,9 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 
 import { getExtra } from '../utils/getExtra.js';
 import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
 import DeleteConfirmationModal from './DeleteConfirmationModal.jsx';
 import FilterRecommendationModal from './FilterRecommendationModal.jsx';
+import filterTelemetry from '../utils/filterModificationsTelemetry.js';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 console.log("🔍 Diagnostic: VITE_BACKEND_URL =", import.meta.env.VITE_BACKEND_URL, "| Active API_BASE_URL =", API_BASE_URL);
@@ -450,6 +451,13 @@ const UploadTopBar = ({
             const result = await response.json();
             const displayId = isProject ? (result.pid || result.id) : result.datasetid;
 
+            // Dispatch upload session telemetry (filter rejections, acceptances, additions)
+            filterTelemetry.sendSessionTelemetry({
+                datasetId: String(displayId || existingId || ''),
+                datasetName: recordTitle || '',
+                currentFilters: processedData.datasetFilters || []
+            });
+
             if (!silent) {
                 if (markActive) {
                     alert(`Successfully published ${isProject ? 'Project' : 'Dataset'}! ID: ${displayId}\nIt is now live on datasets.html and meta.html.`);
@@ -526,6 +534,7 @@ const UploadTopBar = ({
 
             const data = await response.json();
             const incomingSuggestions = data.suggestions || [];
+            filterTelemetry.recordSuggestions(incomingSuggestions);
 
             // Deduplicate incoming suggestions against filters already active
             const activeIds = new Set((formData.datasetFilters || []).map(f => typeof f === 'object' ? f.id : f));

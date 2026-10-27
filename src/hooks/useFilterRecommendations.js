@@ -4,6 +4,7 @@ import {
     deduplicateFilters,
     fetchFilterRecommendations
 } from '../utils/filterRecommenderUtils';
+import filterTelemetry from '../utils/filterModificationsTelemetry';
 
 /**
  * useFilterRecommendations
@@ -122,13 +123,17 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
      */
     const handleDismissSuggestion = useCallback((idToDismiss) => {
         const strId = String(idToDismiss);
-        // Purge silent derived filters that depend on the dismissed tag
-        silentDerivedRef.current = (silentDerivedRef.current || []).filter(item => {
-            const derivedFrom = item.evidence?.derivedFrom || [];
-            return !derivedFrom.map(String).includes(strId);
-        });
-
+        // Record rejection telemetry
         setSuggestedFilters(prev => {
+            const dismissedItem = prev.find(s => String(s.id) === strId) || { id: strId };
+            filterTelemetry.recordRejection(dismissedItem, 'INDIVIDUAL_DISMISS');
+
+            // Purge silent derived filters that depend on the dismissed tag
+            silentDerivedRef.current = (silentDerivedRef.current || []).filter(item => {
+                const derivedFrom = item.evidence?.derivedFrom || [];
+                return !derivedFrom.map(String).includes(strId);
+            });
+
             const remaining = prev.filter(s => String(s.id) !== strId);
             if (remaining.length === 0) {
                 setSuggestionNotice(null);
@@ -145,6 +150,7 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
     const handleAcceptAllSuggestions = useCallback(() => {
         if (!suggestedFilters || suggestedFilters.length === 0) return;
 
+        filterTelemetry.recordAcceptAll();
         suggestedFilters.forEach(s => acceptedFilterIdsRef.current.add(String(s.id)));
 
         if (onFormChange) {
@@ -176,16 +182,18 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
      * Dismisses all proposed recommendations in bulk.
      */
     const handleDismissAllSuggestions = useCallback(() => {
+        filterTelemetry.recordDismissAll(suggestedFilters);
         silentDerivedRef.current = [];
         setSuggestedFilters([]);
         setSuggestionNotice(null);
-    }, []);
+    }, [suggestedFilters]);
 
     /**
      * Adds externally generated suggestions (e.g. from UploadTopBar draft scan),
      * strictly deduplicating against active tags and previously accepted IDs.
      */
     const addSuggestedFilters = useCallback((newSuggestions = []) => {
+        filterTelemetry.recordSuggestions(newSuggestions);
         const activeAndAcceptedIds = new Set([
             ...(formData.datasetFilters || []).map(t => String(typeof t === 'object' ? t.id : t)),
             ...Array.from(acceptedFilterIdsRef.current)
@@ -221,6 +229,7 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
             });
 
             const directList = incoming.suggestions || (Array.isArray(incoming) ? incoming : []);
+            filterTelemetry.recordSuggestions(directList);
             const silentList = incoming.silentDerived || [];
             silentDerivedRef.current = silentList;
 
@@ -272,6 +281,7 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
      * Resets recommendation state (e.g. when switching datasets).
      */
     const clearSuggestedFilters = useCallback(() => {
+        filterTelemetry.reset();
         acceptedFilterIdsRef.current.clear();
         silentDerivedRef.current = [];
         setSuggestedFilters([]);

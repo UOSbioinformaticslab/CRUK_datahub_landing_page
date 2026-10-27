@@ -19,6 +19,7 @@ import { flattenSchemaToGrid } from '../utils/flattenSchemaToGrid.js';
 import prefixIconMapping from '../utils/prefix_icon_mapping.json';
 import { getExtra } from '../utils/getExtra.js';
 import { isTokenExpired, handleAuthExpired } from '../utils/authUtils.js';
+import filterTelemetry from '../utils/filterModificationsTelemetry.js';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
@@ -1790,6 +1791,7 @@ const handleFinalSubmit = (currentSection, currentAnswers) => {
     }, [activeSection, activeGuidance, welcomeGuidanceContent]);
     const handleNavChange = (key) => {
         setVisitedSections(prev => new Set(prev).add(key));
+        filterTelemetry.recordVisitedSection(key);
         setActiveSection(key);
         setActiveGuidance(null);
     };

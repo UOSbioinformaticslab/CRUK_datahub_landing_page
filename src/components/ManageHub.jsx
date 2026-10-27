@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ErrorLogsTab } from './ErrorLogsTab.jsx';
 import { AdminAnalyticsTab } from './AdminAnalyticsTab.jsx';
+import FilterTelemetryTab from './FilterTelemetryTab.jsx';
 import FocusLock from 'react-focus-lock';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
@@ -298,6 +299,7 @@ export const ManageHub = () => {
                 <button role="tab" aria-selected={activeTab === 'notifications'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'notifications' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('notifications')}>Notifications</button>
                 <button role="tab" aria-selected={activeTab === 'errors'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'errors' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('errors')}>Error Logs</button>
                 <button role="tab" aria-selected={activeTab === 'analytics'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'analytics' ? 'border-b-2 border-[#E40085] text-[#E40085]' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('analytics')}>AI Analytics</button>
+                <button role="tab" aria-selected={activeTab === 'filter-telemetry'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'filter-telemetry' ? 'border-b-2 border-indigo-600 text-indigo-700 font-bold' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('filter-telemetry')}>Filter Telemetry</button>
             </div>
 
             {loading ? (
@@ -788,6 +790,12 @@ export const ManageHub = () => {
                     {activeTab === 'analytics' && (
                         <div className="mb-8 shadow-sm">
                             <AdminAnalyticsTab />
+                        </div>
+                    )}
+                    {/* FILTER TELEMETRY TAB */}
+                    {activeTab === 'filter-telemetry' && (
+                        <div className="mb-8 shadow-sm">
+                            <FilterTelemetryTab />
                         </div>
                     )}
                 </>
