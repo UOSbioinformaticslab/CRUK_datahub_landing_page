@@ -20,39 +20,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
 
     // Persistent registry of all filter IDs accepted in this editing session
     const acceptedFilterIdsRef = useRef(new Set());
-    // Silent derived filters (hierarchical parents and cross-references) to create without cards
-    const silentDerivedRef = useRef([]);
-
-    // Helper: recursively resolves silent derived filters whose prerequisites are satisfied in active IDs
-    const resolveSatisfiedSilent = (currentIds, availableSilent = []) => {
-        const newlySatisfied = [];
-        const remainingSilent = [...availableSilent];
-        let progress = true;
-
-        while (progress) {
-            progress = false;
-            for (let i = 0; i < remainingSilent.length; i++) {
-                const silentItem = remainingSilent[i];
-                const sId = String(silentItem.id);
-                if (currentIds.has(sId)) {
-                    remainingSilent.splice(i, 1);
-                    i--;
-                    continue;
-                }
-                const derivedFrom = silentItem.evidence?.derivedFrom || [];
-                // Satisfied if all prerequisite IDs are already active/accepted
-                const isSatisfied = derivedFrom.length > 0 && derivedFrom.every(depId => currentIds.has(String(depId)));
-                if (isSatisfied) {
-                    currentIds.add(sId);
-                    newlySatisfied.push(silentItem);
-                    remainingSilent.splice(i, 1);
-                    i--;
-                    progress = true;
-                }
-            }
-        }
-        return { newlySatisfied, remainingSilent };
-    };
 
     // Auto-synchronize: whenever active tags change, synchronize accepted registry
     // so that currently active tags are not suggested, but any deleted tags can be re-suggested!
@@ -79,7 +46,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
     /**
      * Accepts a single proposed recommendation.
      * Strips transient evidence, registers ID in accepted registry, and appends to formData.datasetFilters.
-     * Also silently appends any derived filters (hierarchical parents, cross-refs) whose prerequisites are now met.
      */
     const handleAcceptSuggestion = useCallback((idToAccept) => {
         const strId = String(idToAccept);
@@ -91,20 +57,9 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
                 const cleanTag = cleanFilterTag(item);
                 if (cleanTag) {
                     const currentTags = formData.datasetFilters || [];
-                    const activeIds = new Set(currentTags.map(t => String(typeof t === 'object' ? t.id : t)));
-                    activeIds.add(strId);
-
-                    // Silently resolve satisfied derived filters
-                    const { newlySatisfied, remainingSilent } = resolveSatisfiedSilent(activeIds, silentDerivedRef.current);
-                    silentDerivedRef.current = remainingSilent;
-                    newlySatisfied.forEach(s => acceptedFilterIdsRef.current.add(String(s.id)));
-
-                    const tagsToAdd = [cleanTag, ...newlySatisfied.map(cleanFilterTag)].filter(Boolean);
                     const existingTagIds = new Set(currentTags.map(t => String(typeof t === 'object' ? t.id : t)));
-                    const tagsToAppend = tagsToAdd.filter(t => !existingTagIds.has(String(t.id)));
-
-                    if (tagsToAppend.length > 0) {
-                        onFormChange(['datasetFilters'], [...currentTags, ...tagsToAppend]);
+                    if (!existingTagIds.has(String(cleanTag.id))) {
+                        onFormChange(['datasetFilters'], [...currentTags, cleanTag]);
                     }
                 }
             }
@@ -128,12 +83,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
             const dismissedItem = prev.find(s => String(s.id) === strId) || { id: strId };
             filterTelemetry.recordRejection(dismissedItem, 'INDIVIDUAL_DISMISS');
 
-            // Purge silent derived filters that depend on the dismissed tag
-            silentDerivedRef.current = (silentDerivedRef.current || []).filter(item => {
-                const derivedFrom = item.evidence?.derivedFrom || [];
-                return !derivedFrom.map(String).includes(strId);
-            });
-
             const remaining = prev.filter(s => String(s.id) !== strId);
             if (remaining.length === 0) {
                 setSuggestionNotice(null);
@@ -145,7 +94,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
     /**
      * Accepts all active recommendations in bulk.
      * Strips transient evidence, registers IDs, and adds direct recommendations.
-     * Also silently appends all satisfied derived filters (parents & cross-refs).
      */
     const handleAcceptAllSuggestions = useCallback(() => {
         if (!suggestedFilters || suggestedFilters.length === 0) return;
@@ -155,19 +103,9 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
 
         if (onFormChange) {
             const currentTags = formData.datasetFilters || [];
-            const activeIds = new Set(currentTags.map(t => String(typeof t === 'object' ? t.id : t)));
-            suggestedFilters.forEach(s => activeIds.add(String(s.id)));
-
-            // Silently resolve all satisfied derived filters
-            const { newlySatisfied, remainingSilent } = resolveSatisfiedSilent(activeIds, silentDerivedRef.current);
-            silentDerivedRef.current = remainingSilent;
-            newlySatisfied.forEach(s => acceptedFilterIdsRef.current.add(String(s.id)));
-
             const directClean = suggestedFilters.map(cleanFilterTag).filter(Boolean);
-            const silentClean = newlySatisfied.map(cleanFilterTag).filter(Boolean);
-
             const existingTagIds = new Set(currentTags.map(t => String(typeof t === 'object' ? t.id : t)));
-            const allNew = [...directClean, ...silentClean].filter(t => !existingTagIds.has(String(t.id)));
+            const allNew = directClean.filter(t => !existingTagIds.has(String(t.id)));
 
             if (allNew.length > 0) {
                 onFormChange(['datasetFilters'], [...currentTags, ...allNew]);
@@ -183,7 +121,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
      */
     const handleDismissAllSuggestions = useCallback(() => {
         filterTelemetry.recordDismissAll(suggestedFilters);
-        silentDerivedRef.current = [];
         setSuggestedFilters([]);
         setSuggestionNotice(null);
     }, [suggestedFilters]);
@@ -230,8 +167,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
 
             const directList = incoming.suggestions || (Array.isArray(incoming) ? incoming : []);
             filterTelemetry.recordSuggestions(directList);
-            const silentList = incoming.silentDerived || [];
-            silentDerivedRef.current = silentList;
 
             // Deduplicate direct suggestions against already active tags AND accepted tags
             const filteredNew = deduplicateFilters(
@@ -283,7 +218,6 @@ export const useFilterRecommendations = ({ formData, onFormChange, apiBaseUrl })
     const clearSuggestedFilters = useCallback(() => {
         filterTelemetry.reset();
         acceptedFilterIdsRef.current.clear();
-        silentDerivedRef.current = [];
         setSuggestedFilters([]);
         setSuggestionNotice(null);
     }, []);
