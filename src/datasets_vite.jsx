@@ -4,7 +4,6 @@ import { Introduction } from './components/Introduction2.jsx';
 import { FilterApp } from './components/FilterApp.jsx';
 import { Header } from './components/Header.jsx';
 // Import removed: import { StudiesSection } from './components/AltStudiesSection.jsx';
-import { FeedbackWidget } from './components/FeedbackWidget.jsx';
 import { InstructionsWidget } from './components/InstructionsWidget.jsx';
 import FloatingQRCode from './components/FloatingQRCode.jsx';
 
@@ -31,11 +30,5 @@ function renderReactComponent(targetId, Component) {
 renderReactComponent('header', <Header/>);
 renderReactComponent('introduction', <Introduction/>);
 renderReactComponent('filter_navbar', <FilterApp/>); // This will now contain both sections
-// Render removed: renderReactComponent('studies', <StudiesSection/>);
-
 renderReactComponent('qr', <FloatingQRCode/>);
-/*renderReactComponent('feedback_widget', <FeedbackWidget/>);
-renderReactComponent(
-  'instructions_widget',
-  <InstructionsWidget fileUrl="/studies_help.md" />
-);*/
+// Render removed: renderReactComponent('studies', <StudiesSection/>);

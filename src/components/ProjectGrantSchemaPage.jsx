@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { Panel, Group, Separator } from "react-resizable-panels";
-import FeedbackModal from './FeedbackModal.jsx';
-import questionData from '../feedback/upload_questions.json';
 import schema from '../utils/schema.json';
 import projectSchema from '../utils/projectSchema.json';
 import semanticSchema from 'cruk-semantic-schema';
@@ -334,9 +332,6 @@ const SchemaForm = ({ formData, onFormChange, setActiveGuidance }) => {
 const SchemaPage = () => {
     if (!DATA_SCHEMA || !DATA_SCHEMA.$defs) return <div className="p-10 text-red-600 font-bold">Schema invalid.</div>;
 
-    const [allFeedback, setAllFeedback] = useState({});
-    const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
-    const [fallbackData, setFallbackData] = useState(null);
     const [formData, setFormData] = useState({});
     const [activeGuidance, setActiveGuidance] = useState(null);
 
@@ -359,46 +354,6 @@ const SchemaPage = () => {
         setFormData(uploadedData);
     }, []);
 
-    const handleSaveDraftFeedback = (section, answers) => {
-        setAllFeedback(prev => ({ ...prev, [section]: answers }));
-    };
-
-    const handleFinalSubmit = (currentSection, currentAnswers) => {
-        const finalData = { ...allFeedback, [currentSection]: currentAnswers };
-        const feedbackEntries = Object.entries(finalData).filter(([_, answers]) => answers && Object.values(answers).some(val => val !== "" && val !== null));
-
-        if (feedbackEntries.length === 0) {
-            alert("No feedback recorded yet");
-            return;
-        }
-
-        const report = feedbackEntries.map(([sectionKey, answers]) => {
-            const sectionConfig = questionData[sectionKey] || questionData.default;
-            const displayTitle = sectionConfig?.sectionTitle || sectionKey.toUpperCase();
-            const lines = Object.entries(answers).map(([qId, val]) => {
-                const label = sectionConfig?.questions?.find(q => q.id === qId)?.label || qId;
-                return `${label}: ${val}`;
-            }).join('%0D%0A');
-            return `SECTION: ${displayTitle}%0D%0A${lines}`;
-        }).join('%0D%0A%0D%0A-----------------%0D%0A%0D%0A');
-
-        const plainTextReport = report.replace(/%0D%0A/g, '\n');
-
-        let appWasDetected = false;
-        const triggerDetection = () => { appWasDetected = true; };
-        window.addEventListener('blur', triggerDetection);
-
-        window.location.href = `mailto:skw24@sussex.ac.uk?subject=CRUK Datahub Feedback&body=${report}`;
-
-        setTimeout(() => {
-            window.removeEventListener('blur', triggerDetection);
-            if (!appWasDetected) setFallbackData(plainTextReport);
-        }, 1000);
-
-        setAllFeedback({});
-        setIsFeedbackOpen(false);
-    };
-
     const downloadJSON = () => {
         const fileData = JSON.stringify({ ...formData, modified: new Date().toISOString() }, null, 2);
         const blob = new Blob([fileData], { type: "application/json" });
@@ -412,28 +367,6 @@ const SchemaPage = () => {
 
     return (
         <div className="flex flex-col min-h-screen font-sans bg-white">
-            {fallbackData && (
-                <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black bg-opacity-60 p-4 pointer-events-auto">
-                    <div className="bg-white rounded-xl shadow-2xl p-8 max-w-2xl w-full border border-gray-300 relative">
-                        <button onClick={() => setFallbackData(null)} className="absolute top-4 right-6 text-4xl text-gray-400 hover:text-red-600 transition-colors leading-none" aria-label="Close">&times;</button>
-                        <h2 className="text-2xl font-bold text-red-700 mb-4 pr-8">Email Client Not Found</h2>
-                        <p className="text-lg text-gray-700 mb-6 leading-relaxed">Unable to open your email app. Please copy to clipboard and manually email to skw24@sussex.ac.uk.</p>
-                        <textarea readOnly className="w-full h-48 p-4 border border-gray-200 rounded-lg bg-gray-50 text-base mb-6 font-mono focus:ring-2 focus:ring-indigo-500" value={fallbackData} />
-                        <button onClick={() => { navigator.clipboard.writeText(fallbackData); setFallbackData(null); }} className="w-full py-5 bg-indigo-700 text-white font-bold rounded-lg text-lg hover:bg-indigo-800 transition-all shadow-lg active:scale-[0.98]">Copy to Clipboard & Close</button>
-                    </div>
-                </div>
-            )}
-
-            <FeedbackModal
-                isOpen={isFeedbackOpen}
-                onClose={() => setIsFeedbackOpen(false)}
-                activeSection="projectGrant"
-                allFeedback={allFeedback}
-                onSaveDraft={handleSaveDraftFeedback}
-                onFinalSubmit={handleFinalSubmit}
-                questionData={questionData}
-            />
-
             <UploadTopBar formData={formData} schema={DATA_SCHEMA} prefixIconMapping={prefixIconMapping} pageType="project" />
 
 

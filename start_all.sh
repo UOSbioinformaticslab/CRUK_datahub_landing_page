@@ -162,6 +162,13 @@ done
 cleanup() {
     echo -e "\n\n${YELLOW}Stopping all CRUK services...${NC}"
     kill $(jobs -p) 2>/dev/null || true
+    for port in 8000 8001 8002 5173; do
+        PORT_PIDS=$(lsof -t -iTCP:$port -sTCP:LISTEN 2>/dev/null || true)
+        if [ -n "$PORT_PIDS" ]; then
+            kill -9 $PORT_PIDS 2>/dev/null || true
+        fi
+    done
+    pkill -9 -f "main:app" 2>/dev/null || true
     echo -e "${GREEN}All services stopped cleanly.${NC}"
     safe_exit 0
 }

@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import PublicationUpload from './components/PublicationUpload.jsx';
-import FloatingQRCode from './components/FloatingQRCode.jsx';
 import { Header } from './components/Header.jsx'
 import './utils/fetchInterceptor.js';
 
@@ -28,5 +27,5 @@ function renderReactComponent(targetId, Component) {
 
 renderReactComponent('header', <Header/>);
 renderReactComponent('upload_publications', <PublicationUpload/>);
-renderReactComponent('qr', <FloatingQRCode/>);
+
 

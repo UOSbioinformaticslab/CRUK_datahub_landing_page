@@ -28,6 +28,6 @@ function renderReactComponent(targetId, Component) {
 renderReactComponent('header', <Header/>);
 renderReactComponent('introduction', <HorizonsIntroduction/>);
 // Pass the custodian filter so DatasetsSection will pre-filter the datasets
-renderReactComponent('filter_navbar', <FilterApp custodianFilter="Cancer Research Horizons" />); 
-
+renderReactComponent('filter_navbar', <FilterApp custodianFilter="Cancer Research Horizons" />);
 renderReactComponent('qr', <FloatingQRCode/>);
+

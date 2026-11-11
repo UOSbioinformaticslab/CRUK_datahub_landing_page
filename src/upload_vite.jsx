@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import SchemaPage from './components/SchemaPage.jsx';
+import { Header } from './components/Header.jsx';
 import FloatingQRCode from './components/FloatingQRCode.jsx';
-import { Header } from './components/Header.jsx'
 import './utils/fetchInterceptor.js';
 
 
@@ -29,5 +29,6 @@ function renderReactComponent(targetId, Component) {
 renderReactComponent('header', <Header/>);
 renderReactComponent('upload', <SchemaPage/>);
 renderReactComponent('qr', <FloatingQRCode/>);
+
 
 
