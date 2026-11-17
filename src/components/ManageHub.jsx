@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ErrorLogsTab } from './ErrorLogsTab.jsx';
 import { AdminAnalyticsTab } from './AdminAnalyticsTab.jsx';
 import FilterTelemetryTab from './FilterTelemetryTab.jsx';
+import { ManageDatasetsTab } from './ManageDatasetsTab.jsx';
 import FocusLock from 'react-focus-lock';
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
@@ -293,6 +294,7 @@ export const ManageHub = () => {
 
             {/* TABS */}
             <div role="tablist" className="flex border-b mb-6 overflow-x-auto">
+                <button role="tab" aria-selected={activeTab === 'datasets'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'datasets' ? 'border-b-2 border-blue-600 text-blue-600 font-bold' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('datasets')}>Datasets</button>
                 <button role="tab" aria-selected={activeTab === 'users'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'users' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('users')}>Users</button>
                 <button role="tab" aria-selected={activeTab === 'teams'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'teams' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('teams')}>Teams</button>
                 <button role="tab" aria-selected={activeTab === 'links'} className={`py-2 px-6 font-medium whitespace-nowrap ${activeTab === 'links' ? 'border-b-2 border-blue-600 text-blue-600' : 'text-gray-500 hover:text-gray-700'}`} onClick={() => setActiveTab('links')}>User-Team Links</button>
@@ -306,6 +308,11 @@ export const ManageHub = () => {
                 <div className="text-center py-10 text-gray-500">Loading data...</div>
             ) : (
                 <>
+                    {/* DATASETS TAB */}
+                    {activeTab === 'datasets' && (
+                        <ManageDatasetsTab token={token} teams={teams} showMessage={showMessage} />
+                    )}
+
                     {/* USERS TAB */}
                     {activeTab === 'users' && (
                         <div>
