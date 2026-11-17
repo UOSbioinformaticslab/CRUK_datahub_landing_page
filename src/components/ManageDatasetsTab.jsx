@@ -23,6 +23,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
     const [loading, setLoading] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [teamFilter, setTeamFilter] = useState('');
+    const [envTeams, setEnvTeams] = useState(teams);
 
     // Modals
     const [teamModalDataset, setTeamModalDataset] = useState(null);
@@ -53,6 +54,28 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
             .catch(() => {});
         }
     }, [token, isLocal]);
+
+    // Fetch live teams matching the selected environment
+    useEffect(() => {
+        if (!token) return;
+        if (isLocal) {
+            fetch(`${API_BASE_URL}/admin/datasets/teams?env=${encodeURIComponent(currentEnv)}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                const list = Array.isArray(data) ? data : (data?.teams || []);
+                if (list.length > 0) {
+                    setEnvTeams(list);
+                }
+            })
+            .catch(() => setEnvTeams(teams));
+        } else {
+            setEnvTeams(teams);
+        }
+    }, [token, currentEnv, isLocal, teams]);
+
+    const activeTeamsList = envTeams && envTeams.length > 0 ? envTeams : teams;
 
     // Switch environments: Always fetch live datasets immediately without stale cache
     useEffect(() => {
@@ -130,7 +153,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
             if (!res.ok) throw new Error(data.detail || 'Failed to update dataset team');
 
             const newTeamId = parseInt(selectedNewTeamId, 10);
-            const newTeamName = teams.find(t => t.id === newTeamId)?.name || `Team ${newTeamId}`;
+            const newTeamName = activeTeamsList.find(t => t.id === newTeamId)?.name || `Team ${newTeamId}`;
             const targetId = teamModalDataset.id;
 
             // In-memory optimistic update: immediate UI update without slow reload
@@ -304,7 +327,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                         className="w-full py-2 px-3 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500 shadow-sm"
                     >
                         <option value="">All Teams</option>
-                        {teams.map(t => (
+                        {activeTeamsList.map(t => (
                             <option key={t.id} value={t.id}>{t.name}</option>
                         ))}
                     </select>
@@ -319,7 +342,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                 </div>
             ) : filteredDatasets.length === 0 ? (
                 <div className="text-center py-12 bg-white rounded-lg border border-gray-200 text-gray-500">
-                    <p className="text-base font-semibold">No datasets found</p>
+                    <p className="base font-semibold">No datasets found</p>
                     <p className="text-xs text-gray-400 mt-1">Try adjusting your search criteria or switch environment.</p>
                 </div>
             ) : (
@@ -338,12 +361,14 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                         <tbody className="divide-y divide-gray-200">
                             {filteredDatasets.map(ds => (
                                 <tr key={ds.id} className="hover:bg-blue-50/40 transition-colors">
-                                    <td className="p-3 font-mono font-medium text-gray-800 text-xs">
-                                        {ds.datasetid || `DS-${ds.id}`}
+                                    <td className="p-3 font-mono font-bold text-gray-900 text-xs">
+                                        #{ds.id}
+                                        {ds.datasetid && (
+                                            <div className="text-[11px] font-normal text-gray-500 font-mono">{ds.datasetid}</div>
+                                        )}
                                     </td>
                                     <td className="p-3 font-semibold text-gray-900">
                                         {ds.title}
-                                        <div className="text-xs text-gray-400 font-normal">Internal ID: {ds.id}</div>
                                     </td>
                                     <td className="p-3">
                                         <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
@@ -436,7 +461,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                                 Change Team: {teamModalDataset.title}
                             </h3>
                             <p className="text-xs text-gray-500 mb-4 font-mono">
-                                Dataset ID: {teamModalDataset.datasetid || `DS-${teamModalDataset.id}`} (Env: {currentEnv})
+                                Dataset ID: #{teamModalDataset.id} {teamModalDataset.datasetid ? `(${teamModalDataset.datasetid})` : ''} (Env: {currentEnv})
                             </p>
 
                             <div className="mb-4">
@@ -449,7 +474,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                                     className="w-full p-2.5 border border-gray-300 rounded-lg text-sm bg-white focus:ring-2 focus:ring-blue-500"
                                 >
                                     <option value="">-- Choose Team --</option>
-                                    {teams.map(t => (
+                                    {activeTeamsList.map(t => (
                                         <option key={t.id} value={t.id}>{t.name}</option>
                                     ))}
                                 </select>
@@ -503,7 +528,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                             </div>
 
                             <p className="text-sm text-gray-700 mb-3">
-                                Are you sure you want to permanently delete <strong className="text-gray-900">"{deleteModalDataset.title}"</strong> ({deleteModalDataset.datasetid || `DS-${deleteModalDataset.id}`})?
+                                Are you sure you want to permanently delete <strong className="text-gray-900">"{deleteModalDataset.title}"</strong> (ID: #{deleteModalDataset.id}{deleteModalDataset.datasetid ? `, ${deleteModalDataset.datasetid}` : ''})?
                             </p>
 
                             <div className="bg-red-50 border-l-4 border-red-500 p-3 rounded-r text-xs text-red-900 mb-6">
@@ -546,7 +571,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                                 Copy Dataset: {copyModalDataset.title}
                             </h3>
                             <p className="text-xs text-gray-500 mb-4 font-mono">
-                                Source: {currentEnv} ({copyModalDataset.datasetid || `DS-${copyModalDataset.id}`})
+                                Source: {currentEnv} — ID: #{copyModalDataset.id} {copyModalDataset.datasetid ? `(${copyModalDataset.datasetid})` : ''}
                             </p>
 
                             {/* Conflict Warning Alert if 409 received */}
@@ -554,7 +579,7 @@ export const ManageDatasetsTab = ({ token, teams = [], showMessage }) => {
                                 <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r text-xs text-amber-900 mb-6">
                                     <p className="font-bold text-sm text-amber-900 mb-1">⚠️ Dataset Already Exists in Target Database</p>
                                     <p className="mb-2">
-                                        {conflictWarning.message || `A dataset with title "${copyModalDataset.title}" or ID "${copyModalDataset.datasetid}" is already present in ${targetCopyEnv}.`}
+                                        {conflictWarning.message || `A dataset with title "${copyModalDataset.title}" or ID #${copyModalDataset.id} is already present in ${targetCopyEnv}.`}
                                     </p>
                                     <p className="font-semibold text-amber-950">
                                         Do you want to overwrite the existing dataset and update its linked assets in {targetCopyEnv}?

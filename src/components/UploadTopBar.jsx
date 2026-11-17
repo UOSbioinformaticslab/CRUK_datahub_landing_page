@@ -139,7 +139,7 @@ const UploadTopBar = ({
     }, [formData, schema]);
 
     const isProject = pageType === 'project';
-    const existingId = isProject ? (formData.pid || formData.id) : (formData.datasetid || formData.id);
+    const existingId = formData.id || (typeof formData.datasetid === 'number' ? formData.datasetid : null);
     const isUpdate = !!existingId;
     const recordTitle = formData.projectGrantName || formData.summary?.title || (existingId ? `${isProject ? 'Project' : 'Dataset'} #${existingId}` : null) || (isProject ? "New Project Record" : "New Dataset Record");
 
@@ -444,8 +444,14 @@ const UploadTopBar = ({
             }
 
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.detail || 'Failed to save to database');
+                const errorData = await response.json().catch(() => ({}));
+                let detailMsg = 'Failed to save to database';
+                if (Array.isArray(errorData.detail)) {
+                    detailMsg = errorData.detail.map(d => `${d.loc ? d.loc.join('.') : 'field'}: ${d.msg}`).join(', ');
+                } else if (typeof errorData.detail === 'string') {
+                    detailMsg = errorData.detail;
+                }
+                throw new Error(detailMsg);
             }
 
             const result = await response.json();
