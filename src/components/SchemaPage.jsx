@@ -1656,7 +1656,8 @@ const SchemaPage = () => {
                 const result = await response.json();
                 const dataWithId = {
                     ...(result.metadata_blob || {}),
-                    datasetid: result.id
+                    id: result.id,
+                    datasetid: result.datasetid || result.id
                 };
                 setFormData(dataWithId);
                 clearSuggestedFilters();
