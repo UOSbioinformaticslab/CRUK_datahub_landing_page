@@ -10,6 +10,8 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviteAsAdmin, setInviteAsAdmin] = useState(false);
     const [notificationEmail, setNotificationEmail] = useState('');
+    const [isSavingNotificationEmail, setIsSavingNotificationEmail] = useState(false);
+    const [notificationEmailFeedback, setNotificationEmailFeedback] = useState(null);
     const [members, setMembers] = useState([]);
     const [pendingInvitations, setPendingInvitations] = useState([]);
     const [enquiries, setEnquiries] = useState([]);
@@ -59,6 +61,7 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
 
     useEffect(() => {
         if (isOpen && activeTeamId) {
+            setNotificationEmailFeedback(null);
             fetchData();
         }
     }, [isOpen, activeTeamId]);
@@ -100,7 +103,19 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
         }
     };
 
-    const handleSaveNotificationEmail = async () => {
+    const handleSaveNotificationEmail = async (e) => {
+        if (e) e.preventDefault();
+        if (!activeTeamId) {
+            const errMsg = 'No active team selected.';
+            setNotificationEmailFeedback({ type: 'error', text: errMsg });
+            showMessage(errMsg, true);
+            return;
+        }
+
+        const trimmedEmail = notificationEmail.trim();
+        setIsSavingNotificationEmail(true);
+        setNotificationEmailFeedback(null);
+
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${API_BASE_URL}/teams/${activeTeamId}/notification_email`, {
@@ -109,12 +124,20 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ notification_email: notificationEmail })
+                body: JSON.stringify({ notification_email: trimmedEmail })
             });
-            if (!res.ok) throw new Error('Failed to update notification email');
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                throw new Error(data.detail || data.message || 'Failed to update notification email');
+            }
+            setNotificationEmail(data.notification_email ?? trimmedEmail);
+            setNotificationEmailFeedback({ type: 'success', text: 'Notification email updated successfully!' });
             showMessage('Notification email updated successfully!');
         } catch (err) {
+            setNotificationEmailFeedback({ type: 'error', text: err.message });
             showMessage(err.message, true);
+        } finally {
+            setIsSavingNotificationEmail(false);
         }
     };
 
@@ -264,16 +287,31 @@ export const ManageTeamModal = ({ isOpen, onClose, activeTeamId, userTeams, mode
                                     <p className="text-sm text-gray-600 mb-3">
                                         Specify an alternative email address for all team notifications (e.g., Data Access Requests).
                                     </p>
-                                    <div className="flex gap-2">
+                                    <form onSubmit={handleSaveNotificationEmail} className="flex gap-2">
                                         <input
                                             type="email"
                                             value={notificationEmail}
-                                            onChange={(e) => setNotificationEmail(e.target.value)}
+                                            onChange={(e) => {
+                                                setNotificationEmail(e.target.value);
+                                                if (notificationEmailFeedback) setNotificationEmailFeedback(null);
+                                            }}
                                             placeholder="e.g. data-team@university.edu"
-                                            className="flex-1 p-2 border border-gray-300 rounded focus:border-[var(--cruk-darkblue)] focus:outline-none"
+                                            disabled={isSavingNotificationEmail}
+                                            className="flex-1 p-2 border border-gray-300 rounded focus:border-[var(--cruk-darkblue)] focus:outline-none disabled:bg-gray-100"
                                         />
-                                        <button onClick={handleSaveNotificationEmail} className="btn py-2 px-4 whitespace-nowrap">Save</button>
-                                    </div>
+                                        <button
+                                            type="submit"
+                                            disabled={isSavingNotificationEmail}
+                                            className="btn py-2 px-4 whitespace-nowrap disabled:opacity-50"
+                                        >
+                                            {isSavingNotificationEmail ? 'Saving...' : 'Save'}
+                                        </button>
+                                    </form>
+                                    {notificationEmailFeedback && (
+                                        <p className={`mt-2 text-sm font-medium ${notificationEmailFeedback.type === 'success' ? 'text-green-700' : 'text-red-700'}`}>
+                                            {notificationEmailFeedback.text}
+                                        </p>
+                                    )}
                                 </div>
 
                                 {/* 2. Existing Members */}
