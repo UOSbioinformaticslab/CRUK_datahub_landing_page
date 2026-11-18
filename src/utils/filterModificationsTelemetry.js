@@ -154,15 +154,20 @@ class FilterTelemetryTracker {
 
         const jsonBody = JSON.stringify(payload);
         const endpoint = `${middleUrl}/filter-modifications/session`;
+        const token = typeof localStorage !== 'undefined' ? localStorage.getItem('token') : null;
+        const headers = { 'Content-Type': 'application/json' };
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
 
         try {
-            if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+            if (!token && typeof navigator !== 'undefined' && navigator.sendBeacon) {
                 const blob = new Blob([jsonBody], { type: 'application/json' });
                 const success = navigator.sendBeacon(endpoint, blob);
                 if (!success) {
                     fetch(endpoint, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers,
                         body: jsonBody,
                         keepalive: true
                     }).catch(() => {});
@@ -170,7 +175,7 @@ class FilterTelemetryTracker {
             } else {
                 fetch(endpoint, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers,
                     body: jsonBody,
                     keepalive: true
                 }).catch(() => {});
