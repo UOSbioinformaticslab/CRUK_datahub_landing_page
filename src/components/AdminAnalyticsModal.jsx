@@ -29,9 +29,11 @@ const AdminAnalyticsModal = ({ isOpen, onClose }) => {
         const queryStr = sinceParam ? `?since=${encodeURIComponent(sinceParam)}` : '';
 
         try {
+            const token = localStorage.getItem('token');
+            const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
             const [rejRes, addRes] = await Promise.all([
-                fetch(`${MIDDLELAYER_URL}/filter-modifications/rejections${queryStr}`),
-                fetch(`${MIDDLELAYER_URL}/filter-modifications/manual-additions${queryStr}`)
+                fetch(`${MIDDLELAYER_URL}/filter-modifications/rejections${queryStr}`, { headers: authHeaders }),
+                fetch(`${MIDDLELAYER_URL}/filter-modifications/manual-additions${queryStr}`, { headers: authHeaders })
             ]);
 
             if (!rejRes.ok || !addRes.ok) {
@@ -87,8 +89,10 @@ const AdminAnalyticsModal = ({ isOpen, onClose }) => {
 
         setIsResetting(true);
         try {
+            const token = localStorage.getItem('token');
             const res = await fetch(`${MIDDLELAYER_URL}/filter-modifications/reset`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             if (!res.ok) throw new Error('Reset failed');
             await fetchData();
