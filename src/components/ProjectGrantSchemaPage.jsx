@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Panel, Group, Separator } from "react-resizable-panels";
 import schema from '../utils/schema.json';
 import projectSchema from '../utils/projectSchema.json';
@@ -6,6 +6,8 @@ import semanticSchema from 'cruk-semantic-schema';
 import JsonUpload from './JsonUpload.jsx';
 import UploadTopBar from './UploadTopBar.jsx';
 import prefixIconMapping from '../utils/prefix_icon_mapping.json';
+
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:8000";
 
 const deepMerge = (target, source) => {
     if (typeof target !== 'object' || target === null) return source || target;
@@ -116,14 +118,13 @@ const parseInline = (text) => {
     });
 };
 
-const WelcomeSection = ({ onUpload }) => (
+const WelcomeSection = ({ onUpload, existingProjects = [], loadingProjects = false, onSelectProject }) => (
     <div className="p-8 pb-4 w-full">
         <h1 className="text-3xl font-extrabold mb-4 text-gray-900">Guide to Uploading and Modifying Information about your CRUK project</h1>
 
         <div className="text-sm text-gray-600 mb-1 leading-relaxed">
             If this is a new project, you will find here some initial information that we have derived from your accepted CRUK grant proposal. Feel free to add details - particularly to the
             section about the project scope.
-
         </div>
 
         <p className="text-sm text-gray-600 mb-3 leading-relaxed">
@@ -131,23 +132,119 @@ const WelcomeSection = ({ onUpload }) => (
         </p>
 
         <div className="mb-6 max-w-lg">
-            <select
-                className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm text-gray-700 cursor-pointer"
-                defaultValue=""
-                onChange={(e) => {
-                    if (e.target.value) {
-                        alert(`You selected: ${e.target.options[e.target.selectedIndex].text}\n(Logic to load this dataset would go here)`);
-                    }
-                }}
-            >
-                <option value="" disabled>-- Select an existing project --</option>
-                <option value="dataset1">Dataset for histopathology reports for prostatic carcinoma</option>
-                <option value="dataset2">The Cancer Imaging Archive</option>
-                <option value="dataset3">Longitudinal breast cancer data</option>
-            </select>
+            {loadingProjects ? (
+                <p className="text-sm text-gray-500">Loading projects...</p>
+            ) : (
+                <select
+                    className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-white text-sm text-gray-700 cursor-pointer"
+                    defaultValue=""
+                    onChange={(e) => onSelectProject && onSelectProject(e.target.value)}
+                >
+                    <option value="" disabled>-- Select an existing project --</option>
+                    {existingProjects.map(proj => (
+                        <option key={proj.id} value={proj.id}>
+                            {proj.title || proj.project_grant_name || `Project ${proj.id}`} {proj.status ? `[${proj.status}]` : ''}
+                        </option>
+                    ))}
+                </select>
+            )}
         </div>
     </div>
 );
+
+// --- Component: Team Dataset Selector ---
+const TeamDatasetSelector = ({ datasets = [], selectedIds = [], onChange, loading }) => {
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() => {
+        if (!search.trim()) return datasets;
+        const q = search.toLowerCase();
+        return datasets.filter(d => (d.title || d.datasetid || '').toLowerCase().includes(q));
+    }, [datasets, search]);
+
+    const handleToggle = (id) => {
+        const set = new Set(selectedIds || []);
+        if (set.has(id)) {
+            set.delete(id);
+        } else {
+            set.add(id);
+        }
+        onChange(Array.from(set));
+    };
+
+    return (
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mt-8">
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-bold text-gray-800">
+                    Linked Datasets
+                </h3>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                    {(selectedIds || []).length} linked
+                </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+                Select one or more datasets owned by your team to link to this project. Listed in alphabetical order.
+            </p>
+
+            {loading ? (
+                <p className="text-sm text-gray-500 py-3">Loading team datasets...</p>
+            ) : datasets.length === 0 ? (
+                <p className="text-sm text-gray-500 py-3 italic">No linkable datasets found for the active team.</p>
+            ) : (
+                <>
+                    <input
+                        type="text"
+                        placeholder="Search datasets by title or ID..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full p-2 mb-3 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-100 rounded p-2 bg-gray-50">
+                        {filtered.length === 0 ? (
+                            <p className="text-xs text-gray-500 p-2">No matching datasets.</p>
+                        ) : (
+                            filtered.map((ds) => {
+                                const isChecked = (selectedIds || []).includes(ds.id);
+                                return (
+                                    <label
+                                        key={ds.id}
+                                        className={`flex items-start gap-3 p-2.5 rounded cursor-pointer transition-colors text-sm ${
+                                            isChecked ? 'bg-blue-50 border border-blue-200' : 'bg-white hover:bg-gray-100 border border-transparent'
+                                        }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={() => handleToggle(ds.id)}
+                                            className="mt-1 h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-gray-800 block">
+                                                    {ds.title || `Dataset ${ds.id}`}
+                                                </span>
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded font-bold uppercase tracking-wider ${
+                                                    ds.active ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'
+                                                }`}>
+                                                    {ds.active ? 'Active' : 'Draft'}
+                                                </span>
+                                            </div>
+                                            {ds.datasetid && (
+                                                <span className="text-xs text-gray-500 font-mono">
+                                                    ID: {ds.datasetid}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </label>
+                                );
+                            })
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
 
 const GuidancePanel = ({ activeGuidance }) => (
     <div className="w-full border-l border-gray-200 p-6 bg-gray-50 h-full overflow-y-auto flex-shrink-0">

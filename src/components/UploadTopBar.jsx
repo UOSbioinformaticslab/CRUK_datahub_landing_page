@@ -260,7 +260,8 @@ const UploadTopBar = ({
             'leadResearchInstitute', 'grantNumber', 'grantNumbers', 'projectGrantStartDate', 
             'projectGrantEndDate', 'projectGrantScope', 'project_grant_name', 'lead_researcher', 
             'lead_research_institute', 'grant_numbers', 'project_grant_start_date', 
-            'project_grant_end_date', 'project_grant_scope', 'team_id', 'user_id', 'status', 'icons'
+            'project_grant_end_date', 'project_grant_scope', 'team_id', 'user_id', 'status', 'icons',
+            'dataset_ids'
         ]);
 
         const flatData = { ...data, ...pg };
@@ -305,7 +306,8 @@ const UploadTopBar = ({
 
             // Only populate metadata_blob if extra unmapped fields exist
             metadata_blob: Object.keys(extraData).length > 0 ? extraData : {},
-            status: markActive ? "ACTIVE" : "DRAFT"
+            status: markActive ? "ACTIVE" : "DRAFT",
+            dataset_ids: Array.isArray(data.dataset_ids) ? data.dataset_ids : []
         };
     };
 
@@ -425,7 +427,8 @@ const UploadTopBar = ({
                     user_id: userId,
                     active: markActive,
                     status: markActive ? "ACTIVE" : "DRAFT",
-                    unpublish: unpublish
+                    unpublish: unpublish,
+                    project_ids: Array.isArray(formData.project_ids) ? formData.project_ids : []
                 };
             }
 

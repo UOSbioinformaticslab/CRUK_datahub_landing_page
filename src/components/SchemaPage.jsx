@@ -1134,6 +1134,93 @@ const StructuralMetadataSection = ({ formData, onFormChange, DATA_SCHEMA, onUpda
     );
 };
 
+// --- Component: Team Project Selector ---
+const TeamProjectSelector = ({ projects = [], selectedIds = [], onChange, loading }) => {
+    const [search, setSearch] = useState('');
+
+    const filtered = useMemo(() => {
+        if (!search.trim()) return projects;
+        const q = search.toLowerCase();
+        return projects.filter(p => (p.title || p.project_grant_name || '').toLowerCase().includes(q));
+    }, [projects, search]);
+
+    const handleToggle = (id) => {
+        const set = new Set(selectedIds || []);
+        if (set.has(id)) {
+            set.delete(id);
+        } else {
+            set.add(id);
+        }
+        onChange(Array.from(set));
+    };
+
+    return (
+        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
+            <div className="flex justify-between items-center mb-2">
+                <h3 className="text-lg font-bold text-gray-800">
+                    Link to Team Projects
+                </h3>
+                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                    {(selectedIds || []).length} linked
+                </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-4">
+                Select one or more projects owned by your team to link with this dataset. Listed in alphabetical order.
+            </p>
+
+            {loading ? (
+                <p className="text-sm text-gray-500 py-3">Loading team projects...</p>
+            ) : projects.length === 0 ? (
+                <p className="text-sm text-gray-500 py-3 italic">No projects found for the active team.</p>
+            ) : (
+                <>
+                    <input
+                        type="text"
+                        placeholder="Search projects by name..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full p-2 mb-3 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    />
+                    <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-100 rounded p-2 bg-gray-50">
+                        {filtered.length === 0 ? (
+                            <p className="text-xs text-gray-500 p-2">No matching projects.</p>
+                        ) : (
+                            filtered.map((proj) => {
+                                const isChecked = (selectedIds || []).includes(proj.id);
+                                return (
+                                    <label
+                                        key={proj.id}
+                                        className={`flex items-start gap-3 p-2.5 rounded cursor-pointer transition-colors text-sm ${
+                                            isChecked ? 'bg-indigo-50 border border-indigo-200' : 'bg-white hover:bg-gray-100 border border-transparent'
+                                        }`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={isChecked}
+                                            onChange={() => handleToggle(proj.id)}
+                                            className="mt-1 h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                            <span className="font-semibold text-gray-800 block">
+                                                {proj.title || proj.project_grant_name || `Project ${proj.id}`}
+                                            </span>
+                                            {proj.pid && (
+                                                <span className="text-xs text-gray-500 font-mono">
+                                                    PID: {proj.pid}
+                                                </span>
+                                            )}
+                                        </div>
+                                    </label>
+                                );
+                            })
+                        )}
+                    </div>
+                </>
+            )}
+        </div>
+    );
+};
+
 // --- Component: Main Form Logic ---
 const SchemaForm = ({
     sectionKey,
@@ -1153,7 +1240,9 @@ const SchemaForm = ({
     onGenerateSuggestions,
     isGeneratingSuggestions,
     suggestionNotice,
-    setSuggestionNotice
+    setSuggestionNotice,
+    teamProjects = [],
+    loadingProjects = false
 }) => {
 
     // 0. Welcome Section
@@ -1350,6 +1439,15 @@ const SchemaForm = ({
             </h1>
             <p className="text-gray-600 mb-8 border-b pb-4">{sectionSchema.description}</p>
 
+            {sectionKey === 'projectGrants' && (
+                <TeamProjectSelector
+                    projects={teamProjects}
+                    selectedIds={formData.project_ids || []}
+                    onChange={(newIds) => onFormChange(['project_ids'], newIds)}
+                    loading={loadingProjects}
+                />
+            )}
+
             {isContainer ? (
                 <div className="space-y-6">
 
@@ -1502,6 +1600,8 @@ const SchemaPage = () => {
     const [datasetError, setDatasetError] = useState('');
     const [datasetStatus, setDatasetStatus] = useState({ active: false, has_draft: false, status: 'DRAFT' });
     const [formData, setFormData] = useState({});
+    const [teamProjects, setTeamProjects] = useState([]);
+    const [loadingProjects, setLoadingProjects] = useState(false);
 
     // Safety Check on Initialization
     if (!DATA_SCHEMA || !DATA_SCHEMA.properties) {
@@ -1568,8 +1668,32 @@ const SchemaPage = () => {
         }
     }, []);
 
+    const fetchTeamProjects = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        const activeTeamId = localStorage.getItem('activeTeamId');
+        if (!token || !activeTeamId) {
+            setTeamProjects([]);
+            return;
+        }
+        setLoadingProjects(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/projects/team/${activeTeamId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTeamProjects(data);
+            }
+        } catch (err) {
+            console.error("❌ Error loading team projects:", err);
+        } finally {
+            setLoadingProjects(false);
+        }
+    }, []);
+
     useEffect(() => {
         fetchDatasets();
+        fetchTeamProjects();
 
         const handleSetSection = (e) => {
             if (e.detail) {
@@ -1577,13 +1701,18 @@ const SchemaPage = () => {
             }
         };
 
-        window.addEventListener('authChange', fetchDatasets);
+        const handleAuthUpdate = () => {
+            fetchDatasets();
+            fetchTeamProjects();
+        };
+
+        window.addEventListener('authChange', handleAuthUpdate);
         window.addEventListener('setSchemaSection', handleSetSection);
         return () => {
-            window.removeEventListener('authChange', fetchDatasets);
+            window.removeEventListener('authChange', handleAuthUpdate);
             window.removeEventListener('setSchemaSection', handleSetSection);
         };
-    }, [fetchDatasets]);
+    }, [fetchDatasets, fetchTeamProjects]);
 
     // --- UPDATED HANDLE DATA CHANGE (DEEP MERGE + LOGGING) ---
     const handleDataChange = useCallback((path, value) => {
@@ -1657,7 +1786,8 @@ const SchemaPage = () => {
                 const dataWithId = {
                     ...(result.metadata_blob || {}),
                     id: result.id,
-                    datasetid: result.datasetid || result.id
+                    datasetid: result.datasetid || result.id,
+                    project_ids: (result.projects || []).map(p => p.id)
                 };
                 setFormData(dataWithId);
                 clearSuggestedFilters();
@@ -2036,6 +2166,8 @@ return (
                                 isGeneratingSuggestions={isGeneratingSuggestions}
                                 suggestionNotice={suggestionNotice}
                                 setSuggestionNotice={setSuggestionNotice}
+                                teamProjects={teamProjects}
+                                loadingProjects={loadingProjects}
                             />
                         </div>
                     </Panel>

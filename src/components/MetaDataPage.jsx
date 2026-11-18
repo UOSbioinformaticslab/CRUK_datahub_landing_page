@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import ReactDOM from 'react-dom/client';
 import { Panel, Group, Separator } from "react-resizable-panels";
-import { getToolUrl } from '../utils/urlUtils';
+import { getToolUrl, getProjectUrl } from '../utils/urlUtils';
 // 1. IMPORT DATA FROM UTILS
 import { filterData, flattenedFilterData } from '../utils/filter-setup.js';
 import {
@@ -33,6 +33,8 @@ export const MetadataPage = () => {
   const [teamId, setTeamId] = useState(null);
   const [teamName, setTeamName] = useState(null);
   const [dbTools, setDbTools] = useState([]);
+  const [dbProjects, setDbProjects] = useState([]);
+  const [dbPublications, setDbPublications] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -65,7 +67,8 @@ export const MetadataPage = () => {
             setTeamId(dbResult.team_id || (dbResult.metadata_blob ? dbResult.metadata_blob.team_id : null));
             setTeamName(dbResult.team_name || null);
             setDbTools(dbResult.tools || []);
-            setError(null);
+            setDbProjects(dbResult.projects || []);
+            setDbPublications(dbResult.publications || []);
             setError(null);
 
         } catch (err) {
@@ -97,11 +100,20 @@ export const MetadataPage = () => {
   }
 
   // Render the main content component, passing the guaranteed data
-  return <MetadataPageContent data={data} teamId={teamId} teamName={teamName} dbTools={dbTools} />;
+  return (
+    <MetadataPageContent
+        data={data}
+        teamId={teamId}
+        teamName={teamName}
+        dbTools={dbTools}
+        dbProjects={dbProjects}
+        dbPublications={dbPublications}
+    />
+  );
 };
 
 // This is the old MetadataPage but now takes the prop data so the main one wraps it
-const MetadataPageContent = ({ data, teamId, teamName, dbTools, onSectionClick }) => {
+const MetadataPageContent = ({ data, teamId, teamName, dbTools = [], dbProjects = [], dbPublications = [], onSectionClick }) => {
 
 
   const isNotEmpty = (obj) => {
@@ -446,6 +458,83 @@ const { derivedFilters, activeIcons } = useMemo(() => {
                         </div>
                     )
                 })}
+        {/* Linked Resources (Projects, Publications, Tools) */}
+        {((dbProjects && dbProjects.length > 0) || (dbPublications && dbPublications.length > 0) || (dbTools && dbTools.length > 0)) && (
+            <div className="mb-8">
+                <h3 className="text-lg font-bold text-gray-800 mb-3 uppercase tracking-wide">Linked Resources</h3>
+
+                {/* Linked Projects */}
+                {dbProjects && dbProjects.length > 0 && (
+                    <div className="mb-4">
+                        <h4 className="font-bold text-gray-500 uppercase tracking-wide mb-1 text-xs">Projects</h4>
+                        <ul className="list-disc pl-4 space-y-1 text-sm text-gray-700 break-words">
+                            {dbProjects.map((proj) => (
+                                <li key={proj.id}>
+                                    <a
+                                        href={getProjectUrl(proj.pid || proj.id)}
+                                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                    >
+                                        {proj.project_grant_name || proj.title || `Project ${proj.id}`}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
+
+                {/* Linked Publications */}
+                {dbPublications && dbPublications.length > 0 && (
+                    <div className="mb-4">
+                        <h4 className="font-bold text-gray-500 uppercase tracking-wide mb-1 text-xs">
+                            Publications {dbPublications.length > 5 && `(${dbPublications.length})`}
+                        </h4>
+                        <div className={dbPublications.length > 5 ? "max-h-52 overflow-y-auto pr-1 border border-gray-100 rounded p-2 bg-gray-50/50 space-y-1" : ""}>
+                            <ul className="list-disc pl-4 space-y-1.5 text-sm text-gray-700 break-words">
+                                {dbPublications.map((pub) => {
+                                    const href = pub.url || (pub.paper_doi ? (pub.paper_doi.startsWith('http') ? pub.paper_doi : `https://doi.org/${pub.paper_doi}`) : null);
+                                    return (
+                                        <li key={pub.id}>
+                                            {href ? (
+                                                <a
+                                                    href={href}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-blue-600 hover:text-blue-800 hover:underline transition-colors inline-flex items-center gap-1"
+                                                >
+                                                    <span>{pub.paper_title}</span>
+                                                    <svg className="w-3.5 h-3.5 flex-shrink-0 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                    </svg>
+                                                </a>
+                                            ) : (
+                                                <span>{pub.paper_title}</span>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                        </div>
+                    </div>
+                )}
+
+                {/* Linked Tools */}
+                {dbTools && dbTools.length > 0 && (
+                    <div className="mb-4">
+                        <h4 className="font-bold text-gray-500 uppercase tracking-wide mb-1 text-xs">Tools</h4>
+                        <ul className="list-disc pl-4 space-y-1 text-sm text-gray-700 break-words">
+                            {dbTools.map((t) => (
+                                <li key={t.id}>
+                                    <a
+                                        href={getToolUrl(t.id)}
+                                        className="text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                                    >
+                                        {t.name || `Tool ${t.id}`}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
         )}
 
