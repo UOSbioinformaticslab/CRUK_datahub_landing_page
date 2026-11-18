@@ -62,9 +62,11 @@ const FilterTelemetryTab = () => {
         const queryStr = sinceParam ? `?since=${encodeURIComponent(sinceParam)}` : '';
 
         try {
+            const token = localStorage.getItem('token');
+            const authHeaders = token ? { 'Authorization': `Bearer ${token}` } : {};
             const [rejRes, addRes] = await Promise.all([
-                fetch(`${MIDDLELAYER_URL}/filter-modifications/rejections${queryStr}`),
-                fetch(`${MIDDLELAYER_URL}/filter-modifications/manual-additions${queryStr}`)
+                fetch(`${MIDDLELAYER_URL}/filter-modifications/rejections${queryStr}`, { headers: authHeaders }),
+                fetch(`${MIDDLELAYER_URL}/filter-modifications/manual-additions${queryStr}`, { headers: authHeaders })
             ]);
 
             if (!rejRes.ok || !addRes.ok) {
@@ -107,8 +109,10 @@ const FilterTelemetryTab = () => {
 
         setIsResetting(true);
         try {
+            const token = localStorage.getItem('token');
             const res = await fetch(`${MIDDLELAYER_URL}/filter-modifications/reset`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             if (!res.ok) throw new Error('Reset failed');
             await fetchData();
@@ -126,8 +130,10 @@ const FilterTelemetryTab = () => {
         }
 
         try {
+            const token = localStorage.getItem('token');
             const res = await fetch(`${MIDDLELAYER_URL}/filter-modifications/reset?filter_id=${encodeURIComponent(filterId)}`, {
-                method: 'DELETE'
+                method: 'DELETE',
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
             if (!res.ok) throw new Error('Failed to reset filter');
             await fetchData();
@@ -153,7 +159,10 @@ const FilterTelemetryTab = () => {
             if (fid) {
                 queryParams.set('filter_id', fid);
             }
-            const res = await fetch(`${MIDDLELAYER_URL}/filter-modifications/dataset-metadata?${queryParams.toString()}`);
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${MIDDLELAYER_URL}/filter-modifications/dataset-metadata?${queryParams.toString()}`, {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
             if (!res.ok) {
                 throw new Error(`Dataset metadata could not be retrieved (HTTP ${res.status})`);
             }
