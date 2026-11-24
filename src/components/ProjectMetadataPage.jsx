@@ -55,15 +55,8 @@ export const ProjectMetadataPage = () => {
 
     const datasets = useMemo(() => {
         if (!project) return [];
-        let dsList = project.datasets ? [...project.datasets] : [];
-        if (datasetId || project.dataset_id) {
-            const idToEnsure = parseInt(datasetId || project.dataset_id, 10);
-            if (!isNaN(idToEnsure) && !dsList.some(d => d.id === idToEnsure)) {
-                dsList.unshift({ id: idToEnsure, title: `Dataset ${idToEnsure}` });
-            }
-        }
-        return dsList;
-    }, [project, datasetId]);
+        return project.datasets || [];
+    }, [project]);
 
     const publications = useMemo(() => (project ? project.publications || [] : []), [project]);
     const tools = useMemo(() => (project ? project.tools || [] : []), [project]);
@@ -144,6 +137,84 @@ export const ProjectMetadataPage = () => {
                                     {project.grant_numbers || project.grant_number || "N/A"}
                                 </p>
                             </div>
+
+                            {/* LINKED RESOURCES (Datasets, Publications, Tools) ABOVE ABSTRACT */}
+                            {((datasets && datasets.length > 0) || (publications && publications.length > 0) || (tools && tools.length > 0)) && (
+                                <div className="md:col-span-2 border-t border-gray-100 pt-6 mt-2 space-y-4">
+                                    {/* Linked Datasets */}
+                                    {datasets && datasets.length > 0 && (
+                                        <div>
+                                            <span className="block text-xs font-bold text-[#00468C] uppercase tracking-wide mb-2">
+                                                Linked Datasets ({datasets.length})
+                                            </span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {datasets.map((ds) => {
+                                                    const title = ds.computed_title || ds.title || `Dataset ${ds.id}`;
+                                                    return (
+                                                        <a
+                                                            key={ds.id}
+                                                            href={getDatasetUrl(ds.id)}
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold bg-blue-50 text-[#00468C] border border-blue-200 hover:bg-blue-100 hover:underline transition-colors"
+                                                        >
+                                                            <span>📁 {title}</span>
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Linked Publications */}
+                                    {publications && publications.length > 0 && (
+                                        <div>
+                                            <span className="block text-xs font-bold text-[#00468C] uppercase tracking-wide mb-2">
+                                                Linked Publications ({publications.length})
+                                            </span>
+                                            <div className={publications.length > 5 ? "max-h-48 overflow-y-auto pr-1 border border-gray-100 rounded p-2 bg-gray-50/50 space-y-1.5" : "flex flex-wrap gap-2"}>
+                                                {publications.map((pub) => {
+                                                    const href = pub.url || (pub.paper_doi ? (pub.paper_doi.startsWith('http') ? pub.paper_doi : `https://doi.org/${pub.paper_doi}`) : null);
+                                                    return (
+                                                        <a
+                                                            key={pub.id}
+                                                            href={href || '#'}
+                                                            target={href ? "_blank" : undefined}
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 hover:underline transition-colors mr-2 mb-1.5"
+                                                        >
+                                                            <span>📄 {pub.paper_title || `Publication ${pub.id}`}</span>
+                                                            {href && (
+                                                                <svg className="w-3.5 h-3.5 flex-shrink-0 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                                </svg>
+                                                            )}
+                                                        </a>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Linked Tools */}
+                                    {tools && tools.length > 0 && (
+                                        <div>
+                                            <span className="block text-xs font-bold text-[#00468C] uppercase tracking-wide mb-2">
+                                                Linked Tools ({tools.length})
+                                            </span>
+                                            <div className="flex flex-wrap gap-2">
+                                                {tools.map((t) => (
+                                                    <a
+                                                        key={t.id}
+                                                        href={getToolUrl(t.id)}
+                                                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-semibold bg-purple-50 text-purple-800 border border-purple-200 hover:bg-purple-100 hover:underline transition-colors"
+                                                    >
+                                                        <span>🛠️ {t.name || `Tool ${t.id}`}</span>
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             <div className="md:col-span-2 border-t border-gray-100 pt-6 mt-2">
                                 <span className="block text-xs font-bold text-[#00468C] uppercase tracking-wide mb-2">
