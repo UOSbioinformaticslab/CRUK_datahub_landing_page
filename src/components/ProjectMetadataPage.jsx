@@ -55,15 +55,8 @@ export const ProjectMetadataPage = () => {
 
     const datasets = useMemo(() => {
         if (!project) return [];
-        let dsList = project.datasets ? [...project.datasets] : [];
-        if (datasetId || project.dataset_id) {
-            const idToEnsure = parseInt(datasetId || project.dataset_id, 10);
-            if (!isNaN(idToEnsure) && !dsList.some(d => d.id === idToEnsure)) {
-                dsList.unshift({ id: idToEnsure, title: `Dataset ${idToEnsure}` });
-            }
-        }
-        return dsList;
-    }, [project, datasetId]);
+        return project.datasets || [];
+    }, [project]);
 
     const publications = useMemo(() => (project ? project.publications || [] : []), [project]);
     const tools = useMemo(() => (project ? project.tools || [] : []), [project]);

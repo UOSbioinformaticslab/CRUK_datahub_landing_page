@@ -325,7 +325,7 @@ const { derivedFilters, activeIcons } = useMemo(() => {
         <h3 className="text-xl font-bold text-blue-900 mb-6 border-b pb-2">Overview</h3>
         <ul className="space-y-3 mb-8">
           {[
-            { id: 'project', label: 'Project', hasData: projectGrants && projectGrants.length > 0 },
+            { id: 'project', label: 'Project', hasData: (dbProjects && dbProjects.length > 0) || (projectGrants && projectGrants.length > 0) },
             { id: 'summary', label: 'Summary', hasData: !!summary.title },
             { id: 'documentation', label: 'Documentation', hasData: !!descriptionText },
             { id: 'structural-metadata', label: 'Structural Metadata', hasData: Object.keys(groupedMetadata).length > 0 },
@@ -398,7 +398,7 @@ const { derivedFilters, activeIcons } = useMemo(() => {
 
       <Panel defaultSize={55} minSize={30}>
         <main className="w-full h-full p-8 overflow-y-auto relative bg-white">
-            <DatasetDetailsContent data={data} isPreview={false} onSectionClick={onSectionClick} dbTools={dbTools} />
+            <DatasetDetailsContent data={data} isPreview={false} onSectionClick={onSectionClick} dbTools={dbTools} dbProjects={dbProjects} />
         </main>
       </Panel>
         <Separator className="w-1 bg-gray-200 hover:bg-blue-400 transition-colors cursor-col-resize active:bg-blue-600" />
@@ -458,6 +458,9 @@ const { derivedFilters, activeIcons } = useMemo(() => {
                         </div>
                     )
                 })}
+            </div>
+        )}
+
         {/* Linked Resources (Projects, Publications, Tools) */}
         {((dbProjects && dbProjects.length > 0) || (dbPublications && dbPublications.length > 0) || (dbTools && dbTools.length > 0)) && (
             <div className="mb-8">
@@ -632,7 +635,7 @@ const { derivedFilters, activeIcons } = useMemo(() => {
   );
 };
 
-export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick, dbTools = [] }) => {
+export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick, dbTools = [], dbProjects = [] }) => {
   const isNotEmpty = (obj) => {
       if (!obj) return false;
       if (Array.isArray(obj)) return obj.length > 0;
@@ -672,6 +675,23 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
   const enrichmentAndLinkage = data.enrichmentAndLinkage || {};
 
   const projectGrants = (data.projectGrants || []).filter(isNotEmpty);
+  const displayProjects = useMemo(() => {
+    if (dbProjects && dbProjects.length > 0) {
+      return dbProjects.map(p => ({
+        id: p.id,
+        pid: p.pid,
+        projectGrantName: p.project_grant_name || p.title || `Project ${p.id}`,
+        leadResearcher: p.lead_researcher || '',
+        leadResearchInstitute: p.lead_research_institute || '',
+        projectGrantStartDate: p.project_grant_start_date ? p.project_grant_start_date.split('T')[0] : '',
+        projectGrantEndDate: p.project_grant_end_date ? p.project_grant_end_date.split('T')[0] : '',
+        grantNumber: p.grant_numbers || '',
+        projectGrantScope: p.project_grant_scope || '',
+        isDbProject: true
+      }));
+    }
+    return projectGrants;
+  }, [dbProjects, projectGrants]);
   const observations = (data.observations || []).filter(isNotEmpty);
   const descriptionText = data.documentation?.description || data.summary?.description || "";
   const documentationPreview = useMemo(() => getFirstTwoSentences(descriptionText), [descriptionText]);
@@ -881,45 +901,61 @@ export const DatasetDetailsContent = ({ data, isPreview = false, onSectionClick,
     )}
 
 {/* Project Grants */}
-        {(isPreview || projectGrants.length > 0) && (
+        {(isPreview || displayProjects.length > 0) && (
           <>
             <SectionHeading id="project" title="CRUK Project" onClick={onSectionClick ? () => onSectionClick('projectGrants') : undefined}>
-                {projectGrants.length > 1 && (
+                {displayProjects.length > 1 && (
                     <button
-                        onClick={() => setCurrentGrantIndex((prev) => (prev + 1) % projectGrants.length)}
+                        onClick={() => setCurrentGrantIndex((prev) => (prev + 1) % displayProjects.length)}
                         className="text-sm bg-blue-50 text-blue-700 hover:bg-blue-100 font-medium py-1 px-3 rounded border border-blue-200 transition-colors"
                     >
-                        Show Next Project ({currentGrantIndex + 1} of {projectGrants.length})
+                        Show Next Project ({currentGrantIndex + 1} of {displayProjects.length})
                     </button>
                 )}
             </SectionHeading>
             <div className="prose max-w-none text-gray-700 mb-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100">
-              {projectGrants.length > 0 ? (
+              {displayProjects.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Project Name</span>
-                      <p className="text-lg font-semibold text-blue-900 m-0">{projectGrants[currentGrantIndex].projectGrantName}</p>
+                      <p className="text-lg font-semibold text-blue-900 m-0">
+                        {displayProjects[currentGrantIndex].projectGrantName}
+                      </p>
+                      {displayProjects[currentGrantIndex].isDbProject && (
+                        <a
+                          href={getProjectUrl(displayProjects[currentGrantIndex].pid || displayProjects[currentGrantIndex].id)}
+                          className="inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-800 hover:underline font-medium mt-1"
+                        >
+                          <span>View Project Metadata Page</span>
+                          <span>→</span>
+                        </a>
+                      )}
                     </div>
                     <div>
                       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Lead Researcher</span>
                       <p className="text-base text-gray-800 m-0">
-                        {projectGrants[currentGrantIndex].leadResearcher} — <span className="italic">{projectGrants[currentGrantIndex].leadResearchInstitute}</span>
+                        {displayProjects[currentGrantIndex].leadResearcher || "Not specified"}
+                        {displayProjects[currentGrantIndex].leadResearchInstitute && (
+                          <> — <span className="italic">{displayProjects[currentGrantIndex].leadResearchInstitute}</span></>
+                        )}
                       </p>
                     </div>
                     <div>
                       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Timeline</span>
                       <p className="text-sm text-gray-700 m-0">
-                        {projectGrants[currentGrantIndex].projectGrantStartDate} to {projectGrants[currentGrantIndex].projectGrantEndDate || "Ongoing"}
+                        {displayProjects[currentGrantIndex].projectGrantStartDate || "Not specified"} to {displayProjects[currentGrantIndex].projectGrantEndDate || "Ongoing"}
                       </p>
                     </div>
                     <div>
                       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Grant Number(s)</span>
-                      <p className="text-sm font-mono text-gray-700 m-0">{projectGrants[currentGrantIndex].grantNumber}</p>
+                      <p className="text-sm font-mono text-gray-700 m-0">
+                        {displayProjects[currentGrantIndex].grantNumber || "N/A"}
+                      </p>
                     </div>
                     <div className="md:col-span-2 border-t border-gray-100 pt-4">
                       <span className="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Project Scope</span>
-                      <p className="text-sm text-gray-700 m-0 leading-relaxed">
-                        {projectGrants[currentGrantIndex].projectGrantScope}
+                      <p className="text-sm text-gray-700 m-0 leading-relaxed whitespace-pre-wrap">
+                        {displayProjects[currentGrantIndex].projectGrantScope || "No scope provided."}
                       </p>
                     </div>
                   </div>

@@ -557,7 +557,8 @@ const FieldRenderer = ({
     level = 0
 }) => {
     const [isMarkdownToggled, setIsMarkdownToggled] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(true);
+    const isTopLevelEnrichment = Array.isArray(path) && path.length === 2 && path[0] === 'enrichmentAndLinkage';
+    const [isExpanded, setIsExpanded] = useState(!isTopLevelEnrichment);
     const textareaRef = useRef(null);
 
     // Helper: Robustly resolve definitions (handles anyOf with Nulls)
@@ -681,18 +682,20 @@ const FieldRenderer = ({
         };
 
         return (
-            <div className="mb-10 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className={`bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all ${isExpanded ? 'mb-8' : 'mb-3'}`}>
                 <button
                     type="button"
                     aria-expanded={isExpanded}
-                    className="w-full mb-4 flex justify-between items-center cursor-pointer select-none bg-transparent border-none p-0 text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded"
+                    className={`w-full flex justify-between items-center cursor-pointer select-none bg-transparent border-none p-0 text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded ${isExpanded ? 'mb-4' : 'mb-0'}`}
                     onClick={() => setIsExpanded(!isExpanded)}
                 >
-                    <div>
-                        <h3 className="text-xl font-bold text-gray-800">{prop.title || propKey}</h3>
-                        {prop.description && <p className="text-base text-gray-600 mt-1">{prop.description}</p>}
+                    <div className="min-w-0 flex-1">
+                        <h3 className="text-lg font-bold text-gray-800">{prop.title || propKey}</h3>
+                        {isExpanded && prop.description && (
+                            <p className="text-sm text-gray-600 mt-1">{prop.description}</p>
+                        )}
                     </div>
-                    <div className="text-gray-500">
+                    <div className="text-gray-500 ml-4 flex-shrink-0">
                         {isExpanded ? (
                             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
                         ) : (
@@ -1135,8 +1138,9 @@ const StructuralMetadataSection = ({ formData, onFormChange, DATA_SCHEMA, onUpda
 };
 
 // --- Component: Team Project Selector ---
-const TeamProjectSelector = ({ projects = [], selectedIds = [], onChange, loading }) => {
+const TeamProjectSelector = ({ projects = [], selectedIds = [], onChange, loading, defaultExpanded = false }) => {
     const [search, setSearch] = useState('');
+    const [isExpanded, setIsExpanded] = useState(defaultExpanded);
 
     const filtered = useMemo(() => {
         if (!search.trim()) return projects;
@@ -1155,67 +1159,91 @@ const TeamProjectSelector = ({ projects = [], selectedIds = [], onChange, loadin
     };
 
     return (
-        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6">
-            <div className="flex justify-between items-center mb-2">
-                <h3 className="text-lg font-bold text-gray-800">
-                    Link to Team Projects
-                </h3>
-                <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {(selectedIds || []).length} linked
-                </span>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-                Select one or more projects owned by your team to link with this dataset. Listed in alphabetical order.
-            </p>
-
-            {loading ? (
-                <p className="text-sm text-gray-500 py-3">Loading team projects...</p>
-            ) : projects.length === 0 ? (
-                <p className="text-sm text-gray-500 py-3 italic">No projects found for the active team.</p>
-            ) : (
-                <>
-                    <input
-                        type="text"
-                        placeholder="Search projects by name..."
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="w-full p-2 mb-3 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                    />
-                    <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-100 rounded p-2 bg-gray-50">
-                        {filtered.length === 0 ? (
-                            <p className="text-xs text-gray-500 p-2">No matching projects.</p>
-                        ) : (
-                            filtered.map((proj) => {
-                                const isChecked = (selectedIds || []).includes(proj.id);
-                                return (
-                                    <label
-                                        key={proj.id}
-                                        className={`flex items-start gap-3 p-2.5 rounded cursor-pointer transition-colors text-sm ${
-                                            isChecked ? 'bg-indigo-50 border border-indigo-200' : 'bg-white hover:bg-gray-100 border border-transparent'
-                                        }`}
-                                    >
-                                        <input
-                                            type="checkbox"
-                                            checked={isChecked}
-                                            onChange={() => handleToggle(proj.id)}
-                                            className="mt-1 h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                                        />
-                                        <div className="min-w-0 flex-1">
-                                            <span className="font-semibold text-gray-800 block">
-                                                {proj.title || proj.project_grant_name || `Project ${proj.id}`}
-                                            </span>
-                                            {proj.pid && (
-                                                <span className="text-xs text-gray-500 font-mono">
-                                                    PID: {proj.pid}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </label>
-                                );
-                            })
+        <div className={`bg-gray-50 p-4 rounded-lg border border-gray-200 transition-all ${isExpanded ? 'mb-8' : 'mb-3'}`}>
+            <button
+                type="button"
+                aria-expanded={isExpanded}
+                className={`w-full flex justify-between items-center cursor-pointer select-none bg-transparent border-none p-0 text-left focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded ${isExpanded ? 'mb-4' : 'mb-0'}`}
+                onClick={() => setIsExpanded(!isExpanded)}
+            >
+                <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2.5">
+                        <h3 className="text-lg font-bold text-gray-800">
+                            Link to Team Projects
+                        </h3>
+                        {(selectedIds || []).length > 0 && (
+                            <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+                                {(selectedIds || []).length} linked
+                            </span>
                         )}
                     </div>
-                </>
+                    {isExpanded && (
+                        <p className="text-sm text-gray-600 mt-1">
+                            Select one or more projects owned by your team to link with this dataset. Listed in alphabetical order.
+                        </p>
+                    )}
+                </div>
+                <div className="text-gray-500 ml-4 flex-shrink-0">
+                    {isExpanded ? (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path></svg>
+                    ) : (
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                    )}
+                </div>
+            </button>
+
+            {isExpanded && (
+                <div className="mt-4">
+                    {loading ? (
+                        <p className="text-sm text-gray-500 py-3">Loading team projects...</p>
+                    ) : projects.length === 0 ? (
+                        <p className="text-sm text-gray-500 py-3 italic">No projects found for the active team.</p>
+                    ) : (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Search projects by name..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="w-full p-2 mb-3 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white"
+                            />
+                            <div className="max-h-60 overflow-y-auto space-y-2 border border-gray-200 rounded p-2 bg-white">
+                                {filtered.length === 0 ? (
+                                    <p className="text-xs text-gray-500 p-2">No matching projects.</p>
+                                ) : (
+                                    filtered.map((proj) => {
+                                        const isChecked = (selectedIds || []).includes(proj.id);
+                                        return (
+                                            <label
+                                                key={proj.id}
+                                                className={`flex items-start gap-3 p-2.5 rounded cursor-pointer transition-colors text-sm ${
+                                                    isChecked ? 'bg-indigo-50 border border-indigo-200' : 'bg-white hover:bg-gray-100 border border-transparent'
+                                                }`}
+                                            >
+                                                <input
+                                                    type="checkbox"
+                                                    checked={isChecked}
+                                                    onChange={() => handleToggle(proj.id)}
+                                                    className="mt-1 h-4 w-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+                                                />
+                                                <div className="min-w-0 flex-1">
+                                                    <span className="font-semibold text-gray-800 block">
+                                                        {proj.title || proj.project_grant_name || `Project ${proj.id}`}
+                                                    </span>
+                                                    {proj.pid && (
+                                                        <span className="text-xs text-gray-500 font-mono">
+                                                            PID: {proj.pid}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </label>
+                                        );
+                                    })
+                                )}
+                            </div>
+                        </>
+                    )}
+                </div>
             )}
         </div>
     );
@@ -1439,7 +1467,7 @@ const SchemaForm = ({
             </h1>
             <p className="text-gray-600 mb-8 border-b pb-4">{sectionSchema.description}</p>
 
-            {sectionKey === 'projectGrants' && (
+            {(sectionKey === 'enrichmentAndLinkage' || sectionKey === 'projectGrants') && (
                 <TeamProjectSelector
                     projects={teamProjects}
                     selectedIds={formData.project_ids || []}
@@ -1697,7 +1725,10 @@ const SchemaPage = () => {
 
         const handleSetSection = (e) => {
             if (e.detail) {
-                setActiveSection(e.detail);
+                const target = (e.detail === 'projectGrants' && !VISIBLE_SECTIONS.includes('projectGrants'))
+                    ? 'enrichmentAndLinkage'
+                    : e.detail;
+                setActiveSection(target);
             }
         };
 

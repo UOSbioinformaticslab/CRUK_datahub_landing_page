@@ -397,7 +397,7 @@ const FieldRenderer = ({ propKey, prop, path, formData, onChange, isRequired, se
     );
 };
 
-const SchemaForm = ({ formData, onFormChange, setActiveGuidance }) => {
+const SchemaForm = ({ formData, onFormChange, setActiveGuidance, teamDatasets = [], loadingDatasets = false }) => {
     const projectDef = DATA_SCHEMA.$defs?.ProjectGrant || DATA_SCHEMA;
     const properties = projectDef.properties || {};
 
@@ -422,6 +422,13 @@ const SchemaForm = ({ formData, onFormChange, setActiveGuidance }) => {
                         />
                 ))}
             </div>
+
+            <TeamDatasetSelector
+                datasets={teamDatasets}
+                selectedIds={formData.dataset_ids || []}
+                onChange={(ids) => onFormChange(['dataset_ids'], ids)}
+                loading={loadingDatasets}
+            />
         </div>
     );
 };
@@ -431,6 +438,107 @@ const SchemaPage = () => {
 
     const [formData, setFormData] = useState({});
     const [activeGuidance, setActiveGuidance] = useState(null);
+    const [existingProjects, setExistingProjects] = useState([]);
+    const [loadingProjects, setLoadingProjects] = useState(false);
+    const [teamDatasets, setTeamDatasets] = useState([]);
+    const [loadingDatasets, setLoadingDatasets] = useState(false);
+
+    const fetchProjects = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        const activeTeamId = localStorage.getItem('activeTeamId');
+        if (!token || !activeTeamId) {
+            setExistingProjects([]);
+            return;
+        }
+        setLoadingProjects(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/projects/team/${activeTeamId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setExistingProjects(data);
+            }
+        } catch (err) {
+            console.error("❌ Error loading team projects:", err);
+        } finally {
+            setLoadingProjects(false);
+        }
+    }, []);
+
+    const fetchDatasets = useCallback(async () => {
+        const token = localStorage.getItem('token');
+        const activeTeamId = localStorage.getItem('activeTeamId');
+        if (!token || !activeTeamId) {
+            setTeamDatasets([]);
+            return;
+        }
+        setLoadingDatasets(true);
+        try {
+            const response = await fetch(`${API_BASE_URL}/datasets/team/${activeTeamId}/linkable`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setTeamDatasets(data);
+            }
+        } catch (err) {
+            console.error("❌ Error loading linkable team datasets:", err);
+        } finally {
+            setLoadingDatasets(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchProjects();
+        fetchDatasets();
+
+        const handleAuthUpdate = () => {
+            fetchProjects();
+            fetchDatasets();
+        };
+
+        window.addEventListener('authChange', handleAuthUpdate);
+        return () => {
+            window.removeEventListener('authChange', handleAuthUpdate);
+        };
+    }, [fetchProjects, fetchDatasets]);
+
+    const handleSelectProject = async (projectId) => {
+        if (!projectId) return;
+        try {
+            const token = localStorage.getItem('token');
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+            const response = await fetch(`${API_BASE_URL}/projects/${projectId}`, { headers });
+            if (response.ok) {
+                const p = await response.json();
+                const meta = (typeof p.metadata_blob === 'object' && p.metadata_blob !== null) ? p.metadata_blob : {};
+                const cleanStartDate = p.project_grant_start_date ? p.project_grant_start_date.split('T')[0] : (p.projectGrantStartDate || '');
+                const cleanEndDate = p.project_grant_end_date ? p.project_grant_end_date.split('T')[0] : (p.projectGrantEndDate || '');
+                const mappedData = {
+                    ...meta,
+                    id: p.id,
+                    pid: p.pid,
+                    projectGrantName: p.project_grant_name || meta.projectGrantName || '',
+                    project_grant_name: p.project_grant_name || meta.projectGrantName || '',
+                    leadResearcher: p.lead_researcher || meta.leadResearcher || '',
+                    lead_researcher: p.lead_researcher || meta.leadResearcher || '',
+                    leadResearchInstitute: p.lead_research_institute || meta.leadResearchInstitute || '',
+                    lead_research_institute: p.lead_research_institute || meta.leadResearchInstitute || '',
+                    grantNumber: p.grant_numbers || meta.grantNumber || '',
+                    grantNumbers: p.grant_numbers || meta.grantNumbers || '',
+                    projectGrantStartDate: cleanStartDate,
+                    projectGrantEndDate: cleanEndDate,
+                    projectGrantScope: p.project_grant_scope || meta.projectGrantScope || '',
+                    status: p.status,
+                    dataset_ids: (p.datasets || []).map(d => d.id)
+                };
+                setFormData(mappedData);
+            }
+        } catch (err) {
+            console.error("Error loading selected project:", err);
+        }
+    };
 
     const handleDataChange = useCallback((path, value) => {
         setFormData(prev => {
@@ -464,16 +572,38 @@ const SchemaPage = () => {
 
     return (
         <div className="flex flex-col min-h-screen font-sans bg-white">
-            <UploadTopBar formData={formData} schema={DATA_SCHEMA} prefixIconMapping={prefixIconMapping} pageType="project" />
-
-
+            <UploadTopBar
+                formData={formData}
+                schema={DATA_SCHEMA}
+                prefixIconMapping={prefixIconMapping}
+                pageType="project"
+                onSaveSuccess={(res) => {
+                    if (res?.id) setFormData(prev => ({ ...prev, id: res.id, pid: res.pid || prev.pid }));
+                    fetchProjects();
+                }}
+                onDeleteSuccess={() => {
+                    setFormData({});
+                    fetchProjects();
+                }}
+            />
 
             <div className="flex-grow overflow-hidden h-[calc(100vh-40px)]">
                 <Group orientation="horizontal">
                     <Panel defaultSize={75} minSize={50}>
                         <div className="h-full flex flex-col overflow-y-auto">
-                            <WelcomeSection onUpload={handleJsonUpload} />
-                            <SchemaForm formData={formData} onFormChange={handleDataChange} setActiveGuidance={setActiveGuidance} />
+                            <WelcomeSection
+                                onUpload={handleJsonUpload}
+                                existingProjects={existingProjects}
+                                loadingProjects={loadingProjects}
+                                onSelectProject={handleSelectProject}
+                            />
+                            <SchemaForm
+                                formData={formData}
+                                onFormChange={handleDataChange}
+                                setActiveGuidance={setActiveGuidance}
+                                teamDatasets={teamDatasets}
+                                loadingDatasets={loadingDatasets}
+                            />
                             <div className="p-8 border-t border-gray-200 bg-gray-50 mt-auto">
                                 <button onClick={downloadJSON} className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded shadow transition-transform active:scale-95">
                                     Download JSON
