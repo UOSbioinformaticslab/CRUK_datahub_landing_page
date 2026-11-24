@@ -24,7 +24,7 @@ export const Header = () => {
     const [manageTeamModalMode, setManageTeamModalMode] = useState('members');
     const [isDataCustodiansModalOpen, setIsDataCustodiansModalOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false);
-    const [isUploadExpanded, setIsUploadExpanded] = useState(false);
+    const [isUploadExpanded, setIsUploadExpanded] = useState(true);
     const [isTourDropdownOpen, setIsTourDropdownOpen] = useState(false);
 
     useEffect(() => {
@@ -38,9 +38,22 @@ export const Header = () => {
             const storedName = localStorage.getItem('userName');
             setUserName(storedName || null);
             const storedTeams = localStorage.getItem('userTeams');
-            setUserTeams(storedTeams ? JSON.parse(storedTeams) : []);
-            const storedActiveTeam = localStorage.getItem('activeTeamId');
+            const parsedTeams = storedTeams ? JSON.parse(storedTeams) : [];
+            setUserTeams(parsedTeams);
+            
+            let storedActiveTeam = localStorage.getItem('activeTeamId');
+            if ((!storedActiveTeam || !parsedTeams.some(t => t.id.toString() === storedActiveTeam.toString())) && parsedTeams.length > 0) {
+                storedActiveTeam = parsedTeams[0].id.toString();
+                localStorage.setItem('activeTeamId', storedActiveTeam);
+                localStorage.setItem('teamId', storedActiveTeam);
+            }
+            
             setActiveTeamId(storedActiveTeam || null);
+            if (storedActiveTeam && parsedTeams.length > 0) {
+                const current = parsedTeams.find(t => t.id.toString() === storedActiveTeam.toString());
+                const isSb = current?.is_sandbox || current?.name?.toLowerCase() === 'sandbox';
+                localStorage.setItem('isSandboxTeam', isSb ? 'true' : 'false');
+            }
             const storedIsAdmin = localStorage.getItem('isAdmin');
             setIsAdmin(storedIsAdmin === 'true');
         };
@@ -72,8 +85,11 @@ export const Header = () => {
 
     const handleTeamChange = (e) => {
         const newTeamId = e.target.value;
+        const selected = userTeams.find(t => t.id.toString() === newTeamId.toString());
+        const isSb = selected?.is_sandbox || selected?.name?.toLowerCase() === 'sandbox';
         setActiveTeamId(newTeamId);
         localStorage.setItem('activeTeamId', newTeamId);
+        localStorage.setItem('isSandboxTeam', isSb ? 'true' : 'false');
         window.location.reload(); // Refresh to update context
     };
 
@@ -174,9 +190,14 @@ export const Header = () => {
                                     onChange={handleTeamChange}
                                     className="p-1 border border-gray-300 rounded text-sm bg-white text-black cursor-pointer shadow-sm focus:outline-none focus:border-[var(--cruk-darkblue)]"
                                 >
-                                    {userTeams.map(team => (
-                                        <option key={team.id} value={team.id}>{team.name}</option>
-                                    ))}
+                                    {userTeams.map(team => {
+                                        const isSandbox = team.is_sandbox || team.name?.toLowerCase() === 'sandbox';
+                                        return (
+                                            <option key={team.id} value={team.id}>
+                                                {team.name} {isSandbox ? '🏖️ (Sandbox)' : ''}
+                                            </option>
+                                        );
+                                    })}
                                 </select>
                             )}
                         </>
@@ -338,82 +359,114 @@ export const Header = () => {
                             </li>
                         </>
                     ) : (
-                        <li 
-                            className="relative"
-                            data-tour="data-custodian-actions"
-                            onBlur={(e) => {
-                                if (!e.currentTarget.contains(e.relatedTarget)) {
-                                    setIsDataDropdownOpen(false);
-                                }
-                            }}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') {
-                                    setIsDataDropdownOpen(false);
-                                }
-                            }}
-                        >
-                            <a 
-                                href="#" 
-                                className="nav-link-main font-bold text-yellow-300 flex items-center"
-                                onClick={(e) => { e.preventDefault(); setIsDataDropdownOpen(!isDataDropdownOpen); }}
+                        <>
+                            <li 
+                                className="relative"
+                                data-tour="data-custodian-actions"
+                                onBlur={(e) => {
+                                    if (!e.currentTarget.contains(e.relatedTarget)) {
+                                        setIsDataDropdownOpen(false);
+                                    }
+                                }}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Escape') {
+                                        setIsDataDropdownOpen(false);
+                                    }
+                                }}
                             >
-                                Data Custodian Actions <span className="ml-1 text-xs">▼</span>
-                            </a>
-                            {isDataDropdownOpen && (() => {
-                                const activeTeam = userTeams.find(t => t.id.toString() === activeTeamId?.toString());
-                                const isTeamAdmin = activeTeam ? activeTeam.is_team_admin : false;
-                                return (
-                                <ul className="absolute left-0 mt-2 w-64 bg-white shadow-xl border border-gray-200 rounded-md py-2 z-50" style={{ display: 'block' }}>
-                                    <li>
-                                        <a href="./team_request.html" className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">Register a new Data Custodian</a>
-                                    </li>
-                                    {activeTeamId && (
-                                        <>
-                                            <li className="border-t border-gray-200 my-1"></li>
-                                            {isTeamAdmin && (
-                                                <>
-                                                    <li><a href="#" onClick={(e) => { e.preventDefault(); setManageTeamModalMode('members'); setIsManageTeamModalOpen(true); setIsDataDropdownOpen(false); }} className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">Manage the Team</a></li>
-                                                    <li><a href="#" onClick={(e) => { e.preventDefault(); setManageTeamModalMode('notifications'); setIsManageTeamModalOpen(true); setIsDataDropdownOpen(false); }} className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">View Notifications</a></li>
-                                                    <li className="border-t border-gray-200 my-1 pt-1"></li>
-                                                </>
-                                            )}
-                                            <li>
-                                                <a href="#" onClick={(e) => { e.preventDefault(); setIsUploadExpanded(!isUploadExpanded); }} className="w-full flex justify-between items-center px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">
-                                                    <span>Upload info</span>
-                                                    <span>{isUploadExpanded ? '▲' : '▼'}</span>
-                                                </a>
-                                                {isUploadExpanded && (
-                                                    <ul className="bg-gray-50 border-y border-gray-200 py-1 !flex !flex-col w-full">
-                                                        <li className="w-full">
-                                                            <a 
-                                                                href={getPageUrl('upload')} 
-                                                                data-tour="upload-dataset-link"
-                                                                className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100"
-                                                            >
-                                                                Upload dataset
-                                                            </a>
-                                                        </li>
-                                                        <li className="w-full"><a href={getPageUrl('upload_project')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload project</a></li>
-                                                        <li className="w-full"><a href={getPageUrl('upload_publications')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a publication</a></li>
-                                                        <li className="w-full"><a href={getPageUrl('upload_tool')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a tool</a></li>
-                                                    </ul>
+                                <a 
+                                    href="#" 
+                                    className="nav-link-main font-bold text-yellow-300 flex items-center"
+                                    onClick={(e) => { e.preventDefault(); setIsDataDropdownOpen(!isDataDropdownOpen); }}
+                                >
+                                    Data Custodian Actions <span className="ml-1 text-xs">▼</span>
+                                </a>
+                                {isDataDropdownOpen && (() => {
+                                    const activeTeam = userTeams.find(t => t.id.toString() === activeTeamId?.toString());
+                                    const isTeamAdmin = activeTeam ? activeTeam.is_team_admin : false;
+                                    const isSandbox = activeTeam?.is_sandbox || activeTeam?.name?.toLowerCase() === 'sandbox';
+                                    return (
+                                    <ul className="absolute left-0 mt-2 w-72 bg-white shadow-xl border border-gray-200 rounded-md py-2 z-50 text-left" style={{ display: 'block' }}>
+                                        {activeTeamId && (
+                                            <>
+                                                <li>
+                                                    <a 
+                                                        href={`./data_custodian.html?team_id=${activeTeamId}`} 
+                                                        className="block px-4 py-2 text-sm font-semibold !text-blue-600 hover:bg-blue-50 flex items-center justify-between"
+                                                    >
+                                                        <span>View Custodian Profile</span>
+                                                        {isSandbox && <span className="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded font-normal">Sandbox</span>}
+                                                    </a>
+                                                </li>
+                                                <li className="border-t border-gray-200 my-1"></li>
+                                                {isTeamAdmin && !isSandbox && (
+                                                    <>
+                                                        <li><a href="#" onClick={(e) => { e.preventDefault(); setManageTeamModalMode('members'); setIsManageTeamModalOpen(true); setIsDataDropdownOpen(false); }} className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">Manage the Team</a></li>
+                                                        <li><a href="#" onClick={(e) => { e.preventDefault(); setManageTeamModalMode('notifications'); setIsManageTeamModalOpen(true); setIsDataDropdownOpen(false); }} className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">View Notifications</a></li>
+                                                        <li className="border-t border-gray-200 my-1 pt-1"></li>
+                                                    </>
                                                 )}
-                                            </li>
-                                        </>
-                                    )}
-                                    <li className="border-t border-gray-200 mt-2 pt-2">
-                                        <a 
-                                            href="#"
-                                            onClick={(e) => { e.preventDefault(); setIsChangePasswordModalOpen(true); setIsDataDropdownOpen(false); }} 
-                                            className="block w-full text-left px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50"
-                                        >
-                                            Change my Password
-                                        </a>
-                                    </li>
-                                </ul>
-                                );
-                            })()}
-                        </li>
+                                                <li>
+                                                    <a href="#" onClick={(e) => { e.preventDefault(); setIsUploadExpanded(!isUploadExpanded); }} className="w-full flex justify-between items-center px-4 py-2 text-sm font-semibold !text-blue-600 hover:bg-blue-50">
+                                                        <span>Data Entry & Uploads</span>
+                                                        <span>{isUploadExpanded ? '▲' : '▼'}</span>
+                                                    </a>
+                                                    {isUploadExpanded && (
+                                                        <ul className="bg-gray-50 border-y border-gray-200 py-1 !flex !flex-col w-full">
+                                                            <li className="w-full">
+                                                                <a 
+                                                                    href={getPageUrl('upload')} 
+                                                                    data-tour="upload-dataset-link"
+                                                                    className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100"
+                                                                >
+                                                                    Upload dataset {isSandbox && <span className="text-xs text-amber-700 font-normal">(Demo)</span>}
+                                                                </a>
+                                                            </li>
+                                                            <li className="w-full"><a href={getPageUrl('upload_project')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload project {isSandbox && <span className="text-xs text-amber-700 font-normal">(Demo)</span>}</a></li>
+                                                            <li className="w-full"><a href={getPageUrl('upload_publications')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a publication</a></li>
+                                                            <li className="w-full"><a href={getPageUrl('upload_tool')} className="block w-full px-8 py-2 text-sm !text-blue-600 hover:bg-blue-100">Upload and link a tool</a></li>
+                                                        </ul>
+                                                    )}
+                                                </li>
+                                                <li className="border-t border-gray-200 my-1"></li>
+                                            </>
+                                        )}
+                                        <li>
+                                            <a 
+                                                href="#" 
+                                                onClick={(e) => { e.preventDefault(); setIsDataCustodiansModalOpen(true); setIsDataDropdownOpen(false); }}
+                                                className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50"
+                                            >
+                                                Browse All Data Custodians
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="./team_request.html" className="block px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50">
+                                                Register a new Data Custodian
+                                            </a>
+                                        </li>
+                                        <li className="border-t border-gray-200 mt-2 pt-2">
+                                            <a 
+                                                href="#"
+                                                onClick={(e) => { e.preventDefault(); setIsChangePasswordModalOpen(true); setIsDataDropdownOpen(false); }} 
+                                                className="block w-full text-left px-4 py-2 text-sm font-medium !text-blue-600 hover:bg-blue-50"
+                                            >
+                                                Change my Password
+                                            </a>
+                                        </li>
+                                    </ul>
+                                    );
+                                })()}
+                            </li>
+                            <li>
+                                <a 
+                                    href="./schema_doc.html" 
+                                    className="nav-link-main font-bold text-yellow-300"
+                                >
+                                    Schema Docs
+                                </a>
+                            </li>
+                        </>
                     )}
                 </ul>
             </nav>

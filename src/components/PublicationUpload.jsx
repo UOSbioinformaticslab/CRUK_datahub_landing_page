@@ -210,6 +210,12 @@ const PublicationUpload = () => {
             return;
         }
 
+        const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+        if (isSandbox) {
+            setFeedback({ message: 'Saving publications is disabled in Sandbox mode.', type: 'error' });
+            return;
+        }
+
         if (selectedTarget === null) {
             setFeedback({ message: 'Please select a dataset or project first.', type: 'error' });
             return;
@@ -368,9 +374,19 @@ const PublicationUpload = () => {
         setElapsedTime(0);
     };
 
+    const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg border border-gray-100 mt-8">
             <h2 className="text-2xl font-extrabold text-gray-900 mb-6 border-b pb-4">Upload Publications</h2>
+
+            {isSandbox && (
+                <div className="mb-6 p-4 bg-amber-50 border-l-4 border-amber-500 rounded text-amber-800 text-sm shadow-sm flex items-center justify-between">
+                    <div>
+                        <span className="font-bold">🏖️ Sandbox Mode Active:</span> You are currently viewing in test-drive mode. Saving publications to the database is disabled.
+                    </div>
+                </div>
+            )}
 
             {!selectedTarget ? (
                 <TargetSelector
@@ -557,10 +573,10 @@ const PublicationUpload = () => {
 
                     <button
                         onClick={handleSubmit}
-                        disabled={isSubmitting || dois.length === 0 || selectedTarget === null}
+                        disabled={isSubmitting || dois.length === 0 || selectedTarget === null || isSandbox}
                         className="w-full py-3 bg-indigo-600 text-white font-bold rounded-md hover:bg-indigo-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed shadow"
                     >
-                        {isSubmitting ? 'Processing DOIs...' : 'Submit Publications'}
+                        {isSandbox ? 'Saving Disabled in Sandbox Mode' : (isSubmitting ? 'Processing DOIs...' : 'Submit Publications')}
                     </button>
 
                     {feedback.message && (

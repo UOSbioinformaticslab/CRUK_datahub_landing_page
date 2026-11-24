@@ -143,6 +143,16 @@ const ChatWidget = () => {
         }
         
         if (!text) setInput('');
+
+        const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+        if (isSandbox) {
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                text: "AI Chat is disabled while viewing in Sandbox mode to conserve AI resources."
+            }]);
+            return;
+        }
+
         setIsLoading(true);
 
         try {
@@ -162,7 +172,10 @@ const ChatWidget = () => {
 
             const response = await fetch(`${aiUrl}/api/ai/chat`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Is-Sandbox': isSandbox ? 'true' : 'false'
+                },
                 body: JSON.stringify(payload)
             });
 

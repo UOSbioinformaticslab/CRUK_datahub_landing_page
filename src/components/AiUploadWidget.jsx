@@ -37,6 +37,13 @@ const AiUploadWidget = ({ formData, onFormChange }) => {
     };
 
     const startProcessing = async (file) => {
+        const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+        if (isSandbox) {
+            setErrorMsg("AI metadata extraction is disabled in Sandbox mode.");
+            setProcessingState('error');
+            return;
+        }
+
         setProcessingState('processing');
         setErrorMsg(null);
 
@@ -49,6 +56,9 @@ const AiUploadWidget = ({ formData, onFormChange }) => {
 
             const response = await fetch(`${MICROSERVICE_URL}/api/extract-metadata`, {
                 method: 'POST',
+                headers: {
+                    'X-Is-Sandbox': isSandbox ? 'true' : 'false'
+                },
                 body: payload
             });
 

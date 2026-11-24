@@ -66,6 +66,15 @@ export const DataCustodian = () => {
                 <div className="w-full md:w-3/4 h-full bg-white overflow-y-auto relative">
                     {/* Header (sticky inside scrollable area) */}
                     <div className="sticky top-0 z-20 bg-white px-8 pt-8 pb-4 mb-8 border-b border-gray-200 shadow-sm">
+                        {(team.is_sandbox || team.name?.toLowerCase() === 'sandbox') && (
+                            <div className="mb-4 bg-amber-50 border border-amber-300 rounded-lg p-3 text-amber-900 text-xs flex items-center gap-2 shadow-sm">
+                                <span className="text-base">🏖️</span>
+                                <div>
+                                    <span className="font-bold block">Sandbox Environment (Read-Only Demo Mode)</span>
+                                    <span>You are viewing the Sandbox custodian space. You can explore data entry forms, but creating or modifying live records and AI assistance are disabled.</span>
+                                </div>
+                            </div>
+                        )}
                         <div className="flex items-center gap-2 mb-2">
                             <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>

@@ -211,6 +211,12 @@ export const ToolUploadPage = () => {
             status: "ACTIVE",
         };
 
+        const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+        if (isSandbox) {
+            setError("Saving tools to the database is disabled in Sandbox mode.");
+            return;
+        }
+
         const endpoint = editingToolId ? `${API_BASE_URL}/tools/${editingToolId}` : `${API_BASE_URL}/tools/`;
         const method = editingToolId ? 'PUT' : 'POST';
 
@@ -286,6 +292,12 @@ export const ToolUploadPage = () => {
     };
 
     const handleAutoDiscover = async () => {
+        const isSandbox = localStorage.getItem('isSandboxTeam') === 'true';
+        if (isSandbox) {
+            setAiError("AI tool discovery is disabled in Sandbox mode.");
+            return;
+        }
+
         if (!selectedAiDatasetId) return;
         setAiError(null);
         setIsAiLoading(true);
@@ -305,8 +317,15 @@ export const ToolUploadPage = () => {
         try {
             const res = await fetch(`${AI_MICROSERVICE_URL}/api/tools/discover`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ dataset_name: datasetName, dataset_abstract: datasetAbstract })
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'X-Is-Sandbox': isSandbox ? 'true' : 'false'
+                },
+                body: JSON.stringify({ 
+                    dataset_name: datasetName, 
+                    dataset_abstract: datasetAbstract,
+                    team_id: activeTeamId ? parseInt(activeTeamId, 10) : null
+                })
             });
             if (!res.ok) throw new Error("Failed to discover tools.");
             const data = await res.json();

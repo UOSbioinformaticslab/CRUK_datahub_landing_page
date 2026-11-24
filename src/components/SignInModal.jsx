@@ -85,16 +85,30 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess, initialMessage = '' }) =
 
             if (data.user.teams && data.user.teams.length > 0) {
                 localStorage.setItem('userTeams', JSON.stringify(data.user.teams));
+                const currentActive = localStorage.getItem('activeTeamId');
+                const matching = data.user.teams.find(t => t.id.toString() === currentActive?.toString());
+                const selectedTeam = matching || data.user.teams[0];
+                const isSb = selectedTeam.is_sandbox || selectedTeam.name?.toLowerCase() === 'sandbox';
+                localStorage.setItem('teamId', selectedTeam.id.toString());
+                localStorage.setItem('activeTeamId', selectedTeam.id.toString());
+                localStorage.setItem('isSandboxTeam', isSb ? 'true' : 'false');
+
                 setUserData(data.user);
                 setStatus('success');
                 setMessage('Successfully logged in!');
                 
-                // Show success briefly, then transition to team selection
-                setTimeout(() => {
-                    setStep('selectTeam');
-                    setStatus('idle');
-                    setMessage('');
-                }, 1000);
+                if (data.user.teams.length === 1) {
+                    setTimeout(() => {
+                        onLoginSuccess(data.user);
+                        resetState();
+                    }, 800);
+                } else {
+                    setTimeout(() => {
+                        setStep('selectTeam');
+                        setStatus('idle');
+                        setMessage('');
+                    }, 800);
+                }
             } else {
                 // No teams available
                 localStorage.removeItem('teamId');
@@ -154,15 +168,28 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess, initialMessage = '' }) =
 
             if (data.user.teams && data.user.teams.length > 0) {
                 localStorage.setItem('userTeams', JSON.stringify(data.user.teams));
+                const defaultTeam = data.user.teams[0];
+                const isSb = defaultTeam.is_sandbox || defaultTeam.name?.toLowerCase() === 'sandbox';
+                localStorage.setItem('teamId', defaultTeam.id.toString());
+                localStorage.setItem('activeTeamId', defaultTeam.id.toString());
+                localStorage.setItem('isSandboxTeam', isSb ? 'true' : 'false');
+
                 setUserData(data.user);
                 setStatus('success');
-                setMessage('Registration successful! You have joined your team.');
+                setMessage('Registration successful! You have joined the Sandbox team.');
                 
-                setTimeout(() => {
-                    setStep('selectTeam');
-                    setStatus('idle');
-                    setMessage('');
-                }, 1000);
+                if (data.user.teams.length === 1) {
+                    setTimeout(() => {
+                        onLoginSuccess(data.user);
+                        resetState();
+                    }, 800);
+                } else {
+                    setTimeout(() => {
+                        setStep('selectTeam');
+                        setStatus('idle');
+                        setMessage('');
+                    }, 800);
+                }
             } else {
                 localStorage.removeItem('teamId');
                 localStorage.removeItem('activeTeamId');
@@ -182,8 +209,11 @@ const SignInModal = ({ isOpen, onClose, onLoginSuccess, initialMessage = '' }) =
     };
 
     const handleTeamSelect = (teamId) => {
-        localStorage.setItem('teamId', teamId);
-        localStorage.setItem('activeTeamId', teamId);
+        const teamObj = userData?.teams?.find(t => t.id.toString() === teamId.toString());
+        const isSb = teamObj?.is_sandbox || teamObj?.name?.toLowerCase() === 'sandbox';
+        localStorage.setItem('teamId', teamId.toString());
+        localStorage.setItem('activeTeamId', teamId.toString());
+        localStorage.setItem('isSandboxTeam', isSb ? 'true' : 'false');
         onLoginSuccess(userData);
         resetState();
     };

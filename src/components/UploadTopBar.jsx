@@ -143,6 +143,22 @@ const UploadTopBar = ({
     const isUpdate = !!existingId;
     const recordTitle = formData.projectGrantName || formData.summary?.title || (existingId ? `${isProject ? 'Project' : 'Dataset'} #${existingId}` : null) || (isProject ? "New Project Record" : "New Dataset Record");
 
+    const isSandbox = useMemo(() => {
+        if (localStorage.getItem('isSandboxTeam') === 'true') return true;
+        const rawTeamId = localStorage.getItem('activeTeamId') || localStorage.getItem('teamId');
+        const storedTeams = localStorage.getItem('userTeams');
+        if (storedTeams) {
+            try {
+                const parsed = JSON.parse(storedTeams);
+                const current = parsed.find(t => t.id.toString() === rawTeamId?.toString());
+                if (current && (current.is_sandbox || current.name?.toLowerCase() === 'sandbox')) {
+                    return true;
+                }
+            } catch (e) {}
+        }
+        return false;
+    }, []);
+
     // --- 2. Action Handlers ---
 
     const handleDownloadProgress = () => {
@@ -360,6 +376,11 @@ const UploadTopBar = ({
 
     const handleSaveToDatabase = async ({ markActive = false, unpublish = false, silent = false } = {}) => {
         try {
+            if (isSandbox) {
+                alert("Saving to the database is disabled in Sandbox mode. Please use 'Export Progress JSON' to save your work locally.");
+                return;
+            }
+
             const token = localStorage.getItem('token');
             if (!token || isTokenExpired(token)) {
                 handleAuthExpired();
@@ -578,6 +599,11 @@ const UploadTopBar = ({
     };
 
     const handleSaveDraftClick = () => {
+        if (isSandbox) {
+            alert("Saving to the database is disabled in Sandbox mode. Please use 'Export Progress JSON' to save your work locally.");
+            return;
+        }
+
         if (isProject) {
             handleSaveToDatabase({ markActive: false });
             return;
@@ -628,6 +654,20 @@ const UploadTopBar = ({
     // --- 3. Render ---
     return (
         <>
+            {isSandbox && (
+                <div className="w-full bg-amber-500 text-slate-950 font-semibold text-xs py-1.5 px-6 flex items-center justify-between shadow-md border-b border-amber-600 z-30">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm">🏖️</span>
+                        <span><strong>Sandbox Mode:</strong> You can enter data and test validation, but saving to the database and AI assistance are disabled.</span>
+                    </div>
+                    <button
+                        onClick={handleDownloadProgress}
+                        className="bg-slate-900 text-amber-200 hover:text-white px-3 py-1 rounded text-[11px] font-bold transition-all shadow-sm active:scale-95"
+                    >
+                        Download JSON Locally
+                    </button>
+                </div>
+            )}
             <div className="w-full h-12 bg-slate-900 border-b border-slate-800 text-white flex items-center px-6 shadow-lg z-20 relative text-xs font-medium backdrop-blur-md">
 
                 {/* Left: Status Badge & Hover Tooltip */}
@@ -658,43 +698,67 @@ const UploadTopBar = ({
 
                 {/* Centre: Main Actions */}
                 <div data-tour="make-active-save-draft" className="flex items-center justify-center space-x-3">
-                    <button
-                        onClick={() => handleSaveToDatabase({ markActive: true })}
-                        className="flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"
-                        title="Publish and make visible on datasets.html and meta.html"
-                    >
-                        <ActiveIcon />
-                        Make active
-                    </button>
+                    {isSandbox ? (
+                        <>
+                            <button
+                                disabled
+                                className="flex items-center bg-slate-800 text-slate-500 border border-slate-700 opacity-60 cursor-not-allowed px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none"
+                                title="Publishing to database is disabled in Sandbox mode"
+                            >
+                                <ActiveIcon />
+                                Make active (Disabled)
+                            </button>
 
-                    <button
-                        onClick={handleSaveDraftClick}
-                        className="flex items-center bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"
-                        title="Save working progress as a draft"
-                    >
-                        <SaveIcon />
-                        Save as draft
-                    </button>
+                            <button
+                                disabled
+                                className="flex items-center bg-slate-800 text-slate-500 border border-slate-700 opacity-60 cursor-not-allowed px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none"
+                                title="Saving drafts to database is disabled in Sandbox mode. Use 'Export Progress JSON' instead."
+                            >
+                                <SaveIcon />
+                                Save as draft (Disabled)
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                onClick={() => handleSaveToDatabase({ markActive: true })}
+                                className="flex items-center bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"
+                                title="Publish and make visible on datasets.html and meta.html"
+                            >
+                                <ActiveIcon />
+                                Make active
+                            </button>
 
-                    {isActive && (
-                        <button
-                            onClick={() => handleSaveToDatabase({ unpublish: true })}
-                            className="flex items-center border border-amber-500/50 text-amber-300 hover:bg-amber-950/40 px-3 py-1.5 rounded-lg font-medium transition-all focus:outline-none"
-                            title="Unpublish dataset from public view"
-                        >
-                            Unpublish
-                        </button>
-                    )}
+                            <button
+                                onClick={handleSaveDraftClick}
+                                className="flex items-center bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg shadow-sm font-semibold transition-all focus:outline-none active:scale-95"
+                                title="Save working progress as a draft"
+                            >
+                                <SaveIcon />
+                                Save as draft
+                            </button>
 
-                    {isUpdate && (
-                        <button
-                            onClick={() => setIsDeleteModalOpen(true)}
-                            className="flex items-center border border-red-500/40 text-red-300 hover:bg-red-950/60 px-3 py-1.5 rounded-lg font-medium transition-all focus:outline-none"
-                            title="Permanently delete this record"
-                        >
-                            <TrashIcon />
-                            Delete
-                        </button>
+                            {isActive && (
+                                <button
+                                    onClick={() => handleSaveToDatabase({ unpublish: true })}
+                                    className="flex items-center border border-amber-500/50 text-amber-300 hover:bg-amber-950/40 px-3 py-1.5 rounded-lg font-medium transition-all focus:outline-none"
+                                    title="Unpublish dataset from public view"
+                                >
+                                    Unpublish
+                                </button>
+                            )}
+
+                            {isUpdate && (
+                                <button
+                                    onClick={() => setIsDeleteModalOpen(true)}
+                                    className="flex items-center border border-red-500/40 text-red-300 hover:bg-red-950/60 px-3 py-1.5 rounded-lg font-medium transition-all focus:outline-none"
+                                    title="Permanently delete this record"
+                                >
+                                    <TrashIcon />
+                                    Delete
+                                </button>
+                            )}
+                        </>
                     )}
                 </div>
 
